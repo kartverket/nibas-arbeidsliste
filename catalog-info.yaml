@@ -1,0 +1,58 @@
+# nonk8s
+apiVersion: "backstage.io/v1alpha1"
+kind: "Component"
+metadata:
+  name: "nibas-arbeidsliste"
+  tags:
+    - "internal"
+spec:
+  type: "service"
+  lifecycle: "production"
+  owner: "smia"
+  system: "nibas"
+  providesApis:
+    - "nibas-arbeidsliste-api"
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "Group"
+metadata:
+  name: "security_champion_nibas-arbeidsliste"
+  title: "Security Champion nibas-arbeidsliste"
+spec:
+  type: "security_champion"
+  parent: "eiendom_security_champions"
+  members:
+    - "etse"
+  children:
+    - "resource:nibas-arbeidsliste"
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "Resource"
+metadata:
+  name: "nibas-arbeidsliste"
+  links:
+    - url: "https://github.com/kartverket/nibas-arbeidsliste"
+      title: "nibas-arbeidsliste på GitHub"
+spec:
+  type: "repo"
+  owner: "security_champion_nibas-arbeidsliste"
+  system: "nibas"
+  dependencyOf:
+    - "component:nibas-arbeidsliste"
+---
+apiVersion: "backstage.io/v1alpha1"
+kind: "API"
+metadata:
+  name: "nibas-arbeidsliste-api"
+  tags:
+    - "internal"
+spec:
+  type: "openapi"
+  lifecycle: "production"
+  owner: "smia"
+  system: "nibas"
+  definition: |
+    openapi: "3.0.0"
+    info:
+        title: nibas-arbeidsliste API
+    paths:
