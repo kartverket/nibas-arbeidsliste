@@ -62,7 +62,7 @@ jobs:
         run: |
           echo "image_url=${{ env.registry }}/${{ github.repository }}:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_OUTPUT
 
-      - name: Build with Gradle
+      - name: Build native image with Gradle
         run: ./gradlew bootBuildImage --imageName ${{ steps.setOutput.outputs.image_url }}
 
       - name: Login to Github Container Registry
@@ -72,6 +72,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Build docker and push
+      - name: Push docker
         run: docker push ${{ steps.setOutput.outputs.image_url }}
 
