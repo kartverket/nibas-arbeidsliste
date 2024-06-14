@@ -1,0 +1,17 @@
+name: Promote test to prod
+on: workflow_dispatch
+
+env:
+  image_name: nibas-arbeidsliste
+  registry: ghcr.io
+  registry_path: kartverket
+
+jobs:
+  deploy-argo:
+    uses: kartverket/smia-apps/.github/workflows/promote-app.yml@main
+    with:
+      application: nibas-arbeidsliste
+      from_env: test
+      to_env: prod
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_ARGOCD }}
