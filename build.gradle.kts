@@ -23,12 +23,16 @@ repositories {
 // Dependency versions
 val SPRINGDOC_OPENAPI_VERSION = "2.5.0"
 val MICROMETER_PROMETHEUS_VERSION = "1.13.1"
+val LOGSTASH_VERSION = "7.4"
+val JANINO_VERSION = "3.1.9"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.codehaus.janino:janino:$JANINO_VERSION")
+    implementation("net.logstash.logback:logstash-logback-encoder:$LOGSTASH_VERSION")
     implementation("io.micrometer:micrometer-registry-prometheus:$MICROMETER_PROMETHEUS_VERSION")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:$SPRINGDOC_OPENAPI_VERSION")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$SPRINGDOC_OPENAPI_VERSION")
