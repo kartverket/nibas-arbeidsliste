@@ -4,14 +4,14 @@ kind: "Component"
 metadata:
   name: "nibas-arbeidsliste"
   tags:
-    - "internal"
+  - "internal"
 spec:
   type: "service"
   lifecycle: "production"
   owner: "smia"
   system: "nibas"
   providesApis:
-    - "nibas-arbeidsliste-api"
+  - "nibas-arbeidsliste-api"
 ---
 apiVersion: "backstage.io/v1alpha1"
 kind: "Group"
@@ -22,35 +22,33 @@ spec:
   type: "security_champion"
   parent: "eiendom_security_champions"
   members:
-    - "etse"
+  - "etse"
   children:
-    - "resource:nibas-arbeidsliste"
+  - "resource:nibas-arbeidsliste"
 ---
 apiVersion: "backstage.io/v1alpha1"
 kind: "Resource"
 metadata:
   name: "nibas-arbeidsliste"
   links:
-    - url: "https://github.com/kartverket/nibas-arbeidsliste"
-      title: "nibas-arbeidsliste på GitHub"
+  - url: "https://github.com/kartverket/nibas-arbeidsliste"
+    title: "nibas-arbeidsliste på GitHub"
 spec:
   type: "repo"
   owner: "security_champion_nibas-arbeidsliste"
-  system: "nibas"
   dependencyOf:
-    - "component:nibas-arbeidsliste"
+  - "component:nibas-arbeidsliste"
 ---
 apiVersion: "backstage.io/v1alpha1"
 kind: "API"
 metadata:
   name: "nibas-arbeidsliste-api"
   tags:
-    - "internal"
+  - "internal"
 spec:
   type: "openapi"
   lifecycle: "production"
   owner: "smia"
-  system: "nibas"
   definition: |
     openapi: "3.0.0"
     info:
