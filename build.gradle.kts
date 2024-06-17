@@ -24,7 +24,6 @@ repositories {
 val SPRINGDOC_OPENAPI_VERSION = "2.5.0"
 val MICROMETER_PROMETHEUS_VERSION = "1.13.1"
 val LOGSTASH_VERSION = "7.4"
-val JANINO_VERSION = "3.1.9"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
