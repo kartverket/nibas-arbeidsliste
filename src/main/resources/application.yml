@@ -1,0 +1,16 @@
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: 'health, prometheus'
+  endpoint:
+    health:
+      enabled: true
+      probes:
+        enabled: true
+      show-details: always
+spring:
+  application:
+    name: 'nibas-arbeidsliste'
