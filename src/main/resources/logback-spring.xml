@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Define appenders -->
+    <appender name="stdout_humanreadable" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{dd-MM-yyyy HH:mm:ss.SSS} %X{requestId} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider"/>
+        </encoder>
+    </appender>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <if condition='property("ENV").equals("local")'>
+                <then>
+                    <!-- Lesbare logs når man kjører lokalt -->
+                    <appender-ref ref="stdout_humanreadable"/>
+                </then>
+                <else>
+                    <!-- JSON logs på SKIP -->
+                    <appender-ref ref="stdout_json"/>
+                </else>
+        </if>
+    </root>
+</configuration>
+
