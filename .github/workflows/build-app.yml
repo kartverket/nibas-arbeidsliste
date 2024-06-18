@@ -1,6 +1,5 @@
 name: Build non-native app
 on:
-  merge_group:
   pull_request:
     branches: [ main ]
 

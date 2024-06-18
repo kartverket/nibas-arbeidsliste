@@ -2,12 +2,6 @@ name: Release app
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-
-env:
-  image_name: nibas-arbeidsliste
-  registry: ghcr.io
-  registry_path: kartverket
 
 jobs:
   build:

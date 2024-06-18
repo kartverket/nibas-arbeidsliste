@@ -1,8 +1,5 @@
 name: Build native app
 on:
-  merge_group:
-  push:
-    branches: [ main ]
   workflow_call:
     outputs:
       version:
