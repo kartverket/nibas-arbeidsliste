@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 env:
-  image_name: nibas-backend
+  image_name: nibas-arbeidsliste
   registry: ghcr.io
   registry_path: kartverket
 
@@ -16,7 +16,7 @@ jobs:
       packages: write
       security-events: write
       actions: read
-    uses: kartverket/nibas-arbeidsliste/.github/workflows/build-app.yml@main
+    uses: kartverket/nibas-arbeidsliste/.github/workflows/build-native-app.yml@main
     with:
       deploy_ghcr: true
     secrets: inherit
