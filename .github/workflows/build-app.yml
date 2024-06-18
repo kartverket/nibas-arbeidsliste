@@ -1,4 +1,4 @@
-name: Build native app
+name: Build non-native app
 on:
   merge_group:
   pull_request:
