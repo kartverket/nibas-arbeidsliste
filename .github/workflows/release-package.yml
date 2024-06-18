@@ -17,8 +17,6 @@ jobs:
       security-events: write
       actions: read
     uses: kartverket/nibas-arbeidsliste/.github/workflows/build-native-app.yml@main
-    with:
-      deploy_ghcr: true
     secrets: inherit
 
   pharos:

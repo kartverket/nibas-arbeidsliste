@@ -3,24 +3,6 @@ on:
   merge_group:
   pull_request:
     branches: [ main ]
-  workflow_call:
-    inputs:
-      deploy_ghcr:
-        description: "Deploy to ghcr?"
-        default: false
-        type: string
-    outputs:
-      version:
-        description: "The version of the docker-image created"
-        value: ${{ jobs.build.outputs.new_tag }}
-      image_url:
-        description: "The full URL to the docker-image created"
-        value: ${{ jobs.build.outputs.image_url }}
-
-env:
-  image_name: nibas-arbeidsliste
-  registry: ghcr.io
-  registry_path: kartverket
 
 jobs:
   build:
@@ -30,10 +12,6 @@ jobs:
       packages: write
       security-events: write
       actions: read
-
-    outputs:
-      new_tag: ${{ steps.tag_version.outputs.new_tag }}
-      image_url: ${{ steps.setOutput.outputs.image_url }}
 
     steps:
       - name: Set local timezone

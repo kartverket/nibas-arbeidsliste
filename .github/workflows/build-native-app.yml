@@ -4,11 +4,6 @@ on:
   push:
     branches: [ main ]
   workflow_call:
-    inputs:
-      deploy_ghcr:
-        description: "Deploy to ghcr?"
-        default: false
-        type: string
     outputs:
       version:
         description: "The version of the docker-image created"
