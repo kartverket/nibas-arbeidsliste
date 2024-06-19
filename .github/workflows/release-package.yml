@@ -2,12 +2,6 @@ name: Release app
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-
-env:
-  image_name: nibas-backend
-  registry: ghcr.io
-  registry_path: kartverket
 
 jobs:
   build:
@@ -16,9 +10,7 @@ jobs:
       packages: write
       security-events: write
       actions: read
-    uses: kartverket/nibas-arbeidsliste/.github/workflows/build-app.yml@main
-    with:
-      deploy_ghcr: true
+    uses: kartverket/nibas-arbeidsliste/.github/workflows/build-native-app.yml@main
     secrets: inherit
 
   pharos:
