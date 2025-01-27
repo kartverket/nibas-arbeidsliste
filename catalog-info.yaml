@@ -8,7 +8,7 @@ metadata:
 spec:
   type: "service"
   lifecycle: "production"
-  owner: "eiendom"
+  owner: "smia"
   providesApis:
   - "nibas-arbeidsliste-api"
 ---
@@ -47,7 +47,7 @@ metadata:
 spec:
   type: "openapi"
   lifecycle: "production"
-  owner: "eiendom"
+  owner: "smia"
   definition: |
     openapi: "3.0.0"
     info:
