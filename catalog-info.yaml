@@ -9,6 +9,7 @@ spec:
   type: "service"
   lifecycle: "production"
   owner: "smia"
+  system: "nibas"
   providesApis:
   - "nibas-arbeidsliste-api"
 ---
@@ -48,6 +49,7 @@ spec:
   type: "openapi"
   lifecycle: "production"
   owner: "smia"
+  system: "nibas"
   definition: |
     openapi: "3.0.0"
     info:
