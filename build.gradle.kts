@@ -1,10 +1,12 @@
 
 plugins {
+    val kotlinVersion = "2.1.0"
+
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
     id("org.graalvm.buildtools.native") version "0.10.2"
-    kotlin("jvm") version "2.1.10"
-    kotlin("plugin.spring") version "2.0.0"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.spring") version kotlinVersion
 }
 
 group = "no.kartverket.nibas"
