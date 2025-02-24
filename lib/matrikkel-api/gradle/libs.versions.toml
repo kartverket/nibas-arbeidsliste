@@ -1,0 +1,11 @@
+
+[versions]
+cxf = "4.1.0"
+
+[libraries]
+cxf-tools-wsdlto-databinding-jaxb = { module = "org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb", version.ref = "cxf" }
+cxf-tools-wsdlto-frontend-jaxws = { module = "org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws", version.ref = "cxf" }
+cxf-sl4j-simple = { module = "org.slf4j:slf4j-simple", version = "1.7.30" }
+jakarta-xml-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version = "4.0.2" }
+jakarta-xml-ws-api = { module = "jakarta.xml.ws:jakarta.xml.ws-api", version = "4.0.2" }
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api", version = "3.0.0" }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxws:bindings
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
+>
+    <jaxws:bindings node="wsdl:definitions[@targetNamespace='http://matrikkel.statkart.no/matrikkelapi/wsapi/v1/service/store']"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    wsdlLocation="../../../build/schema-customized/no/kartverket/nibas/arbeidsliste/matrikkel/api/wsdl/StoreServiceWS.wsdl">
+        <jaxws:package name="service.store"/>
+    </jaxws:bindings>
+    <jaxws:bindings node="wsdl:definitions[@targetNamespace='http://matrikkel.statkart.no/matrikkelapi/wsapi/v1/service/endringslogg']"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    wsdlLocation="../../../build/schema-customized/no/kartverket/nibas/arbeidsliste/matrikkel/api/wsdl/EndringsloggServiceWS.wsdl">
+        <jaxws:package name="service.endringslogg"/>
+    </jaxws:bindings>
+</jaxws:bindings>
