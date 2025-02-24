@@ -1,5 +1,6 @@
 rootProject.name = "nibas-arbeidsliste"
 
 include(
-//    ":server-spring"
+//    ":server-spring",
+    ":lib:matrikkel-changelog"
 )
