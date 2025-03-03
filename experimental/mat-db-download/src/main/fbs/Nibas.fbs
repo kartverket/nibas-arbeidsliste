@@ -1,0 +1,71 @@
+include "MatrikkelDB.fbs";
+
+namespace Nibas;
+
+struct Koordinat {
+    x: int;
+    y: int;
+}
+
+table MatrikkelGrensepunkt {
+    coordinate: Koordinat;
+    grensmerkode_kode: MatrikkelDB.Kode.GrensemerkeKode;
+    grensemerke_nedsatt_i_kode: MatrikkelDB.Kode.GrensemerkeNedsattIKode;
+    maalemetode_kode:MatrikkelDB.Kode.MaalemetodeKode;
+    maalingsnoyaktighet:int;
+    datafangstdato:Nibas.Common.LocalDate;
+    grensepunktnr: string;
+    oppdateringsdato:Nibas.Common.Timestamp;
+}
+
+table MatrikkelGrensepunktEntry {
+    id: long (key);
+    grensepunkt: MatrikkelGrensepunkt (required);
+}
+
+table MatrikkelGrensepunktDB {
+    matrikkelgrensepunkter: [MatrikkelGrensepunktEntry] (required);
+    first_key: long;
+    last_key:long;
+}
+
+table MatrikkelGrense {
+    coordinates: [Koordinat] (required);
+    hjelpelinje_kode:MatrikkelDB.Kode.HjelpelineKode;
+    omtvistet:bool;
+    terrengdetalj_kode:MatrikkelDB.Kode.TerrengdetaljKode;
+    administrativ_grense_kode:MatrikkelDB.Kode.AdministrativGrenseKode;
+    maalemetode_kode:MatrikkelDB.Kode.MaalemetodeKode;
+    maalingsnoyaktighet:int;
+    datafangstdato: Nibas.Common.LocalDate;
+    noyaktighetsklasse:MatrikkelDB.Kode.NoyaktighetsklasseKode;
+    oppdateringsdato:Nibas.Common.Timestamp (required);
+}
+
+
+table MatrikkelGrenseEntry {
+    id: long (key);
+    grense: MatrikkelGrense (required);
+}
+
+table MatrikkelGrenseDB {
+    matrikkelgrenser: [MatrikkelGrenseEntry] (required);
+    first_key: long;
+    last_key:long;
+}
+
+
+table LinearRing {
+    coordinates: [Koordinat];
+}
+
+table Teig {
+    matrikkelnummer: [Nibas.Common.Matrikkelnummer] (required);
+    shell: LinearRing (required);
+    holes: [LinearRing];
+}
+
+table TeigBuffer {
+    teiger: [Teig];
+}
+
