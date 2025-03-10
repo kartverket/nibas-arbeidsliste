@@ -1,8 +1,7 @@
-
 plugins {
     val kotlinVersion = "2.1.10"
 
-    id("org.springframework.boot") version "3.3.0"
+    id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.graalvm.buildtools.native") version "0.10.5"
     kotlin("jvm") version kotlinVersion
@@ -24,8 +23,8 @@ repositories {
 }
 
 // Dependency versions
-val LOGSTASH_VERSION = "8.0"
-val SPRINGDOC_OPENAPI_VERSION = "2.6.0"
+val LOGSTASH_LOGBACK_VERSION = "8.0"
+val SPRINGDOC_OPENAPI_VERSION = "2.8.5"
 val MICROMETER_PROMETHEUS_VERSION = "1.14.4"
 
 dependencies {
@@ -37,7 +36,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("net.logstash.logback:logstash-logback-encoder:$LOGSTASH_VERSION")
+    implementation("net.logstash.logback:logstash-logback-encoder:$LOGSTASH_LOGBACK_VERSION")
     implementation("io.micrometer:micrometer-registry-prometheus:$MICROMETER_PROMETHEUS_VERSION")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:$SPRINGDOC_OPENAPI_VERSION")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$SPRINGDOC_OPENAPI_VERSION")
