@@ -1,0 +1,61 @@
+package no.kartverket.nibas.nibasarbeidsliste.service
+
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
+
+@Service
+class NibasGrenserService(
+    @Value("\${nibas.api.base-url}")
+    private val baseUrl: String
+) {
+
+    private val logger = LoggerFactory.getLogger(NibasGrenserService::class.java)
+    private val webClient = WebClient.builder()
+        .baseUrl(baseUrl)
+        .build()
+
+    /**
+     * Henter grenser fra Nibas API
+     * @param side Sidenummer for paginering
+     * @param antall Antall resultater per side
+     * @return JSON-respons som String
+     */
+    fun hentGrenser(side: Int = 1, antall: Int = 10): Mono<String> {
+        logger.info("Henter grenser fra Nibas API med side={} og antall={}", side, antall)
+
+        return webClient.get()
+            .uri { uriBuilder ->
+                uriBuilder.path("/grenser")
+                    .queryParam("side", side)
+                    .queryParam("antall", antall)
+                    .build()
+            }
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .doOnSuccess { response ->
+                logger.info("Mottok svar fra Nibas API: {}", response)
+            }
+            .doOnError { error ->
+                logger.error("Feil ved henting av grenser fra Nibas API: {}", error.message, error)
+            }
+    }
+
+    /**
+     * Tester henting av grenser og logger resultatet
+     */
+    fun testHentGrenser() {
+        logger.info("Starter test av grenser-endepunkt")
+        hentGrenser(2, 5)
+            .subscribe(
+                { response ->
+                    logger.info("Grenser hentet fra API: {}", response)
+                },
+                { error ->
+                    logger.error("Feil ved henting av grenser: {}", error.message, error)
+                }
+            )
+    }
+}

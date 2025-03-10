@@ -1,0 +1,14 @@
+server:
+  port: 8082
+
+management:
+  server:
+    port: 8083
+
+nibas:
+  api:
+    base-url: http://localhost:8080/v1
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'

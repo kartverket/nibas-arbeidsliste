@@ -1,3 +1,27 @@
+server:
+  port: 8080
+
+nibas:
+  api:
+    base-url: http://localhost:8080/v1
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/arbeidsliste
+    username: arbeidsliste
+    password: arbeidsliste
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # TODO: Kun for testing.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+        format_sql: true
+    show-sql: true
+
 management:
   server:
     port: 8081
@@ -11,6 +35,10 @@ management:
       probes:
         enabled: true
       show-details: always
-spring:
+
   application:
     name: 'nibas-arbeidsliste'
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
