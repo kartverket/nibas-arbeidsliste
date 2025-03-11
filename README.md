@@ -4,25 +4,25 @@ Microtjeneste for håndtering av avvik i grensedata mellom NIBAS og Matrikkelen.
 Hent in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
 ## Mock oppsett
+
 **Autentisering mot NIBAS-backend er ikke implementert ennå, så det er viktig å kjøre NIBAS-backend med "security-off" profilen.**
 
 Mock dataen er grenser i nibas som vi vet har avvik mot Matrikkelen.
 
-
 For å kjøre applikasjonen med mock-data, følg disse stegene:
 
 1. **Sett opp NIBAS API lokalt**:
-   - Klon NIBAS backend fra GitHub: `git clone https://github.com/kartverket/nibas-backend.git`
-   - Bytt til branch: `git checkout TS-1761-nytt-endepunkt`
-   - Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
+    - Klon NIBAS backend fra GitHub: `git clone https://github.com/kartverket/nibas-backend.git`
+    - Bytt til branch: `git checkout TS-1761-nytt-endepunkt`
+    - Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
 
 2. **Konfigurer Arbeidsliste**:
-   - Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
-   - Sørg for at applikasjonen kjører med profilen `localhost,security-off`
+    - Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
+    - Sørg for at applikasjonen kjører med profilen `localhost,security-off`
 
 3. **Mock-data konfigurasjon**:
-   - Mock-data blir hentet fra NIBAS API basert på lokalIDer definert i `DataInitializer.kt`
-   - Du kan endre listen med lokalIDer i `DataInitializer.kt` for å hente andre grenser
+    - Mock-data blir hentet fra NIBAS API basert på lokalIDer definert i `DataInitializer.kt`
+    - Du kan endre listen med lokalIDer i `DataInitializer.kt` for å hente andre grenser
 
 4. **Database konfigurasjon**:
    I `application.yml` kan du konfigurere om databasen skal resettes ved oppstart:
@@ -36,9 +36,11 @@ For å kjøre applikasjonen med mock-data, følg disse stegene:
          # ddl-auto: none
    ```
 
-Ved oppstart vil applikasjonen automatisk hente grensedata fra NIBAS API for de definerte lokalIDene og lagre dem som avvik i databasen. Disse avvikene kan deretter vises via API-endepunktet `GET /api/v1/avvik`.
+Ved oppstart vil applikasjonen automatisk hente grensedata fra NIBAS API for de definerte lokalIDene og lagre dem som avvik i databasen. Disse avvikene kan
+deretter vises via API-endepunktet `GET /api/v1/avvik`.
 
 ## Tech Stack
+
 * Kotlin
 * JDK 21
 * Gradle
@@ -47,17 +49,20 @@ Ved oppstart vil applikasjonen automatisk hente grensedata fra NIBAS API for de 
 * PostgreSQL/PostGIS for geografiske data
 * JPA/Hibernate Spatial
 
-
 # Lokalt Oppsett (på egen maskin)
+
 ## Krever følgende installert:
+
 * Java JDK 21
 * PostgreSQL med PostGIS-utvidelse
 
 ## Database
+
 Applikasjonen bruker PostgreSQL med PostGIS-utvidelse for å håndtere geografiske data.
 Følg disse stegene for å sette opp databasen:
 
 ### Opprett database og aktiver PostGIS
+
 ```bash
 # Logg inn som postgres-bruker
 sudo -u postgres psql
@@ -78,17 +83,20 @@ CREATE EXTENSION postgis;
 ```
 
 ### 4. Verifiser tilkoblingen
+
 ```bash
 # Test tilkoblingen med den nye brukeren
 psql -U arbeidsliste -d arbeidsliste -h localhost
 ```
 
 Databasekonfigurasjonen er definert i `application.yml`. Standardinnstillingene er:
+
 - URL: `jdbc:postgresql://localhost:5432/arbeidsliste`
 - Brukernavn: `arbeidsliste`
 - Passord: `arbeidsliste`
 
 ## Lokal kjøring
+
 For å kunne hente ut data fra NIBAS-backend, må du kjøre NIBAS-backend lokalt med profil `localhost,security-off`.
 Se nibas-backend README for mer detaljer.
 
@@ -116,32 +124,32 @@ For å kjøre applikasjonen fra kommandolinjen:
 
 Applikasjonen vil starte på port 8082 med localhost-profilen, som definert i `application-localhost.yml`.
 
-
 ## API
+
+http://localhost:8082/swagger-ui/index.html#/
+
 * `GET /api/v1/avvik`: Henter alle avvik
 
-
-
-
-
-
-
 ## TODO:
+
 ### Setup tings..
+
 - [ ] Dockerfile
 - [ ] Docker compose (for å kjøre både applikasjonen og NIBAS-backend)
-- [x] .editorconfig (kopier fra nibas)  
+- [x] .editorconfig (kopier fra nibas)
 - [ ] SKIP oppsett
 
 ### Funksjoner
+
 #### Mock-API
+
 - [x] GET-endepunkt med avvik
 - [x] Hent en grense fra NIBAS-backend via lokalID
 - [x] Fylle opp mock-data "avvik" i database
 
+#### Real-API
 
-#### Real-API 
 - [x] Hente grenser fra NIBAS-backend
-- [ ] Hente grenser fra Matrikkel
+- [ ] Hente grenser fra Matrikkelen
 - [ ] Finn avvik i grenser mellom NIBAS og Matrikkelen
 - [ ] Lagre avvik mellom NIBAS-backend og Matrikkelen i database
