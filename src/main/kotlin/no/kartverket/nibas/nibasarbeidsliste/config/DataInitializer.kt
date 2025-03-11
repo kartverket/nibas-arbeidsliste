@@ -31,11 +31,12 @@ class DataInitializer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = ObjectMapper()
-    
+
     // EPSG:25833 is the coordinate system used in Norway
     private val geometryFactory = GeometryFactory(PrecisionModel(), 25833)
 
     // lokalID til grenser i NIBAS som har avvik
+    // Hvis man finner flere grenser med avvik legg til her:
     private val lokalIDs = arrayOf(
         "7bcca8e4-718e-396d-8493-8f374c5d12fd",
         "98304de1-663e-327e-9c73-ed350156e67c",
@@ -101,15 +102,15 @@ class DataInitializer(
     private fun parseGrenseJson(grenseJson: String): Avvik {
         try {
             val jsonNode = objectMapper.readTree(grenseJson)
-            
+
             // Parse date fields
             val gyldigFra = parseLocalDate(jsonNode.path("gyldighet").path("gyldigFra").asText())
-            val gyldigTil = if (jsonNode.path("gyldighet").path("gyldigTil").isNull) null 
-                            else parseLocalDate(jsonNode.path("gyldighet").path("gyldigTil").asText())
-            
+            val gyldigTil = if (jsonNode.path("gyldighet").path("gyldigTil").isNull) null
+            else parseLocalDate(jsonNode.path("gyldighet").path("gyldigTil").asText())
+
             // Parse geometri to JTS LineString for PostGIS
             val lineString = parseGeometri(jsonNode.path("geometri"))
-            
+
             // Create Avvik with all fields from JSON
             return Avvik(
                 grenseId = jsonNode.path("id").asText(null),
@@ -139,25 +140,25 @@ class DataInitializer(
             )
         }
     }
-    
+
     /**
      * Parse GeoJSON geometry to JTS LineString
      */
     private fun parseGeometri(geometriNode: JsonNode): LineString? {
         if (!geometriNode.isObject) return null
-        
+
         try {
             val type = geometriNode.path("type").asText()
             if (type != "LineString") {
                 logger.warn("Geometri er ikke av type LineString, men {}", type)
                 return null
             }
-            
+
             val coordinates = geometriNode.path("coordinates")
             if (!coordinates.isArray) return null
-            
+
             val coords = mutableListOf<Coordinate>()
-            
+
             for (i in 0 until coordinates.size()) {
                 val point = coordinates.get(i)
                 if (point.isArray && point.size() >= 2) {
@@ -166,22 +167,22 @@ class DataInitializer(
                     coords.add(Coordinate(x, y))
                 }
             }
-            
+
             if (coords.isEmpty()) return null
-            
+
             return geometryFactory.createLineString(coords.toTypedArray())
         } catch (e: Exception) {
             logger.error("Feil ved parsing av geometri: {}", e.message, e)
             return null
         }
     }
-    
+
     /**
      * Parse date string to LocalDate
      */
     private fun parseLocalDate(dateStr: String?): LocalDate? {
         if (dateStr.isNullOrBlank()) return null
-        
+
         return try {
             LocalDate.parse(dateStr)
         } catch (e: DateTimeParseException) {
