@@ -3,6 +3,7 @@ package no.kartverket.nibas.nibasarbeidsliste.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,11 +17,54 @@ data class AvvikDTO(
     @JsonProperty("status")
     val status: AvvikStatus = AvvikStatus.NY,
 
-    @JsonProperty("harGrenseJson")
-    val harGrenseJson: Boolean = false,
+    @JsonProperty("harGeometri")
+    val harGeometri: Boolean = false,
 
-    @JsonProperty("grenseJson")
-    val grenseJson: String? = null
+    // Grense fields
+    @JsonProperty("grenseId")
+    val grenseId: String? = null,
+
+    @JsonProperty("lokalId")
+    val lokalId: String? = null,
+
+    @JsonProperty("grensetype")
+    val grensetype: String? = null,
+
+    @JsonProperty("geometri")
+    val geometri: GeoJsonLineString? = null,
+
+    @JsonProperty("gyldigFra")
+    val gyldigFra: LocalDate? = null,
+
+    @JsonProperty("gyldigTil")
+    val gyldigTil: LocalDate? = null,
+
+    @JsonProperty("datafangstdato")
+    val datafangstdato: String? = null,
+
+    @JsonProperty("foerstedigitaliseringsdato")
+    val foerstedigitaliseringsdato: String? = null,
+
+    @JsonProperty("opphav")
+    val opphav: String? = null,
+
+    @JsonProperty("informasjon")
+    val informasjon: String? = null,
+
+    @JsonProperty("endretAv")
+    val endretAv: String? = null,
+
+    @JsonProperty("endretDato")
+    val endretDato: String? = null,
+
+    @JsonProperty("typeEndring")
+    val typeEndring: String? = null,
+
+    @JsonProperty("maalemetode")
+    val maalemetode: String? = null,
+
+    @JsonProperty("noeyaktighet")
+    val noeyaktighet: Int? = null
 )
 
 data class GeoJsonLineString(
