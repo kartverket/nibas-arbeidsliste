@@ -27,6 +27,7 @@ val LOGSTASH_LOGBACK_VERSION = "8.0"
 val SPRINGDOC_OPENAPI_VERSION = "2.8.5"
 val MICROMETER_PROMETHEUS_VERSION = "1.14.4"
 
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
