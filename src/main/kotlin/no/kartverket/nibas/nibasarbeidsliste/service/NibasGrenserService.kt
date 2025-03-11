@@ -44,18 +44,25 @@ class NibasGrenserService(
     }
 
     /**
-     * Tester henting av grenser og logger resultatet
+     * Henter en spesifikk grense fra Nibas API basert på lokalid
+     * @param lokalid Lokalid for grensen som skal hentes
+     * @return JSON-respons som String
      */
-    fun testHentGrenser() {
-        logger.info("Starter test av grenser-endepunkt")
-        hentGrenser(2, 5)
-            .subscribe(
-                { response ->
-                    logger.info("Grenser hentet fra API: {}", response)
-                },
-                { error ->
-                    logger.error("Feil ved henting av grenser: {}", error.message, error)
-                }
-            )
+    fun hentGrenseByLokalId(lokalid: String): Mono<String> {
+        logger.info("Henter grense fra Nibas API med lokalid={}", lokalid)
+
+        return webClient.get()
+            .uri { uriBuilder ->
+                uriBuilder.path("/grenser/{lokalid}")
+                    .build(lokalid)
+            }
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .doOnSuccess { response ->
+                logger.info("Mottok svar fra Nibas API for grense med lokalid={}: {}", lokalid, response)
+            }
+            .doOnError { error ->
+                logger.error("Feil ved henting av grense med lokalid={} fra Nibas API: {}", lokalid, error.message, error)
+            }
     }
 }

@@ -10,23 +10,17 @@ data class AvvikDTO(
     @JsonProperty("id")
     val id: Long? = null,
 
-    @JsonProperty("kommuneNavn")
-    val kommuneNavn: String?,
-
-    @JsonProperty("grense")
-    val grense: GeoJsonLineString,
-
-    @JsonProperty("avvikPunkter")
-    val avvikPunkter: List<GeoJsonPoint>,
-
     @JsonProperty("registrertDato")
     val registrertDato: LocalDateTime? = null,
 
     @JsonProperty("status")
     val status: AvvikStatus = AvvikStatus.NY,
 
-    @JsonProperty("grenseType")
-    val grenseType: String
+    @JsonProperty("harGrenseJson")
+    val harGrenseJson: Boolean = false,
+
+    @JsonProperty("grenseJson")
+    val grenseJson: String? = null
 )
 
 data class GeoJsonLineString(

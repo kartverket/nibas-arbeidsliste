@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 
 @Entity
@@ -23,18 +24,10 @@ data class Avvik(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @Column(nullable = true)
-    val kommuneNavn: String? = null,
-
-    // En grense i NIBAS slik den så ut i det avviket ble registrert
-    @Column(columnDefinition = "geometry(LINESTRING, 25833)")
-    val grense: LineString,
-
-    // Liste med punkter som har avvik
-    @ElementCollection
-    @CollectionTable(name = "avvik_punkter", joinColumns = [JoinColumn(name = "avvik_id")])
-    @Column(columnDefinition = "geometry(POINT, 25833)")
-    val avvikPunkter: List<Point>,
+    // JSON-respons fra NIBAS API for grensen
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    val grenseJson: String? = null,
 
     @Column(nullable = false)
     val registrertDato: LocalDateTime = LocalDateTime.now(),
@@ -43,17 +36,11 @@ data class Avvik(
     @Column(nullable = false)
     val status: AvvikStatus = AvvikStatus.NY,
 
-    // Kommunegrense, fylkesgrense, riksgrense, eller territoialgrense
-    @Column(nullable = false)
-    val grenseType: String
 ) {
     protected constructor() : this(
         id = 0L,
-        kommuneNavn = null,
-        grense = GeometryFactory().createLineString(emptyArray()),
-        avvikPunkter = emptyList(),
+        grenseJson = null,
         registrertDato = LocalDateTime.now(),
-        status = AvvikStatus.NY,
-        grenseType = "UKJENT"
+        status = AvvikStatus.NY
     )
 }

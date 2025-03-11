@@ -4,13 +4,14 @@ import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 @RestController
-@RequestMapping("/api/grenser")
+@RequestMapping("/api/v1/grenser")
 class GrenserController(private val nibasGrenserService: NibasGrenserService) {
     private val logger = LoggerFactory.getLogger(GrenserController::class.java)
 
@@ -23,10 +24,9 @@ class GrenserController(private val nibasGrenserService: NibasGrenserService) {
         return nibasGrenserService.hentGrenser(side, antall)
     }
 
-    @GetMapping("/test", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun testGrenser(): String {
-        logger.info("Starter test av grenser-endepunkt")
-        nibasGrenserService.testHentGrenser()
-        return "Test av grenser-endepunkt startet. Sjekk loggene for resultatet."
+    @GetMapping("/{lokalid}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentGrenseByLokalId(@PathVariable lokalid: String): Mono<String> {
+        logger.info("Mottok forespørsel om å hente grense med lokalid={}", lokalid)
+        return nibasGrenserService.hentGrenseByLokalId(lokalid)
     }
 }

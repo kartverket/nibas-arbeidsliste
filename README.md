@@ -53,7 +53,7 @@ For å kjøre applikasjonen lokalt i IntelliJ:
    Sett "Name" til "ENV" og "Value" til "local".
 4. Sett java-version som temurin21, og modul lik nibas-arbeidsliste.main. 
    Sett class lik: "no.kartverket.nibas.nibasarbeidsliste.NibasArbeidslisteApplication"
-5. Legg til programargumenter: `--spring.profiles.active=localhost,security-off`
+5. Legg til under "Active Profile": `localhost,security-off`
 6. Trykk "Apply" og deretter "Ok"
 
 ### Kommandolinje
