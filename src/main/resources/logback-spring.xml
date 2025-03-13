@@ -4,7 +4,7 @@
     <appender name="local" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %d{dd-MM-yyyy HH:mm:ss.SSS} %X{requestId} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss} %X{requestId} %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -14,9 +14,21 @@
         </encoder>
     </appender>
 
-    <!-- Root logger -->
-    <root level="INFO">
-        <appender-ref ref="${ENV:-cloud}"/>
-    </root>
+    <!-- Profile-specific configuration -->
+    <springProfile name="localhost">
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="no.kartverket.nibas" level="INFO"/>
+        <root level="INFO">
+            <appender-ref ref="local"/>
+        </root>
+    </springProfile>
+
+    <!-- Default configuration for other profiles -->
+    <springProfile name="!localhost">
+        <root level="INFO">
+            <appender-ref ref="${ENV:-cloud}"/>
+        </root>
+    </springProfile>
 </configuration>
 
