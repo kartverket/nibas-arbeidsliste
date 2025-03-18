@@ -214,6 +214,7 @@ class DataInitializer(
         )
     }
 
+    // Grense fra nibas
     data class Grense(
         val grenseId: String? = null,
         val lokalId: String? = null,
