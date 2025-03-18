@@ -25,6 +25,7 @@ data class Avvik(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    // Dato avvik ble registrert
     @Column(nullable = false)
     val registrertDato: LocalDateTime = LocalDateTime.now(),
 
@@ -32,7 +33,32 @@ data class Avvik(
     @Column(nullable = false)
     val status: AvvikStatus = AvvikStatus.NY,
 
+    // from avvik json
+    // Totalt antall koordinater
+    @Column(name = "antall_koordinater")
+    val antallKoordinater: Int? = null,
+
+    // Antall koordinater med avvik
+    @Column(name = "antall_koordinater_med_avvik")
+    val antallKoordinaterMedAvvik: Int? = null,
+
+    // List med koordinater som har avvik
+    @ElementCollection
+    @CollectionTable(
+        name = "mismatched_coordinates",
+        joinColumns = [JoinColumn(name = "avvik_id")]
+    )
+    @Column(columnDefinition = "geometry(Point, 25833)")
+    val mismatchedCoordinates: List<Point>? = null,
+
+    // tolerance
+    @Column(nullable = false)
+    val tolerance: Int? = null,
+
+
     // Felter fra NIBAS grense
+    // Disse trengs kanksje ikke i arbeidslisten apiet?
+    // Kan hente dem rett fra nibas-backend hvis det trengs?
     @Column(name = "grense_id")
     val grenseId: String? = null,
 
@@ -78,8 +104,8 @@ data class Avvik(
     @Column(name = "noeyaktighet")
     val noeyaktighet: Int? = null,
 
-) {
-    protected constructor() : this(
+    ) {
+    private constructor() : this(
         id = 0L,
         grenseId = null,
         lokalId = null,

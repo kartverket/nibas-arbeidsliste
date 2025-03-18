@@ -2,9 +2,13 @@ package no.kartverket.nibas.nibasarbeidsliste.service
 
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
+import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,42 +18,45 @@ class AvvikService(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun hentAlleAvvik(): List<AvvikDTO> {
-        logger.info("Henter alle avvik")
-        return avvikRepository.findAll().map { it.tilDTO() }
+    fun hentAlleAvvik(pageable: Pageable): Page<AvvikDTO> {
+        logger.info("Henter avvik for side {} med antall {}", pageable.pageNumber, pageable.pageSize)
+        return avvikRepository.findAll(pageable).map { convertToDTO(it) }
     }
 
-    private fun Avvik.tilDTO(): AvvikDTO {
-        // Convert JTS LineString to GeoJsonLineString
-        val geoJsonGeometri = if (geometri != null) {
+    private fun convertToDTO(avvik: Avvik): AvvikDTO {
+        val geoJsonGeometri = if (avvik.geometri != null) {
             val coordinates = mutableListOf<List<Double>>()
-            for (i in 0 until geometri.numPoints) {
-                val point = geometri.getPointN(i)
+            for (i in 0 until avvik.geometri.numPoints) {
+                val point = avvik.geometri.getPointN(i)
                 coordinates.add(listOf(point.x, point.y))
             }
             GeoJsonLineString(coordinates = coordinates)
         } else null
 
         return AvvikDTO(
-            id = id,
-            registrertDato = registrertDato,
-            status = status,
-            harGeometri = geometri != null,
-            grenseId = grenseId,
-            lokalId = lokalId,
-            grensetype = grensetype,
+            id = avvik.id,
+            registrertDato = avvik.registrertDato,
+            status = avvik.status,
+            harGeometri = avvik.geometri != null,
+            grenseId = avvik.grenseId,
+            lokalId = avvik.lokalId,
+            grensetype = avvik.grensetype,
             geometri = geoJsonGeometri,
-            gyldigFra = gyldigFra,
-            gyldigTil = gyldigTil,
-            datafangstdato = datafangstdato,
-            foerstedigitaliseringsdato = foerstedigitaliseringsdato,
-            opphav = opphav,
-            informasjon = informasjon,
-            endretAv = endretAv,
-            endretDato = endretDato,
-            typeEndring = typeEndring,
-            maalemetode = maalemetode,
-            noeyaktighet = noeyaktighet
+            gyldigFra = avvik.gyldigFra,
+            gyldigTil = avvik.gyldigTil,
+            datafangstdato = avvik.datafangstdato,
+            foerstedigitaliseringsdato = avvik.foerstedigitaliseringsdato,
+            opphav = avvik.opphav,
+            informasjon = avvik.informasjon,
+            endretAv = avvik.endretAv,
+            endretDato = avvik.endretDato,
+            typeEndring = avvik.typeEndring,
+            maalemetode = avvik.maalemetode,
+            noeyaktighet = avvik.noeyaktighet,
+            antallKoordinater = avvik.antallKoordinater,
+            antallKoordinaterMedAvvik = avvik.antallKoordinaterMedAvvik,
+            tolerance = avvik.tolerance,
+            mismatchedCoordinates = avvik.mismatchedCoordinates?.map { GeoJsonPoint(coordinates = listOf(it.x, it.y)) },
         )
     }
 }
