@@ -1,6 +1,5 @@
 package no.kartverket.nibas.nibasarbeidsliste.model
 
-import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.Point
 import java.time.LocalDate
@@ -15,7 +14,6 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
-import jakarta.persistence.Lob
 import jakarta.persistence.Table
 
 @Entity
@@ -33,7 +31,8 @@ data class Avvik(
     @Column(nullable = false)
     val status: AvvikStatus = AvvikStatus.NY,
 
-    // from avvik json
+    // Ting som blir hentet far avvik json
+
     // Totalt antall koordinater
     @Column(name = "antall_koordinater")
     val antallKoordinater: Int? = null,
@@ -42,14 +41,14 @@ data class Avvik(
     @Column(name = "antall_koordinater_med_avvik")
     val antallKoordinaterMedAvvik: Int? = null,
 
-    // List med koordinater som har avvik
+    // Liste med koordinater som har avvik
     @ElementCollection
     @CollectionTable(
-        name = "mismatched_coordinates",
+        name = "koordinater_med_avvik",
         joinColumns = [JoinColumn(name = "avvik_id")]
     )
     @Column(columnDefinition = "geometry(Point, 25833)")
-    val mismatchedCoordinates: List<Point>? = null,
+    val koordinaterMedAvvik: List<Point>? = null,
 
     // tolerance
     @Column(nullable = false)

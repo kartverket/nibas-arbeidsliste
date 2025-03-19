@@ -72,8 +72,8 @@ data class AvvikDTO(
     @JsonProperty("antallKoordinaterMedAvvik")
     val antallKoordinaterMedAvvik: Int?,
 
-    @JsonProperty("mismatchedCoordinates")
-    val mismatchedCoordinates: List<GeoJsonPoint>?,
+    @JsonProperty("koordinaterMedAvvik")
+    val koordinaterMedAvvik: List<GeoJsonPoint>?,
 
     @JsonProperty("tolerance")
     val tolerance: Int?,

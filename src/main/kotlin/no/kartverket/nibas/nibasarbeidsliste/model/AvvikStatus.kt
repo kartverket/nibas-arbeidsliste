@@ -1,5 +1,6 @@
 package no.kartverket.nibas.nibasarbeidsliste.model
 
+// Forslag til forskjellige status for avvik
 enum class AvvikStatus {
     // Nytt avvik registrert
     NY,

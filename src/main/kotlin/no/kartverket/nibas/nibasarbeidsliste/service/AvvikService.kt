@@ -7,7 +7,6 @@ import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -56,7 +55,7 @@ class AvvikService(
             antallKoordinater = avvik.antallKoordinater,
             antallKoordinaterMedAvvik = avvik.antallKoordinaterMedAvvik,
             tolerance = avvik.tolerance,
-            mismatchedCoordinates = avvik.mismatchedCoordinates?.map { GeoJsonPoint(coordinates = listOf(it.x, it.y)) },
+            koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { GeoJsonPoint(coordinates = listOf(it.x, it.y)) },
         )
     }
 }

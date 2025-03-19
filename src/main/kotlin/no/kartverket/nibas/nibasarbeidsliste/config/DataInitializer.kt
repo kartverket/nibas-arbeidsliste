@@ -207,7 +207,7 @@ class DataInitializer(
             // Fra json med avvik
             antallKoordinater = mockData?.totalCoordinates,
             antallKoordinaterMedAvvik = mockData?.mismatches,
-            mismatchedCoordinates = mockData?.mismatchedCoordinates?.map {
+            koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map {
                 geometryFactory.createPoint(Coordinate(it.x, it.y))
             },
             tolerance = mockData?.tolerance
