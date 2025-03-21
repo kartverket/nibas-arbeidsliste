@@ -73,7 +73,7 @@ data class AvvikDTO(
     val antallKoordinaterMedAvvik: Int?,
 
     @JsonProperty("koordinaterMedAvvik")
-    val koordinaterMedAvvik: List<GeoJsonPoint>?,
+    val koordinaterMedAvvik: List<KoordinaterMedAvvikDTO>?,
 
     @JsonProperty("tolerance")
     val tolerance: Int?,
@@ -94,4 +94,12 @@ data class GeoJsonPoint(
 
     @JsonProperty("coordinates")
     val coordinates: List<Double>
+)
+
+data class KoordinaterMedAvvikDTO(
+    @JsonProperty("nibasKoordinat")
+    val nibasKoordinat: GeoJsonPoint,
+
+    @JsonProperty("matrikkelKoordinat")
+    val matrikkelKoordinat: GeoJsonPoint
 )

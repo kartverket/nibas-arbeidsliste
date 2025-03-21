@@ -2,10 +2,12 @@ package no.kartverket.nibas.nibasarbeidsliste.config
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
+import no.kartverket.nibas.nibasarbeidsliste.model.KoordinaterMedAvvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
 import org.locationtech.jts.geom.Coordinate
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
-import java.io.File
+import java.io.InputStream
 
 /**
  * Komponent som initialiserer data med avvik ved oppstart av applikasjonen
@@ -175,10 +177,22 @@ class DataInitializer(
     }
 
     private fun readMockData(): Map<String, AvvikJson> {
-        val jsonFile = File("borders_with_avvik.json")
-        val mapper = ObjectMapper().registerKotlinModule()
-        val avvikList: List<AvvikJson> = mapper.readValue(jsonFile)
-        return avvikList.associateBy { it.lokalid }
+        logger.info("Leser data fra json fil...")
+        try {
+            val fileName = "borders_with_avvik_latest.json"
+            val resourceStream: InputStream = javaClass.classLoader.getResourceAsStream(fileName)
+                ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
+
+            val mapper = ObjectMapper().registerKotlinModule()
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+            val avvikList: List<AvvikJson> = mapper.readValue(resourceStream)
+            logger.info("Lest in {} avvik  fra fil", avvikList.size)
+            return avvikList.associateBy { it.lokalid }
+        } catch (e: Exception) {
+            logger.error("Error reading mock data: {}", e.message, e)
+            throw e
+        }
     }
 
     private fun createAvvik(grense: Grense, mockData: AvvikJson?): Avvik {
@@ -200,17 +214,18 @@ class DataInitializer(
             maalemetode = grense.maalemetode,
             noeyaktighet = grense.noeyaktighet,
 
-            // Default-verdier
-            registrertDato = LocalDateTime.now(),
-            status = AvvikStatus.NY,
-
-            // Fra json med avvik
+            // Fra mock data
             antallKoordinater = mockData?.totalCoordinates,
             antallKoordinaterMedAvvik = mockData?.mismatches,
-            koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map {
-                geometryFactory.createPoint(Coordinate(it.x, it.y))
+            koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map { coord ->
+                KoordinaterMedAvvik(
+                    koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.x, coord.y)),
+                    koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.closestMatrikkelX, coord.closestMatrikkelY))
+                )
             },
-            tolerance = mockData?.tolerance
+            tolerance = mockData?.tolerance,
+            registrertDato = LocalDateTime.now(),
+            status = AvvikStatus.NY
         )
     }
 
@@ -234,12 +249,20 @@ class DataInitializer(
     )
 
     data class AvvikJson(
+        val id: Long = 0,
         val lokalid: String,
         val grensetype: String,
         val mismatches: Int,
         val totalCoordinates: Int,
         val mismatchPercentage: Double,
         val tolerance: Int,
-        val mismatchedCoordinates: List<Coordinate>
+        val mismatchedCoordinates: List<MismatchedCoordinate>
+    )
+
+    data class MismatchedCoordinate(
+        val x: Double,
+        val y: Double,
+        val closestMatrikkelX: Double,
+        val closestMatrikkelY: Double
     )
 }

@@ -3,6 +3,7 @@ package no.kartverket.nibas.nibasarbeidsliste.service
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
+import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
@@ -55,7 +56,12 @@ class AvvikService(
             antallKoordinater = avvik.antallKoordinater,
             antallKoordinaterMedAvvik = avvik.antallKoordinaterMedAvvik,
             tolerance = avvik.tolerance,
-            koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { GeoJsonPoint(coordinates = listOf(it.x, it.y)) },
+            koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { koordinat ->
+                KoordinaterMedAvvikDTO(
+                    nibasKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraNibas?.x ?: 0.0, koordinat.koordinatFraNibas?.y ?: 0.0)),
+                    matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y ?: 0.0))
+                )
+            },
         )
     }
 }

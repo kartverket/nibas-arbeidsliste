@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
+import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -15,6 +16,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
+
 
 @Entity
 @Table(name = "avvik")
@@ -31,6 +33,7 @@ data class Avvik(
     @Column(nullable = false)
     val status: AvvikStatus = AvvikStatus.NY,
 
+    //-------- Felter fra avvik json ----------
     // Ting som blir hentet far avvik json
 
     // Totalt antall koordinater
@@ -47,15 +50,14 @@ data class Avvik(
         name = "koordinater_med_avvik",
         joinColumns = [JoinColumn(name = "avvik_id")]
     )
-    @Column(columnDefinition = "geometry(Point, 25833)")
-    val koordinaterMedAvvik: List<Point>? = null,
+    val koordinaterMedAvvik: List<KoordinaterMedAvvik>? = null,
 
     // tolerance
     @Column(nullable = false)
     val tolerance: Int? = null,
 
 
-    // Felter fra NIBAS grense
+    //-------- Felter fra NIBAS grense ----------
     // Disse trengs kanksje ikke i arbeidslisten apiet?
     // Kan hente dem rett fra nibas-backend hvis det trengs?
     @Column(name = "grense_id")
@@ -123,5 +125,19 @@ data class Avvik(
         noeyaktighet = null,
         registrertDato = LocalDateTime.now(),
         status = AvvikStatus.NY
+    )
+}
+
+@Embeddable
+data class KoordinaterMedAvvik(
+    @Column(name = "koordinat_fra_nibas", columnDefinition = "geometry(Point, 25833)")
+    val koordinatFraNibas: Point?,
+
+    @Column(name = "koordinat_fra_matrikkelen", columnDefinition = "geometry(Point, 25833)")
+    val koordinatFraMatrikkelen: Point?
+) {
+    private constructor() : this(
+        koordinatFraNibas = null,
+        koordinatFraMatrikkelen = null
     )
 }
