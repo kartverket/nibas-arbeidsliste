@@ -101,5 +101,8 @@ data class KoordinaterMedAvvikDTO(
     val nibasKoordinat: GeoJsonPoint,
 
     @JsonProperty("matrikkelKoordinat")
-    val matrikkelKoordinat: GeoJsonPoint
+    val matrikkelKoordinat: GeoJsonPoint,
+
+    @JsonProperty("distanseMellomKoordinater")
+    val distanseMellomKoordinater: Double? = null,
 )

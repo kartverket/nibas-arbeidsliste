@@ -134,10 +134,14 @@ data class KoordinaterMedAvvik(
     val koordinatFraNibas: Point?,
 
     @Column(name = "koordinat_fra_matrikkelen", columnDefinition = "geometry(Point, 25833)")
-    val koordinatFraMatrikkelen: Point?
+    val koordinatFraMatrikkelen: Point?,
+
+    @Column(name = "distanse_mellom_koordinater")
+    val distanseMellomKoordinater: Double? = null,
 ) {
     private constructor() : this(
         koordinatFraNibas = null,
-        koordinatFraMatrikkelen = null
+        koordinatFraMatrikkelen = null,
+        distanseMellomKoordinater = null
     )
 }

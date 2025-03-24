@@ -179,15 +179,20 @@ class DataInitializer(
     private fun readMockData(): Map<String, AvvikJson> {
         logger.info("Leser data fra json fil...")
         try {
-            val fileName = "borders_with_avvik_latest.json"
+            val fileName = "borders_with_avvik.json"
             val resourceStream: InputStream = javaClass.classLoader.getResourceAsStream(fileName)
                 ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
 
             val mapper = ObjectMapper().registerKotlinModule()
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-            val avvikList: List<AvvikJson> = mapper.readValue(resourceStream)
-            logger.info("Lest in {} avvik  fra fil", avvikList.size)
+            logger.debug("JSON content: {}", resourceStream.bufferedReader().use { it.readText() })
+
+            val resourceStreamForReading = javaClass.classLoader.getResourceAsStream(fileName)
+                ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
+
+            val avvikList: List<AvvikJson> = mapper.readValue(resourceStreamForReading)
+
             return avvikList.associateBy { it.lokalid }
         } catch (e: Exception) {
             logger.error("Error reading mock data: {}", e.message, e)
@@ -219,8 +224,9 @@ class DataInitializer(
             antallKoordinaterMedAvvik = mockData?.mismatches,
             koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map { coord ->
                 KoordinaterMedAvvik(
-                    koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.x, coord.y)),
-                    koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.closestMatrikkelX, coord.closestMatrikkelY))
+                    koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.nibasX, coord.nibasY)),
+                    koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.matrikkelX, coord.matrikkelY)),
+                    distanseMellomKoordinater = coord.distanceMeters
                 )
             },
             tolerance = mockData?.tolerance,
@@ -260,9 +266,10 @@ class DataInitializer(
     )
 
     data class MismatchedCoordinate(
-        val x: Double,
-        val y: Double,
-        val closestMatrikkelX: Double,
-        val closestMatrikkelY: Double
+        val nibasX: Double,
+        val nibasY: Double,
+        val matrikkelX: Double,
+        val matrikkelY: Double,
+        val distanceMeters: Double
     )
 }

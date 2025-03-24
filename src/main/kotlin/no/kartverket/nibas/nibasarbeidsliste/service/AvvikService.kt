@@ -59,7 +59,9 @@ class AvvikService(
             koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { koordinat ->
                 KoordinaterMedAvvikDTO(
                     nibasKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraNibas?.x ?: 0.0, koordinat.koordinatFraNibas?.y ?: 0.0)),
-                    matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y ?: 0.0))
+                    matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y
+                        ?: 0.0)),
+                    distanseMellomKoordinater = koordinat.distanseMellomKoordinater
                 )
             },
         )
