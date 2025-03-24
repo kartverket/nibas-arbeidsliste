@@ -64,8 +64,21 @@ data class AvvikDTO(
     val maalemetode: String? = null,
 
     @JsonProperty("noeyaktighet")
-    val noeyaktighet: Int? = null
-)
+    val noeyaktighet: Int? = null,
+
+    @JsonProperty("antallKoordinater")
+    val antallKoordinater: Int?,
+
+    @JsonProperty("antallKoordinaterMedAvvik")
+    val antallKoordinaterMedAvvik: Int?,
+
+    @JsonProperty("koordinaterMedAvvik")
+    val koordinaterMedAvvik: List<KoordinaterMedAvvikDTO>?,
+
+    @JsonProperty("tolerance")
+    val tolerance: Int?,
+
+    )
 
 data class GeoJsonLineString(
     @JsonProperty("type")
@@ -81,4 +94,15 @@ data class GeoJsonPoint(
 
     @JsonProperty("coordinates")
     val coordinates: List<Double>
+)
+
+data class KoordinaterMedAvvikDTO(
+    @JsonProperty("nibasKoordinat")
+    val nibasKoordinat: GeoJsonPoint,
+
+    @JsonProperty("matrikkelKoordinat")
+    val matrikkelKoordinat: GeoJsonPoint,
+
+    @JsonProperty("distanseMellomKoordinater")
+    val distanseMellomKoordinater: Double? = null,
 )

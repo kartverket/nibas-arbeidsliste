@@ -2,8 +2,12 @@ package no.kartverket.nibas.nibasarbeidsliste.config
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
+import no.kartverket.nibas.nibasarbeidsliste.model.KoordinaterMedAvvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
 import org.locationtech.jts.geom.Coordinate
@@ -18,10 +22,11 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
+import java.io.InputStream
 
 /**
- * Komponent som initialiserer testdata for avvik ved oppstart av applikasjonen
- * Kjører kun i localhost-profilen for å unngå å generere testdata i produksjon
+ * Komponent som initialiserer data med avvik ved oppstart av applikasjonen
+ * Kjører kun i localhost-profilen.
  */
 @Component
 @Profile("localhost")
@@ -32,17 +37,7 @@ class DataInitializer(
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = ObjectMapper()
 
-    // EPSG:25833 is the coordinate system used in Norway
     private val geometryFactory = GeometryFactory(PrecisionModel(), 25833)
-
-    // lokalID til grenser i NIBAS som har avvik
-    // Hvis man finner flere grenser med avvik legg til her:
-    private val lokalIDs = arrayOf(
-        "7bcca8e4-718e-396d-8493-8f374c5d12fd",
-        "98304de1-663e-327e-9c73-ed350156e67c",
-        "edc00dab-bbbb-3987-876d-e5233dbcb08c",
-        "6c3e890d-2915-3453-a7fb-4dd86c56f0de",
-    )
 
     @EventListener(ApplicationReadyEvent::class)
     fun initData() {
@@ -67,52 +62,52 @@ class DataInitializer(
      */
     private fun hentAvvikFraNibas(): List<Avvik> {
         val avvikListe = mutableListOf<Avvik>()
+        // Henter avvik fra JSON-fil
+        val mockData = readMockData()
 
-        for (lokalId in lokalIDs) {
+        for ((lokalId, _) in mockData) {
             logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
 
-            try {
-                val grenseJson = nibasGrenserService.hentGrenseByLokalId(lokalId)
+            val response = try {
+                // Henter grense fra Nibas API
+                nibasGrenserService.hentGrenseByLokalId(lokalId)
                     .doOnError { error ->
                         logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
                     }
                     .blockOptional()
                     .orElse(null)
-
-                if (grenseJson != null) {
-                    logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
-
-                    // Parse JSON and extract fields
-                    val avvik = parseGrenseJson(grenseJson)
-                    avvikListe.add(avvik)
-                } else {
-                    logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
-                }
             } catch (e: Exception) {
-                logger.error("Feil ved behandling av grense med lokalID={}: {}", lokalId, e.message, e)
+                logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
+                null
+            }
+
+            if (response != null) {
+                logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
+
+                val grense = parseGrenseJson(response)
+                val mockDataForGrense = mockData[lokalId]
+                val avvik = createAvvik(grense, mockDataForGrense)
+                avvikListe.add(avvik)
+            } else {
+                logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
             }
         }
 
         return avvikListe
     }
 
-    /**
-     * Parse grense JSON and create Avvik object with all fields
-     */
-    private fun parseGrenseJson(grenseJson: String): Avvik {
+
+    private fun parseGrenseJson(grenseJson: String): Grense {
         try {
             val jsonNode = objectMapper.readTree(grenseJson)
 
-            // Parse date fields
             val gyldigFra = parseLocalDate(jsonNode.path("gyldighet").path("gyldigFra").asText())
             val gyldigTil = if (jsonNode.path("gyldighet").path("gyldigTil").isNull) null
             else parseLocalDate(jsonNode.path("gyldighet").path("gyldigTil").asText())
 
-            // Parse geometri to JTS LineString for PostGIS
             val lineString = parseGeometri(jsonNode.path("geometri"))
 
-            // Create Avvik with all fields from JSON
-            return Avvik(
+            return Grense(
                 grenseId = jsonNode.path("id").asText(null),
                 lokalId = jsonNode.path("lokalid").asText(null),
                 grensetype = jsonNode.path("grensetype").asText(null),
@@ -128,22 +123,14 @@ class DataInitializer(
                 typeEndring = jsonNode.path("typeEndring").asText(null),
                 maalemetode = jsonNode.path("maalemetode").asText(null),
                 noeyaktighet = if (jsonNode.path("noeyaktighet").isInt) jsonNode.path("noeyaktighet").asInt() else null,
-                registrertDato = LocalDateTime.now(),
-                status = AvvikStatus.NY
             )
         } catch (e: Exception) {
             logger.error("Feil ved parsing av grense-JSON: {}", e.message, e)
-            // Fallback to basic Avvik if parsing fails
-            return Avvik(
-                registrertDato = LocalDateTime.now(),
-                status = AvvikStatus.NY
-            )
+            return Grense()
         }
     }
 
-    /**
-     * Parse GeoJSON geometry to JTS LineString
-     */
+
     private fun parseGeometri(geometriNode: JsonNode): LineString? {
         if (!geometriNode.isObject) return null
 
@@ -177,9 +164,7 @@ class DataInitializer(
         }
     }
 
-    /**
-     * Parse date string to LocalDate
-     */
+
     private fun parseLocalDate(dateStr: String?): LocalDate? {
         if (dateStr.isNullOrBlank()) return null
 
@@ -190,4 +175,101 @@ class DataInitializer(
             null
         }
     }
+
+    private fun readMockData(): Map<String, AvvikJson> {
+        logger.info("Leser data fra json fil...")
+        try {
+            val fileName = "borders_with_avvik.json"
+            val resourceStream: InputStream = javaClass.classLoader.getResourceAsStream(fileName)
+                ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
+
+            val mapper = ObjectMapper().registerKotlinModule()
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+            logger.debug("JSON content: {}", resourceStream.bufferedReader().use { it.readText() })
+
+            val resourceStreamForReading = javaClass.classLoader.getResourceAsStream(fileName)
+                ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
+
+            val avvikList: List<AvvikJson> = mapper.readValue(resourceStreamForReading)
+
+            return avvikList.associateBy { it.lokalid }
+        } catch (e: Exception) {
+            logger.error("Error reading mock data: {}", e.message, e)
+            throw e
+        }
+    }
+
+    private fun createAvvik(grense: Grense, mockData: AvvikJson?): Avvik {
+        return Avvik(
+            // Fra Nibas API
+            grenseId = grense.grenseId,
+            lokalId = grense.lokalId,
+            grensetype = grense.grensetype,
+            geometri = grense.geometri,
+            gyldigFra = grense.gyldigFra,
+            gyldigTil = grense.gyldigTil,
+            datafangstdato = grense.datafangstdato,
+            foerstedigitaliseringsdato = grense.foerstedigitaliseringsdato,
+            opphav = grense.opphav,
+            informasjon = grense.informasjon,
+            endretAv = grense.endretAv,
+            endretDato = grense.endretDato,
+            typeEndring = grense.typeEndring,
+            maalemetode = grense.maalemetode,
+            noeyaktighet = grense.noeyaktighet,
+
+            // Fra mock data
+            antallKoordinater = mockData?.totalCoordinates,
+            antallKoordinaterMedAvvik = mockData?.mismatches,
+            koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map { coord ->
+                KoordinaterMedAvvik(
+                    koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.nibasX, coord.nibasY)),
+                    koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.matrikkelX, coord.matrikkelY)),
+                    distanseMellomKoordinater = coord.distanceMeters
+                )
+            },
+            tolerance = mockData?.tolerance,
+            registrertDato = LocalDateTime.now(),
+            status = AvvikStatus.NY
+        )
+    }
+
+    // Grense fra nibas
+    data class Grense(
+        val grenseId: String? = null,
+        val lokalId: String? = null,
+        val grensetype: String? = null,
+        val geometri: LineString? = null,
+        val gyldigFra: LocalDate? = null,
+        val gyldigTil: LocalDate? = null,
+        val datafangstdato: String? = null,
+        val foerstedigitaliseringsdato: String? = null,
+        val opphav: String? = null,
+        val informasjon: String? = null,
+        val endretAv: String? = null,
+        val endretDato: String? = null,
+        val typeEndring: String? = null,
+        val maalemetode: String? = null,
+        val noeyaktighet: Int? = null,
+    )
+
+    data class AvvikJson(
+        val id: Long = 0,
+        val lokalid: String,
+        val grensetype: String,
+        val mismatches: Int,
+        val totalCoordinates: Int,
+        val mismatchPercentage: Double,
+        val tolerance: Int,
+        val mismatchedCoordinates: List<MismatchedCoordinate>
+    )
+
+    data class MismatchedCoordinate(
+        val nibasX: Double,
+        val nibasY: Double,
+        val matrikkelX: Double,
+        val matrikkelY: Double,
+        val distanceMeters: Double
+    )
 }
