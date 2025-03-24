@@ -4,7 +4,7 @@ springBoot = "3.4.3"
 springDependencyManagement = "1.1.7"
 graalvmNative = "0.10.6"
 logstashLogback = "8.0"
-springdocOpenapi = "2.8.5"
+springdocOpenapi = "2.8.6"
 micrometerPrometheus = "1.14.5"
 
 [libraries]
