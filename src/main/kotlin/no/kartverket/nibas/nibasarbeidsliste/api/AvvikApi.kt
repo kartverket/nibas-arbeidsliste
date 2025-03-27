@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -37,4 +38,21 @@ interface AvvikApi {
         @RequestParam(defaultValue = "0") side: Int,
         @RequestParam(defaultValue = "10") antall: Int
     ): ResponseEntity<Page<AvvikDTO>>
+
+    @Operation(
+        summary = "Hent oppsummering av kommuner med avvik",
+        description = "Henter liste over kommuner med avvik og antall avvik per kommune"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Vellykket operasjon",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = KommuneAvvikDTO::class))]
+            ),
+            ApiResponse(responseCode = "500", description = "Serverfeil", content = [Content()])
+        ]
+    )
+    @GetMapping(path = ["/kommuner"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentKommunerMedAvvikSummary(): ResponseEntity<List<KommuneAvvikDTO>>
 }

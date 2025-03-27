@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
+import no.kartverket.nibas.nibasarbeidsliste.model.Kommune
 import no.kartverket.nibas.nibasarbeidsliste.model.KoordinaterMedAvvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
@@ -106,6 +107,7 @@ class DataInitializer(
             else parseLocalDate(jsonNode.path("gyldighet").path("gyldigTil").asText())
 
             val lineString = parseGeometri(jsonNode.path("geometri"))
+            val kommuner = parseKommuner(jsonNode.path("kommuner"))
 
             return Grense(
                 grenseId = jsonNode.path("id").asText(null),
@@ -123,6 +125,7 @@ class DataInitializer(
                 typeEndring = jsonNode.path("typeEndring").asText(null),
                 maalemetode = jsonNode.path("maalemetode").asText(null),
                 noeyaktighet = if (jsonNode.path("noeyaktighet").isInt) jsonNode.path("noeyaktighet").asInt() else null,
+                kommuner = kommuner
             )
         } catch (e: Exception) {
             logger.error("Feil ved parsing av grense-JSON: {}", e.message, e)
@@ -130,6 +133,25 @@ class DataInitializer(
         }
     }
 
+    private fun parseKommuner(kommunerNode: JsonNode): List<KommuneData>? {
+        if (!kommunerNode.isArray) return null
+
+        val kommuneListe = mutableListOf<KommuneData>()
+
+        for (i in 0 until kommunerNode.size()) {
+            val kommuneNode = kommunerNode.get(i)
+            kommuneListe.add(
+                KommuneData(
+                    fylkesLokalID = kommuneNode.path("fylkesLokalID").asText(null),
+                    kommuneLokalID = kommuneNode.path("kommuneLokalID").asText(null),
+                    kommunenummer = kommuneNode.path("kommunenummer").asText(null),
+                    kommunenavn = kommuneNode.path("kommunenavn").asText(null)
+                )
+            )
+        }
+
+        return if (kommuneListe.isEmpty()) null else kommuneListe
+    }
 
     private fun parseGeometri(geometriNode: JsonNode): LineString? {
         if (!geometriNode.isObject) return null
@@ -163,7 +185,6 @@ class DataInitializer(
             return null
         }
     }
-
 
     private fun parseLocalDate(dateStr: String?): LocalDate? {
         if (dateStr.isNullOrBlank()) return null
@@ -218,6 +239,14 @@ class DataInitializer(
             typeEndring = grense.typeEndring,
             maalemetode = grense.maalemetode,
             noeyaktighet = grense.noeyaktighet,
+            kommuner = grense.kommuner?.map { kommuneData ->
+                Kommune(
+                    fylkesLokalID = kommuneData.fylkesLokalID,
+                    kommuneLokalID = kommuneData.kommuneLokalID,
+                    kommunenummer = kommuneData.kommunenummer,
+                    kommunenavn = kommuneData.kommunenavn
+                )
+            },
 
             // Fra mock data
             antallKoordinater = mockData?.totalCoordinates,
@@ -252,6 +281,14 @@ class DataInitializer(
         val typeEndring: String? = null,
         val maalemetode: String? = null,
         val noeyaktighet: Int? = null,
+        val kommuner: List<KommuneData>? = null
+    )
+
+    data class KommuneData(
+        val fylkesLokalID: String? = null,
+        val kommuneLokalID: String? = null,
+        val kommunenummer: String? = null,
+        val kommunenavn: String? = null
     )
 
     data class AvvikJson(

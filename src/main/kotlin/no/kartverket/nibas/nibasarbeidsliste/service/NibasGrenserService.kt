@@ -28,7 +28,7 @@ class NibasGrenserService(
 
         return webClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("/grenser")
+                uriBuilder.path("/ekstern/grenser")
                     .queryParam("side", side)
                     .queryParam("antall", antall)
                     .build()
@@ -53,7 +53,7 @@ class NibasGrenserService(
 
         return webClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("/grenser/{lokalid}")
+                uriBuilder.path("/ekstern/grenser/{lokalid}")
                     .build(lokalid)
             }
             .retrieve()

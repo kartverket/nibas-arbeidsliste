@@ -3,6 +3,8 @@ package no.kartverket.nibas.nibasarbeidsliste.service
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
@@ -21,6 +23,41 @@ class AvvikService(
     fun hentAlleAvvik(pageable: Pageable): Page<AvvikDTO> {
         logger.info("Henter avvik for side {} med antall {}", pageable.pageNumber, pageable.pageSize)
         return avvikRepository.findAll(pageable).map { convertToDTO(it) }
+    }
+
+    /**
+     * Henter oppsummering av kommuner med avvik og antall avvik per kommune
+     */
+    fun hentKommunerMedAvvikSummary(): List<KommuneAvvikDTO> {
+        logger.info("Henter oppsummering av kommuner med avvik")
+        val alleAvvik = avvikRepository.findAll()
+
+        // Map til å holde oversikt over antall avvik per kommune
+        val kommuneAvvikMap = mutableMapOf<String, KommuneAvvikDTO>()
+
+        // Teller avvik per kommune
+        alleAvvik.forEach { avvik ->
+            avvik.kommuner?.forEach { kommune ->
+                if (kommune.kommunenavn != null && kommune.kommunenummer != null) {
+                    val key = "${kommune.kommunenummer}:${kommune.kommunenavn}"
+                    val existing = kommuneAvvikMap[key]
+                    if (existing == null) {
+                        kommuneAvvikMap[key] = KommuneAvvikDTO(
+                            kommunenavn = kommune.kommunenavn,
+                            kommunenummer = kommune.kommunenummer,
+                            kommunelokalid = kommune.kommuneLokalID,
+                            fylkeslokalid = kommune.fylkesLokalID,
+                            antallAvvik = 1,
+                        )
+                    } else {
+                        kommuneAvvikMap[key] = existing.copy(antallAvvik = existing.antallAvvik + 1)
+                    }
+                }
+            }
+        }
+
+        // Returnerer sortert liste med mest avvik først
+        return kommuneAvvikMap.values.sortedByDescending { it.antallAvvik }
     }
 
     private fun convertToDTO(avvik: Avvik): AvvikDTO {
@@ -62,6 +99,14 @@ class AvvikService(
                     matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y
                         ?: 0.0)),
                     distanseMellomKoordinater = koordinat.distanseMellomKoordinater
+                )
+            },
+            kommuner = avvik.kommuner?.map { kommune ->
+                KommuneDTO(
+                    fylkesLokalID = kommune.fylkesLokalID,
+                    kommuneLokalID = kommune.kommuneLokalID,
+                    kommunenummer = kommune.kommunenummer,
+                    kommunenavn = kommune.kommunenavn
                 )
             },
         )
