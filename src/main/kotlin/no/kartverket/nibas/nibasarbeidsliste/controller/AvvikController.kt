@@ -2,6 +2,7 @@ package no.kartverket.nibas.nibasarbeidsliste.controller
 
 import no.kartverket.nibas.nibasarbeidsliste.api.AvvikApi
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.service.AvvikService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -26,5 +27,12 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
         logger.info("Henter avvik for side {} med antall {}", side, antall)
         val avvik = avvikService.hentAlleAvvik(PageRequest.of(side, antall))
         return ResponseEntity.ok(avvik)
+    }
+
+    @GetMapping(path = ["/kommuner"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    override fun hentKommunerMedAvvikSummary(): ResponseEntity<List<KommuneAvvikDTO>> {
+        logger.info("Henter oppsummering av kommuner med avvik")
+        val summary = avvikService.hentKommunerMedAvvikSummary()
+        return ResponseEntity.ok(summary)
     }
 }
