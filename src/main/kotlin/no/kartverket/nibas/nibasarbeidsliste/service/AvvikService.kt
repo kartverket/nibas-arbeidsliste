@@ -3,6 +3,7 @@ package no.kartverket.nibas.nibasarbeidsliste.service
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
@@ -62,6 +63,14 @@ class AvvikService(
                     matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y
                         ?: 0.0)),
                     distanseMellomKoordinater = koordinat.distanseMellomKoordinater
+                )
+            },
+            kommuner = avvik.kommuner?.map { kommune ->
+                KommuneDTO(
+                    fylkesLokalID = kommune.fylkesLokalID,
+                    kommuneLokalID = kommune.kommuneLokalID,
+                    kommunenummer = kommune.kommunenummer,
+                    kommunenavn = kommune.kommunenavn
                 )
             },
         )

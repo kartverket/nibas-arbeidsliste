@@ -105,6 +105,13 @@ data class Avvik(
     @Column(name = "noeyaktighet")
     val noeyaktighet: Int? = null,
 
+    @ElementCollection
+    @CollectionTable(
+        name = "grense_kommuner",
+        joinColumns = [JoinColumn(name = "avvik_id")]
+    )
+    val kommuner: List<Kommune>? = null,
+
     ) {
     private constructor() : this(
         id = 0L,
@@ -143,5 +150,27 @@ data class KoordinaterMedAvvik(
         koordinatFraNibas = null,
         koordinatFraMatrikkelen = null,
         distanseMellomKoordinater = null
+    )
+}
+
+@Embeddable
+data class Kommune(
+    @Column(name = "fylkes_lokalid")
+    val fylkesLokalID: String? = null,
+
+    @Column(name = "kommune_lokalid")
+    val kommuneLokalID: String? = null,
+
+    @Column(name = "kommunenummer")
+    val kommunenummer: String? = null,
+
+    @Column(name = "kommunenavn")
+    val kommunenavn: String? = null
+) {
+    private constructor() : this(
+        fylkesLokalID = null,
+        kommuneLokalID = null,
+        kommunenummer = null,
+        kommunenavn = null
     )
 }

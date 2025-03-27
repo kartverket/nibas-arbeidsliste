@@ -78,7 +78,9 @@ data class AvvikDTO(
     @JsonProperty("tolerance")
     val tolerance: Int?,
 
-    )
+    @JsonProperty("kommuner")
+    val kommuner: List<KommuneDTO>? = null,
+)
 
 data class GeoJsonLineString(
     @JsonProperty("type")
@@ -105,4 +107,19 @@ data class KoordinaterMedAvvikDTO(
 
     @JsonProperty("distanseMellomKoordinater")
     val distanseMellomKoordinater: Double? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class KommuneDTO(
+    @JsonProperty("fylkesLokalID")
+    val fylkesLokalID: String? = null,
+
+    @JsonProperty("kommuneLokalID")
+    val kommuneLokalID: String? = null,
+
+    @JsonProperty("kommunenummer")
+    val kommunenummer: String? = null,
+
+    @JsonProperty("kommunenavn")
+    val kommunenavn: String? = null
 )
