@@ -5,6 +5,12 @@ nibas:
   api:
     base-url: http://localhost:8080/v1
 
+# Bruker samme API-nøkkel som Matrikkel for testing.
+api:
+  key:
+    matrikkel: ${API_KEY_MATRIKKEL:}
+
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/arbeidsliste

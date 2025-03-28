@@ -129,15 +129,17 @@ Applikasjonen vil starte på port 8082 med localhost-profilen, som definert i `a
 http://localhost:8082/swagger-ui/index.html#/
 
 * `GET /api/v1/avvik`: Henter alle avvik
+* `GET /api/v1/avvik/kommuner`: Henter kommuner med avvik
 
 ## TODO:
 
-### Setup tings..
+### Setup tings...
 
-- [ ] Dockerfile
-- [ ] Docker compose (for å kjøre både applikasjonen og NIBAS-backend)
-- [x] .editorconfig (kopier fra nibas)
-- [ ] SKIP oppsett
+- [ ] SKIP oppsett. Smia-apps oppsett.
+- [ ] Auth mot NIBAS-backend.
+- [ ] Auth mot nibas-frontend via proxy.
+- [ ] Database DEV
+- [ ] Database PROD
 
 ### Funksjoner
 
