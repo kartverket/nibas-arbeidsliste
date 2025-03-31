@@ -9,6 +9,24 @@ nibas:
   api:
     base-url: http://localhost:8080/v1
 
+spring:
+  datasource:
+    # Bruker NIBAS-database med eget schema og bruker.
+    url: jdbc:postgresql://localhost:5432/nibas
+    username: arbeidsliste
+    password: arbeidsliste
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # TODO: Kun for testing.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
+        format_sql: true
+    show-sql: true
+
 logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
