@@ -19,7 +19,7 @@ import jakarta.persistence.Table
 
 
 @Entity
-@Table(name = "avvik")
+@Table(name = "avvik", schema = "nibas_arbeidsliste_schema")
 data class Avvik(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

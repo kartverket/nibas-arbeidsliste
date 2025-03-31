@@ -12,18 +12,17 @@ nibas:
 spring:
   datasource:
     # Bruker NIBAS-database med eget schema og bruker.
+    # Bruker sin default search_path for å bruke riktig schema.
     url: jdbc:postgresql://localhost:5432/nibas
-    username: arbeidsliste
-    password: arbeidsliste
+    username: nibas_arbeidsliste
+    password: nibas_arbeidsliste
     driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       # TODO: Kun for testing.
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
         format_sql: true
     show-sql: true
 
