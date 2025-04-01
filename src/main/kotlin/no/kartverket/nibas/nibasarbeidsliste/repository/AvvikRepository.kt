@@ -22,4 +22,8 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
 
     @Query("SELECT a FROM Avvik a WHERE a.grensetype IN :grensetyper")
     fun findAllByGrensetyper(grensetyper: List<String>?, pageable: Pageable): Page<Avvik>
+
+    @Query("SELECT a FROM Avvik a WHERE a.id IN :ids")
+    fun findAllByIds(@Param("ids") ids: List<Long>): List<Avvik>
+
 }

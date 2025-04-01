@@ -2,6 +2,7 @@ package no.kartverket.nibas.nibasarbeidsliste.controller
 
 import no.kartverket.nibas.nibasarbeidsliste.api.AvvikApi
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.BulkAvvikRequestDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.service.AvvikService
 import org.slf4j.LoggerFactory
@@ -11,6 +12,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -47,7 +50,7 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
      * @return En liste med [AvvikDTO] som representerer alle avvik knyttet til kommunen.
      *         Returnerer en tom liste hvis ingen avvik er registrert for kommunen.
      */
-    @GetMapping(path = ["/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(path = ["/kommune/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     override fun hentAvvik(@PathVariable lokalId: String, @RequestParam(defaultValue = "Fylkesgrense,Kommunegrense") grensetyper: List<String>?): ResponseEntity<List<AvvikDTO>> {
         logger.info("Henter avvik for lokalId {} med grensetyper {}", lokalId, grensetyper)
         val avvik = avvikService.hentAvvik(lokalId, grensetyper)
@@ -71,5 +74,26 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
         logger.info("Liste med av kommuner som har avvik. Side $side, antall per side$antall")
         val summary = avvikService.hentKommunerMedAvvikSummary(grensetyper, PageRequest.of(side, antall))
         return ResponseEntity.ok(summary)
+    }
+
+    /**
+     * Oppdaterer flere avvik samtidig.
+     *
+     * @param updates Liste med oppdateringer for avvik
+     * @return Liste med oppdaterte [AvvikDTO]
+     */
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    override fun oppdaterFlereAvvik(@RequestBody updates: BulkAvvikRequestDTO): ResponseEntity<List<AvvikDTO>> {
+        logger.info("Mottok forespørsel om å oppdatere {} avvik", updates.avvikUpdates.size)
+        try {
+            val oppdaterteAvvik = avvikService.oppdaterAvvik(updates.avvikUpdates)
+            return ResponseEntity.ok(oppdaterteAvvik)
+        } catch (e: IllegalArgumentException) {
+            logger.error("Feil ved oppdatering av avvik: {}", e.message)
+            return ResponseEntity.badRequest().build()
+        } catch (e: Exception) {
+            logger.error("Uventet feil ved oppdatering av avvik", e)
+            return ResponseEntity.internalServerError().build()
+        }
     }
 }

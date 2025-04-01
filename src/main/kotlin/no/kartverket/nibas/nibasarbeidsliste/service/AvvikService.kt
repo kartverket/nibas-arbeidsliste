@@ -1,6 +1,7 @@
 package no.kartverket.nibas.nibasarbeidsliste.service
 
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikRequestDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class AvvikService(
@@ -38,7 +40,6 @@ class AvvikService(
         val avvikDto = avvik.map { convertToDTO(it) }
         return avvikDto
     }
-
 
     /**
      * Henter alle avvik knyttet til en spesifikk kommune via lokalId.
@@ -66,6 +67,7 @@ class AvvikService(
     fun hentKommunerMedAvvikSummary(grensetyper: List<String>?, pageable: Pageable): Page<KommuneAvvikDTO> {
         logger.info("Henter paginert oppsummering av kommuner med avvik. Side: {}, Antall: {}", pageable.pageNumber, pageable.pageSize)
 
+        // Henter alle avvik med gitt grenstyper
         val alleAvvik = avvikRepository.findAllByGrensetyper(grensetyper)
 
         // Map til å holde oversikt over antall avvik per kommune
@@ -106,6 +108,38 @@ class AvvikService(
         }
 
         return PageImpl(pageContent, pageable, sortedSummaryList.size.toLong())
+    }
+
+    /**
+     * Oppdaterer flere avvik samtidig.
+     *
+     * @param updates Liste med oppdateringer for avvik
+     * @return Liste med oppdaterte [AvvikDTO]
+     * @throws IllegalArgumentException hvis noen av ids ikke finnes
+     */
+    fun oppdaterAvvik(updates: List<AvvikRequestDTO>): List<AvvikDTO> {
+        logger.info("Oppdaterer {} avvik", updates.size)
+
+        val ids = updates.map { it.id }
+        val existingAvvik = avvikRepository.findAllByIds(ids)
+
+        if (existingAvvik.size != updates.size) {
+            val missingIds = ids - existingAvvik.map { it.id }.toSet()
+            throw IllegalArgumentException("Fant ikke avvik med ids: $missingIds")
+        }
+
+        val updatedAvvik = updates.map { update ->
+            val avvik = existingAvvik.find { it.id == update.id }
+                ?: throw IllegalArgumentException("Fant ikke avvik med id: ${update.id}")
+
+            avvik.copy(
+                status = update.status,
+                endretDato = LocalDateTime.now().toString(),
+            )
+        }
+
+        val savedAvvik = avvikRepository.saveAll(updatedAvvik)
+        return savedAvvik.map { convertToDTO(it) }
     }
 
     private fun convertToDTO(avvik: Avvik): AvvikDTO {
