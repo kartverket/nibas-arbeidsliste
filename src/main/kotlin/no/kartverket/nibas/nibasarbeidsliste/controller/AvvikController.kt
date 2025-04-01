@@ -42,15 +42,15 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
 
     /**
      * Henter alle avvik som er registrert for en spesifikk kommune.
-     *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
      * @param lokalId Unik id for kommunen
      * @return En liste med [AvvikDTO] som representerer alle avvik knyttet til kommunen.
      *         Returnerer en tom liste hvis ingen avvik er registrert for kommunen.
      */
     @GetMapping(path = ["/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    override fun hentAvvik(@PathVariable lokalId: String): ResponseEntity<List<AvvikDTO>> {
-        logger.info("Henter avvik for lokalId {}", lokalId)
-        val avvik = avvikService.hentAvvik(lokalId)
+    override fun hentAvvik(@PathVariable lokalId: String, @RequestParam(defaultValue = "Fylkesgrense,Kommunegrense") grensetyper: List<String>?): ResponseEntity<List<AvvikDTO>> {
+        logger.info("Henter avvik for lokalId {} med grensetyper {}", lokalId, grensetyper)
+        val avvik = avvikService.hentAvvik(lokalId, grensetyper)
         return ResponseEntity.ok(avvik)
     }
 

@@ -44,11 +44,16 @@ class AvvikService(
      * Henter alle avvik knyttet til en spesifikk kommune via lokalId.
      *
      * @param lokalid Den unike lokalId (UUID) for kommunen slik den er registrert i avvikets kommuneliste.
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
      * @return En liste ([List]) med [AvvikDTO] for den gitte kommunens lokalId. Returnerer en tom liste hvis ingen avvik finnes.
      */
-    fun hentAvvik(lokalid: String): List<AvvikDTO> {
-        logger.info("Henter alle avvik for kommune med lokalId {}", lokalid)
-        val avvikList = avvikRepository.findKommuneByLokalId(lokalid)
+    fun hentAvvik(lokalid: String, grensetyper: List<String>?): List<AvvikDTO> {
+        logger.info("Henter alle avvik for kommune med lokalId {} og grensetyper {}", lokalid, grensetyper)
+        val avvikList = if (!grensetyper.isNullOrEmpty()) {
+            avvikRepository.findKommuneByLokalIdAndGrensetyper(lokalid, grensetyper)
+        } else {
+            avvikRepository.findKommuneByLokalId(lokalid)
+        }
         return avvikList.map { convertToDTO(it) }
     }
 

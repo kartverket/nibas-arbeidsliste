@@ -58,7 +58,8 @@ interface AvvikApi {
     )
     @GetMapping(path = ["/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentAvvik(
-        @PathVariable lokalId: String
+        @PathVariable lokalId: String,
+        @RequestParam(required = false) grensetyper: List<String>?
     ): ResponseEntity<List<AvvikDTO>>
 
 

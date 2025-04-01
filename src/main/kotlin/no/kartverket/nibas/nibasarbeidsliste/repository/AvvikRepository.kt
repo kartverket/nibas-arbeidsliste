@@ -14,6 +14,9 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
     @Query("SELECT a FROM Avvik a JOIN a.kommuner k WHERE k.kommuneLokalID= :lokalid")
     fun findKommuneByLokalId(@Param("lokalid") lokalid: String): List<Avvik>
 
+    @Query("SELECT a FROM Avvik a JOIN a.kommuner k WHERE k.kommuneLokalID= :lokalid AND a.grensetype IN :grensetyper")
+    fun findKommuneByLokalIdAndGrensetyper(@Param("lokalid") lokalid: String, @Param("grensetyper") grensetyper: List<String>): List<Avvik>
+
     @Query("SELECT a FROM Avvik a WHERE a.grensetype IN :grensetyper")
     fun findAllByGrensetyper(grensetyper: List<String>, pageable: Pageable): Page<Avvik>
 }
