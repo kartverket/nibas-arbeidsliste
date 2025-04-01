@@ -55,13 +55,17 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
     /**
      * Henter en oppsummering som viser antall avvik per kommune.
      * Returnerer en liste over kommuner som har minst ett avvik.
-     *
+     * @param side Sidenummer for paginering.
+     * @param antall Maksimalt antall kommuner per side.
      * @return En [ResponseEntity] som inneholder en liste med [KommuneAvvikDTO].
      */
     @GetMapping(path = ["/kommuner"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    override fun hentKommunerMedAvvikSummary(): ResponseEntity<List<KommuneAvvikDTO>> {
-        logger.info("Liste med av kommuner som har avvik")
-        val summary = avvikService.hentKommunerMedAvvikSummary()
+    override fun hentKommunerMedAvvikSummary(
+        @RequestParam(defaultValue = "0") side: Int,
+        @RequestParam(defaultValue = "10") antall: Int
+    ): ResponseEntity<Page<KommuneAvvikDTO>> {
+        logger.info("Liste med av kommuner som har avvik. Side $side, antall per side$antall")
+        val summary = avvikService.hentKommunerMedAvvikSummary(PageRequest.of(side, antall))
         return ResponseEntity.ok(summary)
     }
 }

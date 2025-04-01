@@ -76,5 +76,8 @@ interface AvvikApi {
         ]
     )
     @GetMapping(path = ["/kommuner"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun hentKommunerMedAvvikSummary(): ResponseEntity<List<KommuneAvvikDTO>>
+    fun hentKommunerMedAvvikSummary(
+        @RequestParam(defaultValue = "0") side: Int,
+        @RequestParam(defaultValue = "10") antall: Int
+    ): ResponseEntity<Page<KommuneAvvikDTO>>
 }

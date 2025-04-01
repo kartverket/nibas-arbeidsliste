@@ -10,6 +10,7 @@ import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -45,10 +46,13 @@ class AvvikService(
     }
 
     /**
-     * Henter oppsummering av kommuner med avvik og antall avvik per kommune
+     * Henter en paginert list av kommuner med avvik, sortert etter antall avvik (synkende).
+     *
+     * @param pageable Pagineringinformasjon (sidenummer, antall per side).
+     * @return En [Page] med [KommuneAvvikDTO].
      */
-    fun hentKommunerMedAvvikSummary(): List<KommuneAvvikDTO> {
-        logger.info("Henter oppsummering av kommuner med avvik")
+    fun hentKommunerMedAvvikSummary(pageable: Pageable): Page<KommuneAvvikDTO> {
+        logger.info("Henter paginert oppsummering av kommuner med avvik. Side: {}, Antall: {}", pageable.pageNumber, pageable.pageSize)
         val alleAvvik = avvikRepository.findAll()
 
         // Map til å holde oversikt over antall avvik per kommune
@@ -75,8 +79,20 @@ class AvvikService(
             }
         }
 
-        // Returnerer sortert liste med mest avvik først
-        return kommuneAvvikMap.values.sortedByDescending { it.antallAvvik }
+        // Henter sortert liste med mest avvik først
+        val sortedSummaryList = kommuneAvvikMap.values.sortedByDescending { it.antallAvvik }
+
+        // Implementerer manuell paginering på den sorterte listen
+        val start = pageable.offset.toInt()
+        val end = (start + pageable.pageSize).coerceAtMost(sortedSummaryList.size)
+
+        val pageContent = if (start <= end) {
+            sortedSummaryList.subList(start, end)
+        } else {
+            emptyList()
+        }
+
+        return PageImpl(pageContent, pageable, sortedSummaryList.size.toLong())
     }
 
     private fun convertToDTO(avvik: Avvik): AvvikDTO {
