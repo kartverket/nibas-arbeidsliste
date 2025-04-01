@@ -20,9 +20,28 @@ class AvvikService(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Henter en paginert liste over alle registrerte avvik.
+     *
+     * @param pageable Pagineringinformasjon (sidenummer, antall per side).
+     * @return En [Page] med [AvvikDTO].
+     */
     fun hentAlleAvvik(pageable: Pageable): Page<AvvikDTO> {
         logger.info("Henter avvik for side {} med antall {}", pageable.pageNumber, pageable.pageSize)
         return avvikRepository.findAll(pageable).map { convertToDTO(it) }
+    }
+
+
+    /**
+     * Henter alle avvik knyttet til en spesifikk kommune via lokalId.
+     *
+     * @param lokalid Den unike lokalId (UUID) for kommunen slik den er registrert i avvikets kommuneliste.
+     * @return En liste ([List]) med [AvvikDTO] for den gitte kommunens lokalId. Returnerer en tom liste hvis ingen avvik finnes.
+     */
+    fun hentAvvik(lokalid: String): List<AvvikDTO> {
+        logger.info("Henter alle avvik for kommune med lokalId {}", lokalid)
+        val avvikList = avvikRepository.findKommuneByLokalId(lokalid)
+        return avvikList.map { convertToDTO(it) }
     }
 
     /**

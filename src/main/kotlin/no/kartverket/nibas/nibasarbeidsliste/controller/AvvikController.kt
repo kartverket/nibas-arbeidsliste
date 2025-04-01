@@ -10,15 +10,24 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+
 
 @RestController
 @RequestMapping("/api/v1/avvik")
 class AvvikController(private val avvikService: AvvikService) : AvvikApi {
     private val logger = LoggerFactory.getLogger(AvvikController::class.java)
 
+    /**
+     * Henter en paginert liste med alle registrerte avvik.
+     *
+     * @param side Sidenummer for paginering (0-indeksert).
+     * @param antall Maksimalt antall avvik per side.
+     * @return En [ResponseEntity] som inneholder en [Page] med [AvvikDTO].
+     */
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     override fun hentAlleAvvik(
         @RequestParam(defaultValue = "0") side: Int,
@@ -29,9 +38,29 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
         return ResponseEntity.ok(avvik)
     }
 
+    /**
+     * Henter alle avvik som er registrert for en spesifikk kommune.
+     *
+     * @param lokalId Unik id for kommunen
+     * @return En liste med [AvvikDTO] som representerer alle avvik knyttet til kommunen.
+     *         Returnerer en tom liste hvis ingen avvik er registrert for kommunen.
+     */
+    @GetMapping(path = ["/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    override fun hentAvvik(@PathVariable lokalId: String): ResponseEntity<List<AvvikDTO>> {
+        logger.info("Henter avvik for lokalId {}", lokalId)
+        val avvik = avvikService.hentAvvik(lokalId)
+        return ResponseEntity.ok(avvik)
+    }
+
+    /**
+     * Henter en oppsummering som viser antall avvik per kommune.
+     * Returnerer en liste over kommuner som har minst ett avvik.
+     *
+     * @return En [ResponseEntity] som inneholder en liste med [KommuneAvvikDTO].
+     */
     @GetMapping(path = ["/kommuner"], produces = [MediaType.APPLICATION_JSON_VALUE])
     override fun hentKommunerMedAvvikSummary(): ResponseEntity<List<KommuneAvvikDTO>> {
-        logger.info("Henter oppsummering av kommuner med avvik")
+        logger.info("Liste med av kommuner som har avvik")
         val summary = avvikService.hentKommunerMedAvvikSummary()
         return ResponseEntity.ok(summary)
     }

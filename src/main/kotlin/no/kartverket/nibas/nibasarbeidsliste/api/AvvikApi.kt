@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 
@@ -39,8 +40,29 @@ interface AvvikApi {
         @RequestParam(defaultValue = "10") antall: Int
     ): ResponseEntity<Page<AvvikDTO>>
 
+
     @Operation(
-        summary = "Hent oppsummering av kommuner med avvik",
+        summary = "Alle avvik for en gitt kommune",
+        description = "Henter alle registrerte avvik mellom administrative grenser i NIBAS og Matrikkelen for en gitt kommune"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Vellykket operasjon",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = Page::class))]
+            ),
+            ApiResponse(responseCode = "500", description = "Serverfeil", content = [Content()])
+        ]
+    )
+    @GetMapping(path = ["/{lokalId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentAvvik(
+        @PathVariable lokalId: String
+    ): ResponseEntity<List<AvvikDTO>>
+
+
+    @Operation(
+        summary = "Liste med kommuner med avvik",
         description = "Henter liste over kommuner med avvik og antall avvik per kommune"
     )
     @ApiResponses(
