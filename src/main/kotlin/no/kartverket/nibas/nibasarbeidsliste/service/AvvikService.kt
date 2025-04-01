@@ -63,9 +63,10 @@ class AvvikService(
      * @param pageable Pagineringinformasjon (sidenummer, antall per side).
      * @return En [Page] med [KommuneAvvikDTO].
      */
-    fun hentKommunerMedAvvikSummary(pageable: Pageable): Page<KommuneAvvikDTO> {
+    fun hentKommunerMedAvvikSummary(grensetyper: List<String>?, pageable: Pageable): Page<KommuneAvvikDTO> {
         logger.info("Henter paginert oppsummering av kommuner med avvik. Side: {}, Antall: {}", pageable.pageNumber, pageable.pageSize)
-        val alleAvvik = avvikRepository.findAll()
+
+        val alleAvvik = avvikRepository.findAllByGrensetyper(grensetyper)
 
         // Map til å holde oversikt over antall avvik per kommune
         val kommuneAvvikMap = mutableMapOf<String, KommuneAvvikDTO>()

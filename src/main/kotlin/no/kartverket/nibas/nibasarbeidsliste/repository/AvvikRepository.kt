@@ -18,5 +18,8 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
     fun findKommuneByLokalIdAndGrensetyper(@Param("lokalid") lokalid: String, @Param("grensetyper") grensetyper: List<String>): List<Avvik>
 
     @Query("SELECT a FROM Avvik a WHERE a.grensetype IN :grensetyper")
-    fun findAllByGrensetyper(grensetyper: List<String>, pageable: Pageable): Page<Avvik>
+    fun findAllByGrensetyper(grensetyper: List<String>?): List<Avvik>
+
+    @Query("SELECT a FROM Avvik a WHERE a.grensetype IN :grensetyper")
+    fun findAllByGrensetyper(grensetyper: List<String>?, pageable: Pageable): Page<Avvik>
 }
