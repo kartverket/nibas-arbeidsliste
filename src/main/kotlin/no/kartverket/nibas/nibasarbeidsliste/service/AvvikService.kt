@@ -66,10 +66,10 @@ class AvvikService(
                     val existing = kommuneAvvikMap[key]
                     if (existing == null) {
                         kommuneAvvikMap[key] = KommuneAvvikDTO(
-                            kommunenavn = kommune.kommunenavn,
-                            kommunenummer = kommune.kommunenummer,
-                            kommunelokalid = kommune.kommuneLokalID,
-                            fylkeslokalid = kommune.fylkesLokalID,
+                            fylkesLokalID = kommune.fylkesLokalID,
+                            kommuneLokalID = kommune.kommuneLokalID,
+                            kommuneNummer = kommune.kommunenummer,
+                            kommuneNavn = kommune.kommunenavn,
                             antallAvvik = 1,
                         )
                     } else {
@@ -140,8 +140,8 @@ class AvvikService(
                 KommuneDTO(
                     fylkesLokalID = kommune.fylkesLokalID,
                     kommuneLokalID = kommune.kommuneLokalID,
-                    kommunenummer = kommune.kommunenummer,
-                    kommunenavn = kommune.kommunenavn
+                    kommuneNummer = kommune.kommunenummer,
+                    kommuneNavn = kommune.kommunenavn
                 )
             },
         )
