@@ -22,14 +22,21 @@ class AvvikService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Henter en paginert liste over alle registrerte avvik.
+     * Henter en paginert liste med alle registrerte avvik.
      *
-     * @param pageable Pagineringinformasjon (sidenummer, antall per side).
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @param pageable Paginering og sortering
      * @return En [Page] med [AvvikDTO].
      */
-    fun hentAlleAvvik(pageable: Pageable): Page<AvvikDTO> {
-        logger.info("Henter avvik for side {} med antall {}", pageable.pageNumber, pageable.pageSize)
-        return avvikRepository.findAll(pageable).map { convertToDTO(it) }
+    fun hentAlleAvvik(grensetyper: List<String>?, pageable: Pageable): Page<AvvikDTO> {
+        logger.info("Henter alle avvik med paginering: {}", pageable)
+        val avvik = if (!grensetyper.isNullOrEmpty()) {
+            avvikRepository.findAllByGrensetyper(grensetyper, pageable)
+        } else {
+            avvikRepository.findAll(pageable)
+        }
+        val avvikDto = avvik.map { convertToDTO(it) }
+        return avvikDto
     }
 
 

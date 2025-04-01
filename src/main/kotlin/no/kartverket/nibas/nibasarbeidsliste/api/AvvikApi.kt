@@ -36,6 +36,7 @@ interface AvvikApi {
     )
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hentAlleAvvik(
+        @RequestParam(required = false) grensetyper: List<String>?,
         @RequestParam(defaultValue = "0") side: Int,
         @RequestParam(defaultValue = "10") antall: Int
     ): ResponseEntity<Page<AvvikDTO>>

@@ -24,17 +24,19 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
     /**
      * Henter en paginert liste med alle registrerte avvik.
      *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
      * @param side Sidenummer for paginering (0-indeksert).
      * @param antall Maksimalt antall avvik per side.
      * @return En [ResponseEntity] som inneholder en [Page] med [AvvikDTO].
      */
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     override fun hentAlleAvvik(
+        @RequestParam(defaultValue = "Fylkesgrense,Kommunegrense") grensetyper: List<String>?,
         @RequestParam(defaultValue = "0") side: Int,
         @RequestParam(defaultValue = "10") antall: Int
     ): ResponseEntity<Page<AvvikDTO>> {
         logger.info("Henter avvik for side {} med antall {}", side, antall)
-        val avvik = avvikService.hentAlleAvvik(PageRequest.of(side, antall))
+        val avvik = avvikService.hentAlleAvvik(grensetyper, PageRequest.of(side, antall))
         return ResponseEntity.ok(avvik)
     }
 
