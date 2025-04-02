@@ -1,13 +1,11 @@
-
 nibas:
   api:
-    base-url: http://localhost:8080/v1
+    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
 
 # Bruker samme API-nøkkel som Matrikkel for testing.
 api:
   key:
     matrikkel: ${API_KEY_MATRIKKEL:}
-
 
 management:
   server:

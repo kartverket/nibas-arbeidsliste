@@ -26,16 +26,25 @@ class WebClientConfig(
         val activeProfiles = environment.activeProfiles
         return activeProfiles.contains("localhost") && activeProfiles.contains("security-off")
     }
-
+    /**
+     * Konfigurerer WebClient for NIBAS API-integrasjon.
+     * Håndterer to scenarioer:
+     * 1. Produksjonsmiljø: Krever gyldig API-nøkkel for autentisering
+     * 2. Lokalt utviklingsmiljø: Kan kjøre uten sikkerhet når 'localhost,security-off' profiler er aktive
+     */
     @Bean
     fun nibasWebClient(): WebClient {
         val webClientBuilder = WebClient.builder()
             .baseUrl(baseUrl)
 
-        // Legg til API-nøkkel kun hvis sikkerhet ikke er deaktivert
+        if (!isSecurityDisabled() && matrikkelApiKey.isNullOrBlank()) {
+            throw IllegalArgumentException("matrikkelApiKey is not set and security is not disabled")
+        }
+
         if (!isSecurityDisabled() && !matrikkelApiKey.isNullOrBlank()) {
-            logger.info("Konfigurerer WebClient med API-nøkkelautentisering")
-            webClientBuilder.defaultHeader("X-API-Key", matrikkelApiKey)
+            val authHeaderValue = "Basic $matrikkelApiKey"
+            logger.info("Konfigurerer WebClient med IKKE-STANDARD 'Authorization: Basic <raw_key>' header")
+            webClientBuilder.defaultHeader("Authorization", authHeaderValue)
         } else {
             logger.info("Kjører med sikkerhet deaktivert eller manglende API-nøkkel")
         }

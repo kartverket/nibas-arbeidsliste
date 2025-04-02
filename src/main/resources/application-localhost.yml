@@ -7,7 +7,7 @@ management:
 
 nibas:
   api:
-    base-url: http://localhost:8080/v1
+    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
 
 spring:
   datasource:
@@ -20,7 +20,7 @@ spring:
   jpa:
     hibernate:
       # TODO: Kun for testing.
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true

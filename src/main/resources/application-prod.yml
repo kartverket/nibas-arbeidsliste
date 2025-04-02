@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+nibas:
+  api:
+    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
+
 spring:
   main:
     banner-mode: "OFF"
