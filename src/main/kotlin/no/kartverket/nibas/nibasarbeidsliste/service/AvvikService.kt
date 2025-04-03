@@ -8,6 +8,7 @@ import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
+import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -70,11 +71,17 @@ class AvvikService(
         // Henter alle avvik med gitt grenstyper
         val alleAvvik = avvikRepository.findAllByGrensetyper(grensetyper)
 
+        // Vil kun returnere avvik med disse statusene siden det kun disse som faktiske avvik.
+        val allowedStatuses = setOf(AvvikStatus.NY, AvvikStatus.UNDER_BEHANDLING, AvvikStatus.VENT)
+
+        // Filter avvik basert på status
+        val filteredAvvik = alleAvvik.filter { it.status in allowedStatuses }
+
         // Map til å holde oversikt over antall avvik per kommune
         val kommuneAvvikMap = mutableMapOf<String, KommuneAvvikDTO>()
 
-        // Teller avvik per kommune
-        alleAvvik.forEach { avvik ->
+        // Teller avvik per kommune using the filtered list
+        filteredAvvik.forEach { avvik ->
             avvik.kommuner?.forEach { kommune ->
                 if (kommune.kommunenavn != null && kommune.kommunenummer != null) {
                     val key = "${kommune.kommunenummer}:${kommune.kommunenavn}"
