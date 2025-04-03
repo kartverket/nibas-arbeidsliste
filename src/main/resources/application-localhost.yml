@@ -7,7 +7,7 @@ management:
 
 nibas:
   api:
-    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
+    base-url: http://localhost:8080/v1
 
 spring:
   datasource:
