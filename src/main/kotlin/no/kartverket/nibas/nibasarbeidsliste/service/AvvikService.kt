@@ -66,55 +66,15 @@ class AvvikService(
      * @return En [Page] med [KommuneAvvikDTO].
      */
     fun hentKommunerMedAvvikSummary(grensetyper: List<String>?, pageable: Pageable): Page<KommuneAvvikDTO> {
-        logger.info("Henter paginert oppsummering av kommuner med avvik. Side: {}, Antall: {}", pageable.pageNumber, pageable.pageSize)
+        logger.info("Henter paginert oppsummering av kommuner med avvik. Filtre: grensetyper={}, Side: {}, Antall: {}", grensetyper, pageable.pageNumber, pageable.pageSize)
 
-        // Henter alle avvik med gitt grenstyper
-        val alleAvvik = avvikRepository.findAllByGrensetyper(grensetyper)
-
-        // Vil kun returnere avvik med disse statusene siden det kun disse som faktiske avvik.
         val allowedStatuses = setOf(AvvikStatus.NY, AvvikStatus.UNDER_BEHANDLING, AvvikStatus.VENT)
 
-        // Filter avvik basert på status
-        val filteredAvvik = alleAvvik.filter { it.status in allowedStatuses }
-
-        // Map til å holde oversikt over antall avvik per kommune
-        val kommuneAvvikMap = mutableMapOf<String, KommuneAvvikDTO>()
-
-        // Teller avvik per kommune using the filtered list
-        filteredAvvik.forEach { avvik ->
-            avvik.kommuner?.forEach { kommune ->
-                if (kommune.kommunenavn != null && kommune.kommunenummer != null) {
-                    val key = "${kommune.kommunenummer}:${kommune.kommunenavn}"
-                    val existing = kommuneAvvikMap[key]
-                    if (existing == null) {
-                        kommuneAvvikMap[key] = KommuneAvvikDTO(
-                            fylkesLokalID = kommune.fylkesLokalID,
-                            kommuneLokalID = kommune.kommuneLokalID,
-                            kommuneNummer = kommune.kommunenummer,
-                            kommuneNavn = kommune.kommunenavn,
-                            antallAvvik = 1,
-                        )
-                    } else {
-                        kommuneAvvikMap[key] = existing.copy(antallAvvik = existing.antallAvvik + 1)
-                    }
-                }
-            }
-        }
-
-        // Henter sortert liste med mest avvik først
-        val sortedSummaryList = kommuneAvvikMap.values.sortedByDescending { it.antallAvvik }
-
-        // Implementerer manuell paginering på den sorterte listen
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(sortedSummaryList.size)
-
-        val pageContent = if (start <= end) {
-            sortedSummaryList.subList(start, end)
-        } else {
-            emptyList()
-        }
-
-        return PageImpl(pageContent, pageable, sortedSummaryList.size.toLong())
+        return avvikRepository.findKommuneAvvikSummaryPage(
+            statuses = allowedStatuses,
+            grensetyper = grensetyper,
+            pageable = pageable
+        )
     }
 
     /**
