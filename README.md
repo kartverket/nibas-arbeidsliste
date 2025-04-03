@@ -64,6 +64,7 @@ Applikasjonen er avhengig av at PostGIS-utvidelsen er installert i `nibas`-datab
 Brukerens `search_path` settes slik at både det dedikerte schemaet og PostGIS-schemaet er inkludert.
 
 ### Opprett schema og bruker
+
 Antar at nibas-backend database er opprettet og at PostGIS-utvidelsen er installert i `nibas`-databasen.
 
 ```bash
@@ -73,20 +74,25 @@ sudo -u postgres psql -d nibas
 
 ```sql
 -- 1. Opprett brukeren (passordet må matche application-localhost.yml)
-CREATE USER nibas_arbeidsliste WITH PASSWORD 'nibas_arbeidsliste';
+CREATE
+USER nibas_arbeidsliste WITH PASSWORD 'nibas_arbeidsliste';
 
 -- 2. Opprett schemaet og sett eierskap
 CREATE SCHEMA nibas_arbeidsliste_schema AUTHORIZATION nibas_arbeidsliste;
 
 -- 3. Gi brukeren tilgang til PostGIS-schemaet (antar 'public')
-GRANT USAGE ON SCHEMA public TO nibas_arbeidsliste;
+GRANT
+USAGE
+ON
+SCHEMA
+public TO nibas_arbeidsliste;
 
 -- 4. Gi brukeren lesetilgang til nødvendige PostGIS-tabeller (antar 'public')
 GRANT SELECT ON TABLE public.spatial_ref_sys TO nibas_arbeidsliste;
-GRANT SELECT ON TABLE public.geometry_columns TO nibas_arbeidsliste;
 
 -- 5. Sett brukerens standard søkesti (search_path)
-ALTER USER nibas_arbeidsliste SET search_path = nibas_arbeidsliste_schema, public;
+ALTER
+USER nibas_arbeidsliste SET search_path = nibas_arbeidsliste_schema, public;
 ```
 
 *Merk: Hvis PostGIS er installert i et annet schema enn `public`, må du erstatte `public` med korrekt schema-navn i kommandoene over.*
@@ -102,7 +108,8 @@ psql -U nibas_arbeidsliste -d nibas -h localhost
 Når tilkoblet, kan du verifisere søkestien:
 
 ```sql
-SHOW search_path;
+SHOW
+search_path;
 -- Forventet output: "nibas_arbeidsliste_schema, public"
 ```
 

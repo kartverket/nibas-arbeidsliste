@@ -32,7 +32,7 @@ class AvvikService(
      * @return En [Page] med [AvvikDTO].
      */
     fun hentAlleAvvik(grensetyper: List<String>?, pageable: Pageable): Page<AvvikDTO> {
-        logger.info("Henter alle avvik med paginering: {}", pageable)
+        logger.info("Henter alle avvik med grensetyper: {} og paginering: {}", grensetyper, pageable)
         val avvik = if (!grensetyper.isNullOrEmpty()) {
             avvikRepository.findAllByGrensetyper(grensetyper, pageable)
         } else {
@@ -50,7 +50,7 @@ class AvvikService(
      * @return En liste ([List]) med [AvvikDTO] for den gitte kommunens lokalId. Returnerer en tom liste hvis ingen avvik finnes.
      */
     fun hentAvvik(lokalid: String, grensetyper: List<String>?): List<AvvikDTO> {
-        logger.info("Henter alle avvik for kommune med lokalId {} og grensetyper {}", lokalid, grensetyper)
+        logger.info("Henter alle avvik for kommune med lokalId {} med grensetyper {}", lokalid, grensetyper)
         val avvikList = if (!grensetyper.isNullOrEmpty()) {
             avvikRepository.findKommuneByLokalIdAndGrensetyper(lokalid, grensetyper)
         } else {
