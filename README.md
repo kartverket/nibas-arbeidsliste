@@ -58,42 +58,68 @@ deretter vises via API-endepunktet `GET /api/v1/avvik`.
 
 ## Database
 
-Applikasjonen bruker PostgreSQL med PostGIS-utvidelse for å håndtere geografiske data.
-Følg disse stegene for å sette opp databasen:
+Bruker NIBAS-databasen (`nibas`) med et eget dedikert schema (`nibas_arbeidsliste_schema`) og databasebruker (`nibas_arbeidsliste`).
 
-### Opprett database og aktiver PostGIS
+Applikasjonen er avhengig av at PostGIS-utvidelsen er installert i `nibas`-databasen (vanligvis i `public`-schemaet).
+Brukerens `search_path` settes slik at både det dedikerte schemaet og PostGIS-schemaet er inkludert.
+
+### Opprett schema og bruker
+
+Antar at nibas-backend database er opprettet og at PostGIS-utvidelsen er installert i `nibas`-databasen.
 
 ```bash
 # Logg inn som postgres-bruker
-sudo -u postgres psql
-
-# Kjør følgende SQL-kommandoer i psql-terminalen:
-CREATE USER arbeidsliste WITH PASSWORD 'arbeidsliste';
-CREATE DATABASE arbeidsliste OWNER arbeidsliste;
-GRANT ALL PRIVILEGES ON DATABASE arbeidsliste TO arbeidsliste;
-
-# Koble til databasen
-\c arbeidsliste
-
-# Aktiver PostGIS-utvidelsen
-CREATE EXTENSION postgis;
-
-# Avslutt psql
-\q
+sudo -u postgres psql -d nibas
 ```
 
-### 4. Verifiser tilkoblingen
+```sql
+-- 1. Opprett brukeren (passordet må matche application-localhost.yml)
+CREATE
+USER nibas_arbeidsliste WITH PASSWORD 'nibas_arbeidsliste';
+
+-- 2. Opprett schemaet og sett eierskap
+CREATE SCHEMA nibas_arbeidsliste_schema AUTHORIZATION nibas_arbeidsliste;
+
+-- 3. Gi brukeren tilgang til PostGIS-schemaet (antar 'public')
+GRANT
+USAGE
+ON
+SCHEMA
+public TO nibas_arbeidsliste;
+
+-- 4. Gi brukeren lesetilgang til nødvendige PostGIS-tabeller (antar 'public')
+GRANT SELECT ON TABLE public.spatial_ref_sys TO nibas_arbeidsliste;
+
+-- 5. Sett brukerens standard søkesti (search_path)
+ALTER
+USER nibas_arbeidsliste SET search_path = nibas_arbeidsliste_schema, public;
+```
+
+*Merk: Hvis PostGIS er installert i et annet schema enn `public`, må du erstatte `public` med korrekt schema-navn i kommandoene over.*
+
+### Verifiser tilkoblingen
+
+Du kan teste tilkoblingen med den nye brukeren:
 
 ```bash
-# Test tilkoblingen med den nye brukeren
-psql -U arbeidsliste -d arbeidsliste -h localhost
+psql -U nibas_arbeidsliste -d nibas -h localhost
 ```
 
-Databasekonfigurasjonen er definert i `application.yml`. Standardinnstillingene er:
+Når tilkoblet, kan du verifisere søkestien:
 
-- URL: `jdbc:postgresql://localhost:5432/arbeidsliste`
-- Brukernavn: `arbeidsliste`
-- Passord: `arbeidsliste`
+```sql
+SHOW
+search_path;
+-- Forventet output: "nibas_arbeidsliste_schema, public"
+```
+
+### Databasekonfigurasjon (application-localhost.yml)
+
+Standardinnstillingene for lokal utvikling (`localhost`-profilen) er definert i `src/main/resources/application-localhost.yml`:
+
+- URL: `jdbc:postgresql://localhost:5432/nibas`
+- Brukernavn: `nibas_arbeidsliste`
+- Passord: `nibas_arbeidsliste`
 
 ## Lokal kjøring
 
@@ -129,15 +155,17 @@ Applikasjonen vil starte på port 8082 med localhost-profilen, som definert i `a
 http://localhost:8082/swagger-ui/index.html#/
 
 * `GET /api/v1/avvik`: Henter alle avvik
+* `GET /api/v1/avvik/kommuner`: Henter kommuner med avvik
 
 ## TODO:
 
-### Setup tings..
+### Setup tings...
 
-- [ ] Dockerfile
-- [ ] Docker compose (for å kjøre både applikasjonen og NIBAS-backend)
-- [x] .editorconfig (kopier fra nibas)
-- [ ] SKIP oppsett
+- [ ] SKIP oppsett. Smia-apps oppsett.
+- [ ] Auth mot NIBAS-backend.
+- [ ] Auth mot nibas-frontend via proxy.
+- [ ] Database DEV
+- [ ] Database PROD
 
 ### Funksjoner
 

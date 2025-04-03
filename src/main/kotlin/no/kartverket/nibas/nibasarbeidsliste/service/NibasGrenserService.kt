@@ -1,21 +1,16 @@
 package no.kartverket.nibas.nibasarbeidsliste.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
 @Service
 class NibasGrenserService(
-    @Value("\${nibas.api.base-url}")
-    private val baseUrl: String
+    private val webClient: WebClient
 ) {
 
     private val logger = LoggerFactory.getLogger(NibasGrenserService::class.java)
-    private val webClient = WebClient.builder()
-        .baseUrl(baseUrl)
-        .build()
 
     /**
      * Henter grenser fra Nibas API

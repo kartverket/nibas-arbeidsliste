@@ -1,17 +1,21 @@
 package no.kartverket.nibas.nibasarbeidsliste.service
 
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikRequestDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
+import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class AvvikService(
@@ -20,44 +24,89 @@ class AvvikService(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun hentAlleAvvik(pageable: Pageable): Page<AvvikDTO> {
-        logger.info("Henter avvik for side {} med antall {}", pageable.pageNumber, pageable.pageSize)
-        return avvikRepository.findAll(pageable).map { convertToDTO(it) }
+    /**
+     * Henter en paginert liste med alle registrerte avvik.
+     *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @param pageable Paginering og sortering
+     * @return En [Page] med [AvvikDTO].
+     */
+    fun hentAlleAvvik(grensetyper: List<String>?, pageable: Pageable): Page<AvvikDTO> {
+        logger.info("Henter alle avvik med grensetyper: {} og paginering: {}", grensetyper, pageable)
+        val avvik = if (!grensetyper.isNullOrEmpty()) {
+            avvikRepository.findAllByGrensetyper(grensetyper, pageable)
+        } else {
+            avvikRepository.findAll(pageable)
+        }
+        val avvikDto = avvik.map { convertToDTO(it) }
+        return avvikDto
     }
 
     /**
-     * Henter oppsummering av kommuner med avvik og antall avvik per kommune
+     * Henter alle avvik knyttet til en spesifikk kommune via lokalId.
+     *
+     * @param lokalid Den unike lokalId (UUID) for kommunen slik den er registrert i avvikets kommuneliste.
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @return En liste ([List]) med [AvvikDTO] for den gitte kommunens lokalId. Returnerer en tom liste hvis ingen avvik finnes.
      */
-    fun hentKommunerMedAvvikSummary(): List<KommuneAvvikDTO> {
-        logger.info("Henter oppsummering av kommuner med avvik")
-        val alleAvvik = avvikRepository.findAll()
+    fun hentAvvik(lokalid: String, grensetyper: List<String>?): List<AvvikDTO> {
+        logger.info("Henter alle avvik for kommune med lokalId {} med grensetyper {}", lokalid, grensetyper)
+        val avvikList = if (!grensetyper.isNullOrEmpty()) {
+            avvikRepository.findKommuneByLokalIdAndGrensetyper(lokalid, grensetyper)
+        } else {
+            avvikRepository.findKommuneByLokalId(lokalid)
+        }
+        return avvikList.map { convertToDTO(it) }
+    }
 
-        // Map til å holde oversikt over antall avvik per kommune
-        val kommuneAvvikMap = mutableMapOf<String, KommuneAvvikDTO>()
+    /**
+     * Henter en paginert list av kommuner med avvik, sortert etter antall avvik (synkende).
+     *
+     * @param pageable Pagineringinformasjon (sidenummer, antall per side).
+     * @return En [Page] med [KommuneAvvikDTO].
+     */
+    fun hentKommunerMedAvvikSummary(grensetyper: List<String>?, pageable: Pageable): Page<KommuneAvvikDTO> {
+        logger.info("Henter paginert oppsummering av kommuner med avvik. Filtre: grensetyper={}, Side: {}, Antall: {}", grensetyper, pageable.pageNumber, pageable.pageSize)
 
-        // Teller avvik per kommune
-        alleAvvik.forEach { avvik ->
-            avvik.kommuner?.forEach { kommune ->
-                if (kommune.kommunenavn != null && kommune.kommunenummer != null) {
-                    val key = "${kommune.kommunenummer}:${kommune.kommunenavn}"
-                    val existing = kommuneAvvikMap[key]
-                    if (existing == null) {
-                        kommuneAvvikMap[key] = KommuneAvvikDTO(
-                            kommunenavn = kommune.kommunenavn,
-                            kommunenummer = kommune.kommunenummer,
-                            kommunelokalid = kommune.kommuneLokalID,
-                            fylkeslokalid = kommune.fylkesLokalID,
-                            antallAvvik = 1,
-                        )
-                    } else {
-                        kommuneAvvikMap[key] = existing.copy(antallAvvik = existing.antallAvvik + 1)
-                    }
-                }
-            }
+        val allowedStatuses = setOf(AvvikStatus.NY, AvvikStatus.UNDER_BEHANDLING, AvvikStatus.VENT)
+
+        return avvikRepository.findKommuneAvvikSummaryPage(
+            statuses = allowedStatuses,
+            grensetyper = grensetyper,
+            pageable = pageable
+        )
+    }
+
+    /**
+     * Oppdaterer flere avvik samtidig.
+     *
+     * @param updates Liste med oppdateringer for avvik
+     * @return Liste med oppdaterte [AvvikDTO]
+     * @throws IllegalArgumentException hvis noen av ids ikke finnes
+     */
+    fun oppdaterAvvik(updates: List<AvvikRequestDTO>): List<AvvikDTO> {
+        logger.info("Oppdaterer {} avvik", updates.size)
+
+        val ids = updates.map { it.id }
+        val existingAvvik = avvikRepository.findAllByIds(ids)
+
+        if (existingAvvik.size != updates.size) {
+            val missingIds = ids - existingAvvik.map { it.id }.toSet()
+            throw IllegalArgumentException("Fant ikke avvik med ids: $missingIds")
         }
 
-        // Returnerer sortert liste med mest avvik først
-        return kommuneAvvikMap.values.sortedByDescending { it.antallAvvik }
+        val updatedAvvik = updates.map { update ->
+            val avvik = existingAvvik.find { it.id == update.id }
+                ?: throw IllegalArgumentException("Fant ikke avvik med id: ${update.id}")
+
+            avvik.copy(
+                status = update.status,
+                endretDato = LocalDateTime.now().toString(),
+            )
+        }
+
+        val savedAvvik = avvikRepository.saveAll(updatedAvvik)
+        return savedAvvik.map { convertToDTO(it) }
     }
 
     private fun convertToDTO(avvik: Avvik): AvvikDTO {
@@ -105,8 +154,8 @@ class AvvikService(
                 KommuneDTO(
                     fylkesLokalID = kommune.fylkesLokalID,
                     kommuneLokalID = kommune.kommuneLokalID,
-                    kommunenummer = kommune.kommunenummer,
-                    kommunenavn = kommune.kommunenavn
+                    kommuneNummer = kommune.kommunenummer,
+                    kommuneNavn = kommune.kommunenavn
                 )
             },
         )

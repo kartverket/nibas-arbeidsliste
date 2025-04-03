@@ -1,10 +1,10 @@
 package no.kartverket.nibas.nibasarbeidsliste.config
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 import no.kartverket.nibas.nibasarbeidsliste.model.Kommune
@@ -20,10 +20,11 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.io.InputStream
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
-import java.io.InputStream
 
 /**
  * Komponent som initialiserer data med avvik ved oppstart av applikasjonen
@@ -42,19 +43,47 @@ class DataInitializer(
 
     @EventListener(ApplicationReadyEvent::class)
     fun initData() {
-        if (avvikRepository.count() > 0) {
-            logger.info("Database har allerede {} avvik, hopper over initialisering", avvikRepository.count())
-            return
-        }
-
-        logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
+        // Tester tilkobling til NIBAS API
+        testNibasApiConnection()
 
         try {
+            if (avvikRepository.count() > 0) {
+                logger.info("Database har allerede {} avvik, hopper over initialisering", avvikRepository.count())
+                return
+            }
+
+            logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
+
             val avvik = hentAvvikFraNibas()
             avvikRepository.saveAll(avvik)
             logger.info("Initialisert {} avvik i databasen", avvik.size)
         } catch (e: Exception) {
             logger.error("Feil ved initialisering av testdata: {}", e.message, e)
+            logger.error("Dette kan skyldes manglende databasetilkobling, men API-nøkkel funksjonalitet kan likevel fungere.")
+        }
+    }
+
+    /**
+     * Tester tilkobling til NIBAS API med eller uten API-nøkkel
+     * Dette kjøres før database-operasjoner for å verifisere API-nøkkel funksjonalitet
+     */
+    private fun testNibasApiConnection() {
+        logger.info("Tester tilkobling til NIBAS API...")
+
+        try {
+            // Hent én grense for å teste tilkobling og API-nøkkel
+            val response = nibasGrenserService.hentGrenser(1, 1)
+                .block(Duration.ofSeconds(10))
+
+            if (response != null) {
+                logger.info("✅ Vellykket tilkobling til NIBAS API med følgende respons:")
+                logger.info(response.take(200))
+            } else {
+                logger.warn("⚠️ Fikk null-respons fra NIBAS API, men ingen exception")
+            }
+        } catch (e: Exception) {
+            logger.error("❌ Feil ved tilkobling til NIBAS API: {}", e.message, e)
+            logger.error("Dette kan indikere et problem med API-nøkkel eller tilkobling til NIBAS backend")
         }
     }
 

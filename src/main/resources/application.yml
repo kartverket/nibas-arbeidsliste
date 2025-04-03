@@ -1,26 +1,11 @@
-server:
-  port: 8080
-
 nibas:
   api:
-    base-url: http://localhost:8080/v1
+    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
 
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/arbeidsliste
-    username: arbeidsliste
-    password: arbeidsliste
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      # TODO: Kun for testing.
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
-        format_sql: true
-    show-sql: true
+# Bruker samme API-nøkkel som Matrikkel for testing.
+api:
+  key:
+    matrikkel: ${API_KEY_MATRIKKEL:}
 
 management:
   server:

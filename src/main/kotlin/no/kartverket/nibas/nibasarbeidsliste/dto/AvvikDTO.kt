@@ -118,8 +118,8 @@ data class KommuneDTO(
     val kommuneLokalID: String? = null,
 
     @JsonProperty("kommunenummer")
-    val kommunenummer: String? = null,
+    val kommuneNummer: String? = null,
 
     @JsonProperty("kommunenavn")
-    val kommunenavn: String? = null
+    val kommuneNavn: String? = null
 )
