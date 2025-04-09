@@ -22,9 +22,10 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
         format_sql: true
     show-sql: true
 
