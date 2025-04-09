@@ -10,7 +10,9 @@ jobs:
       packages: write
       security-events: write
       actions: read
-    uses: kartverket/nibas-arbeidsliste/.github/workflows/build-native-app.yml@main
+    uses: ./.github/workflows/build-app.yml
+    with:
+      deploy_ghcr: true
     secrets: inherit
 
   pharos:

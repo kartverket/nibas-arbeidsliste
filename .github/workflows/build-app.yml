@@ -1,17 +1,40 @@
 name: Build non-native app
 on:
-  merge_group:
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      deploy_ghcr:
+        description: "Deploy to ghcr?"
+        default: false
+        type: boolean # Correct type
+    outputs:
+      version:
+        description: "The version of the docker-image created"
+        value: ${{ jobs.build.outputs.new_tag }}
+      image_url:
+        description: "The full URL to the docker-image created including digest"
+        value: ${{ jobs.build.outputs.image_url }}
+
+env:
+  image_name: nibas-arbeidsliste # Updated image name
+  registry: ghcr.io
+  registry_path: kartverket
 
 jobs:
   build:
+    # Copied permissions from nibas-backend workflow
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
       security-events: write
       actions: read
+      issues: read
+      checks: write
+      pull-requests: write
+
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
+      image_url: ${{ steps.setOutput.outputs.image_url }} # Final output with digest
 
     steps:
       - name: Set local timezone
@@ -31,3 +54,34 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build -x test --info
+        env:
+          JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Oslo"
+
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ github.token }}
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build docker and push
+        id: docker_build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ inputs.deploy_ghcr }}
+          tags: ${{ env.registry }}/${{ github.repository }}:${{ steps.tag_version.outputs.new_tag }}
+          build-args: |
+            project_version_arg=${{ steps.tag_version.outputs.new_tag }}
+
+      - name: Set output with build values
+        id: setOutput
+        run: |
+          echo "image_url=${{ env.registry }}/${{ github.repository }}@${{ steps.docker_build.outputs.digest }}" >> $GITHUB_OUTPUT
