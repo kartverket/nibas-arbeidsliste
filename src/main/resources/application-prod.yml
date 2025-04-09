@@ -3,7 +3,7 @@ server:
 
 nibas:
   api:
-    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
+    base-url: ${NIBAS_BACKEND_HOST}/v1/
 
 # API-key mot nibas-backend
 api:
