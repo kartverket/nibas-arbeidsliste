@@ -17,7 +17,6 @@ import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.PrecisionModel
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.io.InputStream
@@ -31,7 +30,6 @@ import java.time.format.DateTimeParseException
  * Kjører kun i localhost-profilen.
  */
 @Component
-@Profile("localhost")
 class DataInitializer(
     private val avvikRepository: AvvikRepository,
     private val nibasGrenserService: NibasGrenserService
