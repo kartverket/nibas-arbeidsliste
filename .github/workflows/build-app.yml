@@ -5,7 +5,7 @@ on:
       deploy_ghcr:
         description: "Deploy to ghcr?"
         default: false
-        type: boolean # Correct type
+        type: boolean
     outputs:
       version:
         description: "The version of the docker-image created"
@@ -21,7 +21,6 @@ env:
 
 jobs:
   build:
-    # Copied permissions from nibas-backend workflow
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,7 +33,7 @@ jobs:
 
     outputs:
       new_tag: ${{ steps.tag_version.outputs.new_tag }}
-      image_url: ${{ steps.setOutput.outputs.image_url }} # Final output with digest
+      image_url: ${{ steps.setOutput.outputs.image_url }}
 
     steps:
       - name: Set local timezone

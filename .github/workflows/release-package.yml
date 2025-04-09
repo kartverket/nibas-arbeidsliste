@@ -10,6 +10,9 @@ jobs:
       packages: write
       security-events: write
       actions: read
+      issues: read
+      checks: write
+      pull-requests: write
     uses: ./.github/workflows/build-app.yml
     with:
       deploy_ghcr: true
