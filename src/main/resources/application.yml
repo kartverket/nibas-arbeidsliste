@@ -1,29 +1,3 @@
-nibas:
-  api:
-    base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
-
-# Bruker samme API-nøkkel som Matrikkel for testing.
-api:
-  key:
-    matrikkel: ${API_KEY_MATRIKKEL:}
-
-management:
-  server:
-    port: 8081
-  endpoints:
-    web:
-      exposure:
-        include: 'health, prometheus'
-  endpoint:
-    health:
-      enabled: true
-      probes:
-        enabled: true
-      show-details: always
-
-  application:
-    name: 'nibas-arbeidsliste'
-
 logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
