@@ -3,7 +3,7 @@ server:
 
 nibas:
   api:
-    base-url: ${NIBAS_BACKEND_HOST}/v1/
+    base-url: ${nibas.backend.host}/v1/
 
 # API-key mot nibas-backend
 api:
