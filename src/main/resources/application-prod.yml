@@ -5,6 +5,11 @@ nibas:
   api:
     base-url: https://nibas.atkv3-dev.kartverket-intern.cloud/v1/
 
+# API-key mot nibas-backend
+api:
+  key:
+    matrikkel: ${API_KEY_MATRIKKEL:}
+
 spring:
   main:
     banner-mode: "OFF"
@@ -16,7 +21,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
@@ -38,10 +43,10 @@ management:
         include: '*'
   endpoint:
     health:
-      enabled: true
       probes:
         enabled: true
       show-details: always
+      access: unrestricted
   info:
     env:
       enabled: true
@@ -50,4 +55,3 @@ info:
   application:
     name: 'nibas-arbeidsliste'
     version: ${PROJECT_VERSION:0.0.1}
-
