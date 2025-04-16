@@ -4,11 +4,15 @@ server:
 nibas:
   api:
     base-url: ${nibas.backend.host}/v1/
+  arbeidsliste:
+    api-key: ${nibas.arbeidsliste.api-key}
+    host: ${nibas.arbeidsliste.host}
+
 
 # API-key mot nibas-backend
 api:
   key:
-    matrikkel: ${API_KEY_MATRIKKEL:}
+    matrikkel: ${api.key.matrikkel}
 
 spring:
   main:
