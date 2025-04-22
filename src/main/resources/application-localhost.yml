@@ -25,8 +25,8 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
         format_sql: true
+        default_schema: nibas_arbeidsliste_schema
     show-sql: true
 
 logging:
