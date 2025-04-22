@@ -29,7 +29,7 @@ spring:
       hibernate:
         format_sql: true
         default_schema: nibas_arbeidsliste_schema
-    show-sql: false
+    show-sql: true
 
 management:
   server:
