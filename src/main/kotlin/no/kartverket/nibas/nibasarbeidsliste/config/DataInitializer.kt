@@ -19,15 +19,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.io.InputStream
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 
 /**
  * Komponent som initialiserer data med avvik ved oppstart av applikasjonen
- * Kjører kun i localhost-profilen.
  */
 @Component
 class DataInitializer(
@@ -40,9 +39,8 @@ class DataInitializer(
     private val geometryFactory = GeometryFactory(PrecisionModel(), 25833)
 
     @EventListener(ApplicationReadyEvent::class)
+    @Transactional
     fun initData() {
-        // Tester tilkobling til NIBAS API
-        testNibasApiConnection()
 
         try {
             if (avvikRepository.count() > 0) {
@@ -52,76 +50,52 @@ class DataInitializer(
 
             logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
 
-            val avvik = hentAvvikFraNibas()
-            avvikRepository.saveAll(avvik)
-            logger.info("Initialisert {} avvik i databasen", avvik.size)
+            // Henter avvik fra JSON-fil
+            val mockData = readMockData()
+            var savedCount = 0
+
+            for ((lokalId, _) in mockData) {
+                logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
+
+                val response = try {
+                    // Henter grense fra Nibas API
+                    nibasGrenserService.hentGrenseByLokalId(lokalId)
+                        .doOnError { error ->
+                            logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
+                        }
+                        .blockOptional()
+                        .orElse(null)
+                } catch (e: Exception) {
+                    logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
+                    null
+                }
+
+                if (response != null) {
+                    try {
+                        logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
+
+                        val grense = parseGrenseJson(response)
+                        val mockDataForGrense = mockData[lokalId]
+                        val avvik = createAvvik(grense, mockDataForGrense)
+
+                        avvikRepository.save(avvik)
+                        avvikRepository.flush()
+                        savedCount++
+
+                        logger.info("Lagret avvik #{} for grense med lokalID={}", savedCount, lokalId)
+                    } catch (e: Exception) {
+                        logger.error("Feil ved lagring av avvik for grense med lokalID={}: {}", lokalId, e.message, e)
+                    }
+                } else {
+                    logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
+                }
+            }
+
+            logger.info("Initialisert {} avvik i databasen", savedCount)
         } catch (e: Exception) {
             logger.error("Feil ved initialisering av testdata: {}", e.message, e)
             logger.error("Dette kan skyldes manglende databasetilkobling, men API-nøkkel funksjonalitet kan likevel fungere.")
         }
-    }
-
-    /**
-     * Tester tilkobling til NIBAS API med eller uten API-nøkkel
-     * Dette kjøres før database-operasjoner for å verifisere API-nøkkel funksjonalitet
-     */
-    private fun testNibasApiConnection() {
-        logger.info("Tester tilkobling til NIBAS API...")
-
-        try {
-            // Hent én grense for å teste tilkobling og API-nøkkel
-            val response = nibasGrenserService.hentGrenser(1, 1)
-                .block(Duration.ofSeconds(10))
-
-            if (response != null) {
-                logger.info("✅ Vellykket tilkobling til NIBAS API med følgende respons:")
-                logger.info(response.take(200))
-            } else {
-                logger.warn("⚠️ Fikk null-respons fra NIBAS API, men ingen exception")
-            }
-        } catch (e: Exception) {
-            logger.error("❌ Feil ved tilkobling til NIBAS API: {}", e.message, e)
-            logger.error("Dette kan indikere et problem med API-nøkkel eller tilkobling til NIBAS backend")
-        }
-    }
-
-    /**
-     * Henter grenser fra Nibas API basert på lokalID-er og oppretter avvik for hver grense
-     */
-    private fun hentAvvikFraNibas(): List<Avvik> {
-        val avvikListe = mutableListOf<Avvik>()
-        // Henter avvik fra JSON-fil
-        val mockData = readMockData()
-
-        for ((lokalId, _) in mockData) {
-            logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
-
-            val response = try {
-                // Henter grense fra Nibas API
-                nibasGrenserService.hentGrenseByLokalId(lokalId)
-                    .doOnError { error ->
-                        logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
-                    }
-                    .blockOptional()
-                    .orElse(null)
-            } catch (e: Exception) {
-                logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
-                null
-            }
-
-            if (response != null) {
-                logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
-
-                val grense = parseGrenseJson(response)
-                val mockDataForGrense = mockData[lokalId]
-                val avvik = createAvvik(grense, mockDataForGrense)
-                avvikListe.add(avvik)
-            } else {
-                logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
-            }
-        }
-
-        return avvikListe
     }
 
 
@@ -234,12 +208,16 @@ class DataInitializer(
             val mapper = ObjectMapper().registerKotlinModule()
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-            logger.debug("JSON content: {}", resourceStream.bufferedReader().use { it.readText() })
+            logger.info("Leser innhold fra mock-data fil...")
+            val sampleContent = resourceStream.bufferedReader().readLine()
+            logger.info("Første linje av JSON fil: {}", sampleContent)
 
             val resourceStreamForReading = javaClass.classLoader.getResourceAsStream(fileName)
                 ?: throw IllegalStateException("Kunne ikke finne $fileName i resources folderen")
 
+            logger.info("Deserialiserer mock-data...")
             val avvikList: List<AvvikJson> = mapper.readValue(resourceStreamForReading)
+            logger.info("Leste {} avvik fra json fil", avvikList.size)
 
             return avvikList.associateBy { it.lokalid }
         } catch (e: Exception) {
@@ -249,46 +227,64 @@ class DataInitializer(
     }
 
     private fun createAvvik(grense: Grense, mockData: AvvikJson?): Avvik {
-        return Avvik(
-            // Fra Nibas API
-            grenseId = grense.grenseId,
-            lokalId = grense.lokalId,
-            grensetype = grense.grensetype,
-            geometri = grense.geometri,
-            gyldigFra = grense.gyldigFra,
-            gyldigTil = grense.gyldigTil,
-            datafangstdato = grense.datafangstdato,
-            foerstedigitaliseringsdato = grense.foerstedigitaliseringsdato,
-            opphav = grense.opphav,
-            informasjon = grense.informasjon,
-            endretAv = grense.endretAv,
-            endretDato = grense.endretDato,
-            typeEndring = grense.typeEndring,
-            maalemetode = grense.maalemetode,
-            noeyaktighet = grense.noeyaktighet,
-            kommuner = grense.kommuner?.map { kommuneData ->
-                Kommune(
-                    fylkesLokalID = kommuneData.fylkesLokalID,
-                    kommuneLokalID = kommuneData.kommuneLokalID,
-                    kommunenummer = kommuneData.kommunenummer,
-                    kommunenavn = kommuneData.kommunenavn
-                )
-            },
+        if (mockData == null) {
+            logger.warn("Mangler mock-data for grense med lokalId={}", grense.lokalId)
+            return Avvik(
+                grenseId = grense.grenseId,
+                lokalId = grense.lokalId,
+                grensetype = grense.grensetype,
+                geometri = grense.geometri,
+                registrertDato = LocalDateTime.now(),
+                status = AvvikStatus.NY,
+                tolerance = 2 // Default tolerance
+            )
+        }
 
-            // Fra mock data
-            antallKoordinater = mockData?.totalCoordinates,
-            antallKoordinaterMedAvvik = mockData?.mismatches,
-            koordinaterMedAvvik = mockData?.mismatchedCoordinates?.map { coord ->
-                KoordinaterMedAvvik(
-                    koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.nibasX, coord.nibasY)),
-                    koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.matrikkelX, coord.matrikkelY)),
-                    distanseMellomKoordinater = coord.distanceMeters
-                )
-            },
-            tolerance = mockData?.tolerance,
-            registrertDato = LocalDateTime.now(),
-            status = AvvikStatus.NY
-        )
+        try {
+            return Avvik(
+                // Fra Nibas API
+                grenseId = grense.grenseId,
+                lokalId = grense.lokalId,
+                grensetype = grense.grensetype,
+                geometri = grense.geometri,
+                gyldigFra = grense.gyldigFra,
+                gyldigTil = grense.gyldigTil,
+                datafangstdato = grense.datafangstdato,
+                foerstedigitaliseringsdato = grense.foerstedigitaliseringsdato,
+                opphav = grense.opphav,
+                informasjon = grense.informasjon,
+                endretAv = grense.endretAv,
+                endretDato = grense.endretDato,
+                typeEndring = grense.typeEndring,
+                maalemetode = grense.maalemetode,
+                noeyaktighet = grense.noeyaktighet,
+                kommuner = grense.kommuner?.map { kommuneData ->
+                    Kommune(
+                        fylkesLokalID = kommuneData.fylkesLokalID,
+                        kommuneLokalID = kommuneData.kommuneLokalID,
+                        kommunenummer = kommuneData.kommunenummer,
+                        kommunenavn = kommuneData.kommunenavn
+                    )
+                },
+
+                // Fra mock data
+                antallKoordinater = mockData.totalCoordinates,
+                antallKoordinaterMedAvvik = mockData.mismatches,
+                koordinaterMedAvvik = mockData.mismatchedCoordinates.map { coord ->
+                    KoordinaterMedAvvik(
+                        koordinatFraNibas = geometryFactory.createPoint(Coordinate(coord.nibasX, coord.nibasY)),
+                        koordinatFraMatrikkelen = geometryFactory.createPoint(Coordinate(coord.matrikkelX, coord.matrikkelY)),
+                        distanseMellomKoordinater = coord.distanceMeters
+                    )
+                },
+                tolerance = mockData.tolerance,
+                registrertDato = LocalDateTime.now(),
+                status = AvvikStatus.NY
+            )
+        } catch (e: Exception) {
+            logger.error("Feil ved opprettelse av avvik for grense med lokalId={}: {}", grense.lokalId, e.message, e)
+            throw e
+        }
     }
 
     // Grense fra nibas
