@@ -6,7 +6,7 @@ graalvmNative = "0.10.6"
 logstashLogback = "8.1"
 springdocOpenapi = "2.8.6"
 micrometerPrometheus = "1.14.6"
-flyway = "10.9.1"
+flyway = "11.7.2"
 
 [libraries]
 # Spring Boot
