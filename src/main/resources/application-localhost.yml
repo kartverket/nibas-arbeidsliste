@@ -22,12 +22,18 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
         default_schema: nibas_arbeidsliste_schema
     show-sql: true
+  flyway:
+    clean-disabled: false
+    validate-on-migrate: false
+  data:
+    initialization:
+      enabled: true
 
 logging:
   pattern:

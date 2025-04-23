@@ -11,11 +11,13 @@ import no.kartverket.nibas.nibasarbeidsliste.model.Kommune
 import no.kartverket.nibas.nibasarbeidsliste.model.KoordinaterMedAvvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
+import org.flywaydb.core.Flyway
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.PrecisionModel
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -27,27 +29,28 @@ import java.time.format.DateTimeParseException
 
 /**
  * Komponent som initialiserer data med avvik ved oppstart av applikasjonen
+ * og håndterer database reset hvis konfigurert
  */
 @Component
 class DataInitializer(
     private val avvikRepository: AvvikRepository,
-    private val nibasGrenserService: NibasGrenserService
+    private val nibasGrenserService: NibasGrenserService,
+    private val flyway: Flyway,
+    @Value("\${spring.data.initialization.enabled:false}") private val initializationEnabled: Boolean
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = ObjectMapper()
 
     private val geometryFactory = GeometryFactory(PrecisionModel(), 25833)
 
+
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun initData() {
 
         try {
-            if (avvikRepository.count() > 0) {
-                logger.info("Database har allerede {} avvik, hopper over initialisering", avvikRepository.count())
-                return
-            }
-
+            // Resetter db med Flyway.
+            resetDatabase()
             logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
 
             // Henter avvik fra JSON-fil
@@ -90,7 +93,6 @@ class DataInitializer(
                     logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
                 }
             }
-
             logger.info("Initialisert {} avvik i databasen", savedCount)
         } catch (e: Exception) {
             logger.error("Feil ved initialisering av testdata: {}", e.message, e)
@@ -152,6 +154,26 @@ class DataInitializer(
         }
 
         return if (kommuneListe.isEmpty()) null else kommuneListe
+    }
+
+    fun resetDatabase() {
+        try {
+            logger.info("Resetter database...")
+            try {
+                logger.info("Forsøker å reparere Flyway checksums...")
+                flyway.repair()
+                logger.info("Flyway reparasjon fullført")
+            } catch (e: Exception) {
+                logger.warn("Flyway reparasjon feilet, fortsetter med clean: {}", e.message)
+            }
+
+            flyway.clean()
+            flyway.migrate()
+            logger.info("Database reset fullført")
+        } catch (e: Exception) {
+            logger.error("Feil ved resetting av database: {}", e.message, e)
+            throw e
+        }
     }
 
     private fun parseGeometri(geometriNode: JsonNode): LineString? {

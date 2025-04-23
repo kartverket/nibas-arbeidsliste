@@ -6,7 +6,6 @@ nibas:
     base-url: ${nibas.backend.host}/v1/
   arbeidsliste:
     api-key: ${nibas.arbeidsliste.api-key}
-    host: ${nibas.arbeidsliste.host}
 
 
 # API-key mot nibas-backend
@@ -24,12 +23,18 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
         default_schema: nibas_arbeidsliste_schema
     show-sql: true
+  flyway:
+    clean-disabled: false
+    validate-on-migrate: false
+  data:
+    initialization:
+      enabled: true
 
 management:
   server:

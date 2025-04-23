@@ -34,6 +34,10 @@ dependencies {
     implementation(libs.springdoc.openapi.webmvc.api)
     implementation(libs.springdoc.openapi.webmvc.ui)
 
+    // Flyway for database migrations
+    implementation(libs.flyway.core)
+    runtimeOnly(libs.flyway.database.postgresql)
+
     // Testing
     testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.spring.boot.starter.test)
