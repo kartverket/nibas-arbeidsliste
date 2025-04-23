@@ -6,6 +6,7 @@ graalvmNative = "0.10.6"
 logstashLogback = "8.1"
 springdocOpenapi = "2.8.6"
 micrometerPrometheus = "1.14.6"
+flyway = "10.9.1"
 
 [libraries]
 # Spring Boot
@@ -37,6 +38,10 @@ springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starte
 
 # Testing
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+# Flyway
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }

@@ -25,15 +25,15 @@ For å kjøre applikasjonen med mock-data, følg disse stegene:
     - Du kan endre listen med lokalIDer i `DataInitializer.kt` for å hente andre grenser
 
 4. **Database konfigurasjon**:
-   I `application.yml` kan du konfigurere om databasen skal resettes ved oppstart:
+   Applikasjonen bruker Flyway for databasemigrasjoner. Dette sikrer at databaseskjemaet er konsistent på tvers av miljøer.
+
+   I `application-localhost.yml` kan du konfigurere om testdata skal lastes ved oppstart:
    ```yaml
    spring:
-     jpa:
-       hibernate:
-         # Database resetter seg hver gang applikasjonen startes
-         ddl-auto: create-drop
-         # ELLER: Database beholder data mellom omstarter
-         # ddl-auto: none
+     data:
+       initialization:
+         # Aktiver/deaktiver lasting av testdata ved oppstart
+         enabled: true
    ```
 
 Ved oppstart vil applikasjonen automatisk hente grensedata fra NIBAS API for de definerte lokalIDene og lagre dem som avvik i databasen. Disse avvikene kan
@@ -48,6 +48,7 @@ deretter vises via API-endepunktet `GET /api/v1/avvik`.
 * REST-API
 * PostgreSQL/PostGIS for geografiske data
 * JPA/Hibernate Spatial
+* Flyway for databasemigrasjoner
 
 # Lokalt Oppsett (på egen maskin)
 
@@ -75,24 +76,24 @@ sudo -u postgres psql -d nibas
 ```sql
 -- 1. Opprett brukeren (passordet må matche application-localhost.yml)
 CREATE
-USER nibas_arbeidsliste WITH PASSWORD 'nibas_arbeidsliste';
+    USER nibas_arbeidsliste WITH PASSWORD 'nibas_arbeidsliste';
 
 -- 2. Opprett schemaet og sett eierskap
 CREATE SCHEMA nibas_arbeidsliste_schema AUTHORIZATION nibas_arbeidsliste;
 
 -- 3. Gi brukeren tilgang til PostGIS-schemaet (antar 'public')
 GRANT
-USAGE
-ON
-SCHEMA
-public TO nibas_arbeidsliste;
+    USAGE
+    ON
+    SCHEMA
+    public TO nibas_arbeidsliste;
 
 -- 4. Gi brukeren lesetilgang til nødvendige PostGIS-tabeller (antar 'public')
 GRANT SELECT ON TABLE public.spatial_ref_sys TO nibas_arbeidsliste;
 
 -- 5. Sett brukerens standard søkesti (search_path)
 ALTER
-USER nibas_arbeidsliste SET search_path = nibas_arbeidsliste_schema, public;
+    USER nibas_arbeidsliste SET search_path = nibas_arbeidsliste_schema, public;
 ```
 
 *Merk: Hvis PostGIS er installert i et annet schema enn `public`, må du erstatte `public` med korrekt schema-navn i kommandoene over.*
@@ -109,8 +110,32 @@ Når tilkoblet, kan du verifisere søkestien:
 
 ```sql
 SHOW
-search_path;
+    search_path;
 -- Forventet output: "nibas_arbeidsliste_schema, public"
+```
+
+### Databasemigrasjoner med Flyway
+
+Applikasjonen bruker Flyway for å håndtere databasemigrasjoner. Migrasjonsskriptene ligger i `src/main/resources/db/migration` og kjøres automatisk ved
+oppstart.
+
+Migrasjonsskriptene følger navnekonvensjonen `V{versjon}__{beskrivelse}.sql`. Applikasjonen bruker ett enkelt migrasjonsskript:
+
+- `V1__Initial_Tabeller.sql` - Oppretter alle nødvendige tabeller og indekser
+
+### Database Reset
+
+Under utvikling vil databasen automatisk resettes og lastes med testdata hver gang applikasjonen starter. Dette er konfigurert i `application-localhost.yml` med
+følgende innstillinger:
+
+```yaml
+spring:
+  flyway:
+    clean-disabled: false  # Tillater Flyway å rense databasen
+    validate-on-migrate: false  # Deaktiverer validering av migrasjonsskript under utvikling
+  data:
+    initialization:
+      enabled: true  # Aktiverer lasting av testdata ved oppstart
 ```
 
 ### Databasekonfigurasjon (application-localhost.yml)
@@ -161,11 +186,12 @@ http://localhost:8082/swagger-ui/index.html#/
 
 ### Setup tings...
 
-- [ ] SKIP oppsett. Smia-apps oppsett.
-- [ ] Auth mot NIBAS-backend.
-- [ ] Auth mot nibas-frontend via proxy.
-- [ ] Database DEV
+- [x] SKIP oppsett. DEV
+- [x] Auth mot NIBAS-backend.
+- [x] Auth mot nibas-frontend via proxy.
+- [x] Database DEV
 - [ ] Database PROD
+- [ ] SKIP oppsett. PROD
 
 ### Funksjoner
 
