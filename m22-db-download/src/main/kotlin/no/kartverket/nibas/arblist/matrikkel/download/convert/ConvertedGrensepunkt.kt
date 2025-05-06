@@ -1,11 +1,9 @@
-package no.kartverket.nibas.sandbox
+package no.kartverket.nibas.arblist.matrikkel.download.convert
 
 import no.kartverket.nibas.flatbuffer.Nibas.MatrikkelGrenseDB
 import no.kartverket.nibas.flatbuffer.Nibas.MatrikkelGrenseEntry
 import no.kartverket.nibas.flatbuffer.Nibas.MatrikkelGrensepunktDB
 import no.kartverket.nibas.flatbuffer.Nibas.MatrikkelGrensepunktEntry
-import no.kartverket.nibas.flatbuffer.Nibas.Teig
-import no.kartverket.nibas.flatbuffer.Nibas.TeigBuffer
 import java.io.File
 
 class ConvertedGrensepunkt(
@@ -52,4 +50,3 @@ class ConvertedGrenselinjeFile(dir: File, filename: String) : ConvertedFile.Long
         get(target, index)
 
 }
-

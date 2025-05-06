@@ -1,8 +1,7 @@
-package no.kartverket.nibas.sandbox
+package no.kartverket.nibas.arblist.matrikkel.download.convert
 
 import com.google.flatbuffers.FlatBufferBuilder
 import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.ints.IntStack
 import no.kartverket.nibas.arblist.matrikkel.download.data.LocalCoord
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.*
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.KoordinatsystemKode
@@ -20,7 +19,6 @@ import no.kartverket.nibas.flatbuffer.Nibas.MatrikkelGrensepunktEntry
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.time.Instant
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Koordinat as MatDBKoordinat
@@ -29,7 +27,7 @@ private const val DEFAULT_TARGET_BUFFER_SIZE = 256 * 1024 * 1024
 
 fun convertGrensepunkt(
     grensepunktFiles: Iterable<File>,
-    targetBufferSize: Int =  DEFAULT_TARGET_BUFFER_SIZE
+    targetBufferSize: Int = DEFAULT_TARGET_BUFFER_SIZE
 ) {
     val fbi = FlatBufferBuilder(targetBufferSize + targetBufferSize / 128)
     val offsets = IntArrayList()
@@ -95,7 +93,7 @@ fun convertGrensepunkt(
                 fbi.finish(MatrikkelGrensepunktDB.endMatrikkelGrensepunktDB(fbi), "GPDB")
                 println("Writing file $fileIndex, maxId: $minId, minId: $id")
                 val dataBuffer = fbi.dataBuffer()
-                val outFilePath = String.format("matrikkel_grensepunkt.%03d.%s", fileIndex++, ConvertedFile.FILENAME_EXT)
+                val outFilePath = String.format("matrikkel_grensepunkt.%03d.%s", fileIndex++, ConvertedFile.Companion.FILENAME_EXT)
                 RandomAccessFile(outFilePath, "rw").use { outFile ->
                     outFile.channel.write(dataBuffer)
                 }
@@ -111,12 +109,12 @@ fun convertGrensepunkt(
 
 internal fun convertGrenselinje(
     filename: String,
-    grenselinjeFiles: Iterable<File>, 
-    grensepunkt: ConvertedFile.LongKey<MatrikkelGrensepunktEntry.Vector, MatrikkelGrensepunktEntry>, 
+    grenselinjeFiles: Iterable<File>,
+    grensepunkt: ConvertedFile.LongKey<MatrikkelGrensepunktEntry.Vector, MatrikkelGrensepunktEntry>,
     targetBufferSize: Int = DEFAULT_TARGET_BUFFER_SIZE
 ) {
     check(targetBufferSize > 0) { "Target buffer size must be positive" }
-    check(filename.isNotBlank()) { "Filename must not be blank"}
+    check(filename.isNotBlank()) { "Filename must not be blank" }
     val fb = FlatBufferBuilder(targetBufferSize + targetBufferSize / 128)
     val offsets = IntArrayList()
     var fileIndex = 0
@@ -160,7 +158,7 @@ internal fun convertGrenselinje(
                 fb.finish(MatrikkelGrenseDB.endMatrikkelGrenseDB(fb), "GLDB")
                 println("Writing file $fileIndex, maxId: $minId, minId: ${gl.id()}")
                 val dataBuffer = fb.dataBuffer()
-                val outFilePath = String.format("%s.%03d.%s", filename, fileIndex++, ConvertedFile.FILENAME_EXT)
+                val outFilePath = String.format("%s.%03d.%s", filename, fileIndex++, ConvertedFile.Companion.FILENAME_EXT)
                 RandomAccessFile(outFilePath, "rw").use { outFile ->
                     outFile.channel.write(dataBuffer)
                 }
@@ -202,7 +200,7 @@ private fun FlatBufferBuilder.createMatrikkelGrenseEntry(
     MatrikkelGrense.addMaalingsnoyaktighet(this, maalingsnoyaktighet)
     datafangstDato?.run { MatrikkelGrense.addDatafangstdato(this@createMatrikkelGrenseEntry, LocalDate.createLocalDate(this@createMatrikkelGrenseEntry, year, monthValue.toShort(), dayOfMonth.toShort())) }
     MatrikkelGrense.addNoyaktighetsklasse(this, noyaktighetsklasse)
-    oppdateringsdato.run {  MatrikkelGrense.addOppdateringsdato(this@createMatrikkelGrenseEntry, Timestamp.createTimestamp(this@createMatrikkelGrenseEntry, this.epochSecond, this.nano)) }
+    oppdateringsdato.run { MatrikkelGrense.addOppdateringsdato(this@createMatrikkelGrenseEntry, Timestamp.createTimestamp(this@createMatrikkelGrenseEntry, this.epochSecond, this.nano)) }
     val offset = MatrikkelGrense.endMatrikkelGrense(this)
         .let { dataOffset ->
             MatrikkelGrenseEntry.startMatrikkelGrenseEntry(this)
@@ -224,7 +222,7 @@ private fun FlatBufferBuilder.createCoordinatesVector(
     }
     arc.middlePointCoordinate().run {
 
-        when(arc.koordinatsystemKode()) {
+        when (arc.koordinatsystemKode()) {
             KoordinatsystemKode.EUREF_SONE_32 -> {
                 LocalCoord.fromUtm32(x() / scale, y() / scale).run {
                     Koordinat.createKoordinat(this@createCoordinatesVector, x, y)
@@ -273,7 +271,7 @@ private fun FlatBufferBuilder.createCoordinatesVector(
         }
 
         KoordinatsystemKode.EUREF_SONE_33 -> {
-            for (j in middlePointCoordinatesMaxIndex downTo  0)  {
+            for (j in middlePointCoordinatesMaxIndex downTo 0) {
                 val koordinat = polyline.middlePointCoordinates(j)
                 LocalCoord.fromUtm33(koordinat.x() / scale, koordinat.y() / scale).run {
                     Koordinat.createKoordinat(this@createCoordinatesVector, x, y)
@@ -282,7 +280,7 @@ private fun FlatBufferBuilder.createCoordinatesVector(
         }
 
         KoordinatsystemKode.EUREF_SONE_35 -> {
-            for (j in middlePointCoordinatesMaxIndex downTo  0)  {
+            for (j in middlePointCoordinatesMaxIndex downTo 0) {
                 val koordinat = polyline.middlePointCoordinates(j)
                 LocalCoord.fromUtm35(koordinat.x() / scale, koordinat.y() / scale).run {
                     Koordinat.createKoordinat(this@createCoordinatesVector, x, y)

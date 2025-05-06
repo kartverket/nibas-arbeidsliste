@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package no.kartverket.nibas.sandbox
+package no.kartverket.nibas.arblist.matrikkel.download.convert
 
 import arrow.core.nonFatalOrThrow
 import com.google.flatbuffers.BaseVector
@@ -22,11 +22,12 @@ sealed class ConvertedFile<VS : BaseVector, K, V>(
     @JvmInline
     value class Index(val asLong: Long) {
         constructor(page: Int, offset: Int) : this((page.also { check(it >= 0) }.toLong() shl 32) or offset.also { check(it >= 0) }.toLong())
+
         val page: Int inline get() = (asLong ushr 32).toInt()
         val offset: Int inline get() = (asLong and 0xFFFFFFFF).toInt()
 
         @JvmInline
-        value class Array @PublishedApi internal constructor (@PublishedApi internal val backingArray: LongArray) : List<Index> {
+        value class Array @PublishedApi internal constructor(@PublishedApi internal val backingArray: LongArray) : List<Index> {
             override val size: Int
                 get() = backingArray.size
 
@@ -165,7 +166,7 @@ sealed class ConvertedFile<VS : BaseVector, K, V>(
             }
         }
 
-        fun indicesArray() : Index.Array {
+        fun indicesArray(): Index.Array {
             val result = LongArray(size)
             var arrIndex = 0
             for (i in pages.indices) {
@@ -329,6 +330,7 @@ sealed class ConvertedFile<VS : BaseVector, K, V>(
 
     inline fun getById(key: K): V =
         find(key) ?: throw NoSuchElementException("Key not found: $key")
+
     abstract fun find(key: K): V?
     abstract fun find(target: V, key: K): V?
 
@@ -348,4 +350,3 @@ sealed class ConvertedFile<VS : BaseVector, K, V>(
         runCatching { fileBufs.clear() }.onFailure { e?.addSuppressed(it) }
     }
 }
-

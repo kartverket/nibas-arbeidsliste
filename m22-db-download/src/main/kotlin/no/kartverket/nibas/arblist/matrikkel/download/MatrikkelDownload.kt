@@ -16,10 +16,10 @@ import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.MaalemetodeKode
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.NoyaktighetsklasseKode
 import no.kartverket.nibas.flatbuffer.Nibas.Common.Matrikkelnummer
 import no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp
-import no.kartverket.nibas.sandbox.ConvertedGrenselinjeFile
-import no.kartverket.nibas.sandbox.ConvertedGrensepunkt
-import no.kartverket.nibas.sandbox.convertGrenselinje
-import no.kartverket.nibas.sandbox.convertGrensepunkt
+import no.kartverket.nibas.arblist.matrikkel.download.convert.ConvertedGrenselinjeFile
+import no.kartverket.nibas.arblist.matrikkel.download.convert.ConvertedGrensepunkt
+import no.kartverket.nibas.arblist.matrikkel.download.convert.convertGrenselinje
+import no.kartverket.nibas.arblist.matrikkel.download.convert.convertGrensepunkt
 import oracle.jdbc.OracleConnection
 import java.io.File
 import java.io.RandomAccessFile
@@ -205,8 +205,8 @@ fun fetchGrenslinjer(
                     Posisjonskvalitet.createPosisjonskvalitet(
                         fb,
                         /* maalemetodeKode = */ rs.getByte(6).let {
-                            if (rs.wasNull()) MaalemetodeKode.UKJENT else it
-                        },
+                        if (rs.wasNull()) MaalemetodeKode.UKJENT else it
+                    },
                         /* noyaktighet = */ rs.getInt(7)
                     )
                 )
@@ -217,7 +217,8 @@ fun fetchGrenslinjer(
                     )
                 }
                 Grenselinje.addNoyaktighetsklasse(fb, rs.getByte(9).let {
-                    if (rs.wasNull()) 0 else NoyaktighetsklasseKode.INGEN_NOYAKTIGHET }
+                    if (rs.wasNull()) 0 else NoyaktighetsklasseKode.INGEN_NOYAKTIGHET
+                }
                 )
                 Grenselinje.addLineGeometryType(fb, lineGeomtryType)
                 Grenselinje.addLineGeometry(fb, lineGeomOffset)
@@ -469,7 +470,7 @@ fun fetchTeiger(
                 val extGrenselinjeVectorOffset: Int? = if (extGrenselinjeIds.isNotEmpty()) {
                     extGrenselinjeIds.reverse()
                     Teig.startGrenselinjeDirectionsVector(fb, extGrenselinjeIds.size)
-                    extGrenselinjeIds.forEach { (id, signed)     ->
+                    extGrenselinjeIds.forEach { (id, signed) ->
                         GrenselinjeDirection.createGrenselinjeDirection(fb, id, !signed)
                     }
                     fb.endVector()
@@ -574,8 +575,8 @@ internal inline fun FlatBufferBuilder.createGrensepunkt(
     Grensepunkt.addGrensmerkodeKode(this, grensemerkeKode)
     Grensepunkt.addPosisjonskvalitet(
         this, Posisjonskvalitet.createPosisjonskvalitet(
-            this, malemetodeKode, noyaktighet
-        )
+        this, malemetodeKode, noyaktighet
+    )
     )
     datafangstdato?.let {
         Grensepunkt.addDatafangstdato(
@@ -598,6 +599,7 @@ internal inline fun FlatBufferBuilder.createGrensepunkt(
     return Grensepunkt.endGrensepunkt(this)
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 @ExperimentalCoroutinesApi
 fun downloadMatrikkelGeometry(url: String, username: String, password: String?): Long = runBlocking {
     resourceScope {
@@ -624,7 +626,7 @@ fun downloadMatrikkelGeometry(url: String, username: String, password: String?):
         }
         println("Endringsnummer: $endringsnummer")
 
-        val outDir = File(File("."), endringsnummer.toString())
+        val outDir = File(File("."), "M22-DATA-$endringsnummer")
         check(outDir.mkdir()) { "Failed to create directory" }
 
         withContext(writeDispatcher) {
@@ -676,8 +678,8 @@ fun downloadMatrikkelGeometry(url: String, username: String, password: String?):
     }
 }
 
-
-fun main() {
+@OptIn(ExperimentalCoroutinesApi::class)
+fun runDownloadM22Data(): Long {
     // ------------------------------------------------------------------------
     // Last ned rå database til flatbufferfiler
     // -------------------------------------------------------------------------
@@ -690,15 +692,16 @@ fun main() {
         username,
         password
     )
-//    val endringsnummer = 364590149L
 
+    return endringsnummer
+}
 
-
+fun runConverter(endringsnummer: Long) {
     // ------------------------------------------------------------------------
     // Konverter til nibasvennlige flatbufferfiler
     // -------------------------------------------------------------------------
     val cwd = File(".").canonicalFile
-    val downloadDir = File(cwd, endringsnummer.toString())
+    val downloadDir = File(cwd, "M22-DATA-$endringsnummer")
     val flatbufferFiles = downloadDir.listFiles().filter { it.extension == "fb" }
     val grenselinjeFiles = flatbufferFiles.filter { it.name.startsWith("grenselinje") }.sortedBy { it.name }
     val grensepunktFiles = flatbufferFiles.filter { it.name.startsWith("grensepunkt") }.sortedBy { it.name }
@@ -707,8 +710,9 @@ fun main() {
     convertGrensepunkt(grensepunktFiles)
     convertGrenselinje(convertedGrenselinjePrefix, grenselinjeFiles, ConvertedGrensepunkt(cwd, convertedGrensepunktPrefix))
 
-    val grenselinjer = ConvertedGrenselinjeFile(cwd, convertedGrenselinjePrefix)
+}
 
+fun printData(grenselinjer: ConvertedGrenselinjeFile) {
     // ------------------------------------------------------------------------
     // Gå igjennom grenselinjene
     // -------------------------------------------------------------------------
@@ -718,6 +722,27 @@ fun main() {
             val coord = coords.get(i).run {
                 LocalCoord(x(), y())
             }
+            println(coord)
         }
     }
+
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun main() {
+    // Steg 1 last ned og konveter
+    // Kommenter ut når det er ferdig
+    // Laster ned rå database til flatbufferfiler
+//    val endringsnummer = runDownloadM22Data()
+//    println(endringsnummer)
+//    val endringsnummer = 364590149L
+
+    // Konverter til nibasvennlige flatbufferfiler
+//    runConverter(endringsnummer)
+
+    val cwd = File("Converted").canonicalFile
+    val convertedGrenselinjePrefix = "matrikkel_grenselinje"
+    val grenselinjer = ConvertedGrenselinjeFile(cwd, convertedGrenselinjePrefix)
+    printData(grenselinjer)
+
 }

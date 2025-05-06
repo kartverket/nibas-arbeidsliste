@@ -1,4 +1,5 @@
 *.bin
+*.fb
 HELP.md
 .gradle
 build/
