@@ -12,6 +12,7 @@ import no.kartverket.nibas.nibasarbeidsliste.model.KoordinaterMedAvvik
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import no.kartverket.nibas.nibasarbeidsliste.service.NibasGrenserService
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.FlywayException
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
@@ -50,50 +51,63 @@ class DataInitializer(
 
         try {
             // Resetter db med Flyway.
-            resetDatabase()
-            logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
+            if (avvikRepository.count() == 0L) {
 
-            // Henter avvik fra JSON-fil
-            val mockData = readMockData()
-            var savedCount = 0
+                resetDatabase()
+                logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
 
-            for ((lokalId, _) in mockData) {
-                logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
+                // Henter avvik fra JSON-fil
+                val mockData = readMockData()
+                var savedCount = 0
 
-                val response = try {
-                    // Henter grense fra Nibas API
-                    nibasGrenserService.hentGrenseByLokalId(lokalId)
-                        .doOnError { error ->
-                            logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
-                        }
-                        .blockOptional()
-                        .orElse(null)
-                } catch (e: Exception) {
-                    logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
-                    null
-                }
+                for ((lokalId, _) in mockData) {
+                    logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
 
-                if (response != null) {
-                    try {
-                        logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
-
-                        val grense = parseGrenseJson(response)
-                        val mockDataForGrense = mockData[lokalId]
-                        val avvik = createAvvik(grense, mockDataForGrense)
-
-                        avvikRepository.save(avvik)
-                        avvikRepository.flush()
-                        savedCount++
-
-                        logger.info("Lagret avvik #{} for grense med lokalID={}", savedCount, lokalId)
+                    val response = try {
+                        // Henter grense fra Nibas API
+                        nibasGrenserService.hentGrenseByLokalId(lokalId)
+                            .doOnError { error ->
+                                logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
+                            }
+                            .blockOptional()
+                            .orElse(null)
                     } catch (e: Exception) {
-                        logger.error("Feil ved lagring av avvik for grense med lokalID={}: {}", lokalId, e.message, e)
+                        logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
+                        null
                     }
-                } else {
-                    logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
+
+                    if (response != null) {
+                        try {
+                            logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
+
+                            val grense = parseGrenseJson(response)
+                            val mockDataForGrense = mockData[lokalId]
+                            val avvik = createAvvik(grense, mockDataForGrense)
+
+                            avvikRepository.save(avvik)
+                            avvikRepository.flush()
+                            savedCount++
+
+                            logger.info("Lagret avvik #{} for grense med lokalID={}", savedCount, lokalId)
+                        } catch (e: Exception) {
+                            logger.error("Feil ved lagring av avvik for grense med lokalID={}: {}", lokalId, e.message, e)
+                        }
+                    } else {
+                        logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
+                    }
+                }
+                logger.info("Initialisert {} avvik i databasen", savedCount)
+            } else {
+                logger.info("Database is not empty. Ensuring schema is up-to-date using Flyway.")
+                try {
+                    flyway.migrate() // Validates schema and applies any pending migrations
+                    logger.info("Flyway migration check complete. Database schema is current.")
+                } catch (e: FlywayException) {
+                    logger.error("Flyway migration/validation failed for non-empty database: {}", e.message, e)
+                    // Depending on policy, you might want to rethrow or handle this as a startup failure
                 }
             }
-            logger.info("Initialisert {} avvik i databasen", savedCount)
+
         } catch (e: Exception) {
             logger.error("Feil ved initialisering av testdata: {}", e.message, e)
             logger.error("Dette kan skyldes manglende databasetilkobling, men API-nøkkel funksjonalitet kan likevel fungere.")

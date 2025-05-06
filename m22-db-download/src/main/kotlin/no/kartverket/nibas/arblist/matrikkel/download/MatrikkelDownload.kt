@@ -716,15 +716,65 @@ fun printData(grenselinjer: ConvertedGrenselinjeFile) {
     // ------------------------------------------------------------------------
     // Gå igjennom grenselinjene
     // -------------------------------------------------------------------------
-    grenselinjer.forEach { gl ->
-        val coords = gl.grense().coordinatesVector()
-        for (i in 0 until coords.length()) {
-            val coord = coords.get(i).run {
-                LocalCoord(x(), y())
+//    grenselinjer.forEach { gl ->
+//        val coords = gl.grense().coordinatesVector()
+//        for (i in 0 until coords.length()) {
+//            val coord = coords.get(i).run {
+//                LocalCoord(x(), y())
+//            }
+//            println(coord)
+//        }
+//    }
+    // ------------------------------------------------------------------------
+    // Gå igjennom grenselinjene
+    // -------------------------------------------------------------------------
+    println(grenselinjer.size)
+
+    var count = 0
+    grenselinjer.forEach { grenselinje ->
+        if (count < 10) {
+            // adiministrativGrenseKode == 0 betyr at grenselinjen er en kommunegrense
+            if (grenselinje.grense().administrativGrenseKode() != 0.toByte()) {
+                println("=== Grenselinje Information ===")
+                println("Grenselinje ID: ${grenselinje.id()}")
+
+                // MatrikkelGrense properties
+                val grense = grenselinje.grense()
+                println("Administrativ Grensekode: ${grense.administrativGrenseKode()}")
+                println("Hjelpelinje Kode: ${grense.hjelpelinjeKode()}")
+                println("Omtvistet: ${grense.omtvistet()}")
+                println("Terrengdetalj Kode: ${grense.terrengdetaljKode()}")
+                println("Målemetode Kode: ${grense.maalemetodeKode()}")
+                println("Målingsnøyaktighet: ${grense.maalingsnoyaktighet()}")
+
+
+                println("Nøyaktighetsklasse: ${grense.noyaktighetsklasse()}")
+
+                // Print kooridnater
+                val coordinates = grense.coordinatesVector()
+                if (coordinates != null) {
+                    println("Antall koordinater: ${coordinates.length()}")
+                    println("Print noen koordinater:")
+                    val maxCoords = minOf(3, coordinates.length())
+                    for (i in 0 until maxCoords) {
+                        val coord = coordinates.get(i)
+                        println(
+                            "  Koordinat $i: x=${coord.x()}, y=${coord.y()} (skalert: x=${
+                                coord.x().toDouble() / 100
+                            }, y=${coord.y().toDouble() / 100})"
+                        )
+                    }
+                } else {
+                    println("No coordinates available")
+                }
+
+                println("==============================")
+                count++
             }
-            println(coord)
         }
+
     }
+
 
 }
 
