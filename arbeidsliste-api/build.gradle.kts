@@ -7,8 +7,6 @@ plugins {
     application
 }
 
-group = "no.kartverket.nibas"
-version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
@@ -16,9 +14,6 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation(libs.spring.boot.starter.web)
