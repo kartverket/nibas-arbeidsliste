@@ -9,6 +9,7 @@ sourceSets.main.configure {
 
 
 dependencies {
+    implementation("org.postgresql:postgresql:42.7.3")  // PostgreSQL JDBC driver
     implementation("com.google.flatbuffers:flatbuffers-java:24.3.25")
 
     implementation("org.locationtech.proj4j:proj4j:1.3.0")
