@@ -40,6 +40,7 @@ table MatrikkelGrense {
     datafangstdato: Nibas.Common.LocalDate;
     noyaktighetsklasse:MatrikkelDB.Kode.NoyaktighetsklasseKode;
     oppdateringsdato:Nibas.Common.Timestamp (required);
+    kommunenrstrengcache:string;
 }
 
 
@@ -68,4 +69,3 @@ table Teig {
 table TeigBuffer {
     teiger: [Teig];
 }
-

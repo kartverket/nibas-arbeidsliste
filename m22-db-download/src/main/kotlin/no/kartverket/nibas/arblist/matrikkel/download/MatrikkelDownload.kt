@@ -8,7 +8,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import no.kartverket.nibas.arblist.matrikkel.download.data.LocalCoord
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.*
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.GrensemerkeKode
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.GrensemerkeNedsattIKode
@@ -16,10 +15,6 @@ import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.MaalemetodeKode
 import no.kartverket.nibas.flatbuffer.MatrikkelDB.Kode.NoyaktighetsklasseKode
 import no.kartverket.nibas.flatbuffer.Nibas.Common.Matrikkelnummer
 import no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp
-import no.kartverket.nibas.arblist.matrikkel.download.convert.ConvertedGrenselinjeFile
-import no.kartverket.nibas.arblist.matrikkel.download.convert.ConvertedGrensepunkt
-import no.kartverket.nibas.arblist.matrikkel.download.convert.convertGrenselinje
-import no.kartverket.nibas.arblist.matrikkel.download.convert.convertGrensepunkt
 import oracle.jdbc.OracleConnection
 import java.io.File
 import java.io.RandomAccessFile
@@ -78,7 +73,8 @@ private val GRENSELINJE_SQL = """
            gl.kurvebuepunktx,              -- 14
            gl.kurvebuepunkty,              -- 15
            gl.kurvepositions,              -- 16
-           gl.oppdateringsdato             -- 17
+           gl.oppdateringsdato,            -- 17
+           gl.kommunenrstrengcache         -- 18
     FROM grenselinje gl
     ORDER BY gl.id
 """.trimIndent()
@@ -601,7 +597,7 @@ internal inline fun FlatBufferBuilder.createGrensepunkt(
 
 @OptIn(DelicateCoroutinesApi::class)
 @ExperimentalCoroutinesApi
-fun downloadMatrikkelGeometry(url: String, username: String, password: String?): Long = runBlocking {
+fun downloadMatrikkelGeometry(url: String, username: String, password: String?, dirName: String?): Long = runBlocking {
     resourceScope {
         val fetchDispatcher = autoCloseable { newSingleThreadContext("fetchDispatcher") }
         val writeDispatcher = autoCloseable { newSingleThreadContext("writeDispatcher") }
@@ -626,7 +622,7 @@ fun downloadMatrikkelGeometry(url: String, username: String, password: String?):
         }
         println("Endringsnummer: $endringsnummer")
 
-        val outDir = File(File("."), "M22-DATA-$endringsnummer")
+        val outDir = File(File("."), "$dirName-$endringsnummer")
         check(outDir.mkdir()) { "Failed to create directory" }
 
         withContext(writeDispatcher) {
@@ -691,7 +687,8 @@ fun main() {
     val endringsnummer = downloadMatrikkelGeometry(
         url,
         username,
-        password
+        password,
+        "M22-DATA1"
     )
     println(endringsnummer)
 //    val endringsnummer = 364590149L
