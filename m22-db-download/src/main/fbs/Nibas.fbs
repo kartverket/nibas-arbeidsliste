@@ -41,6 +41,10 @@ table MatrikkelGrense {
     noyaktighetsklasse:MatrikkelDB.Kode.NoyaktighetsklasseKode;
     oppdateringsdato:Nibas.Common.Timestamp (required);
     kommunenrstrengcache:string;
+    informasjon:string;
+    versjon:int;
+    versjonid:int;
+    oppdatertav:string;
 }
 
 

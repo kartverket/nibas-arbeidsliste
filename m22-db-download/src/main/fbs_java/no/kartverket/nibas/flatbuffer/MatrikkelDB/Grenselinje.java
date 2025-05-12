@@ -44,8 +44,16 @@ public final class Grenselinje extends Table {
   public String kommunenrstrengcache() { int o = __offset(26); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer kommunenrstrengcacheAsByteBuffer() { return __vector_as_bytebuffer(26, 1); }
   public ByteBuffer kommunenrstrengcacheInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 26, 1); }
+  public String informasjon() { int o = __offset(28); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer informasjonAsByteBuffer() { return __vector_as_bytebuffer(28, 1); }
+  public ByteBuffer informasjonInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 28, 1); }
+  public int versjon() { int o = __offset(30); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int versjonid() { int o = __offset(32); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public String oppdatertav() { int o = __offset(34); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer oppdatertavAsByteBuffer() { return __vector_as_bytebuffer(34, 1); }
+  public ByteBuffer oppdatertavInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 34, 1); }
 
-  public static void startGrenselinje(FlatBufferBuilder builder) { builder.startTable(12); }
+  public static void startGrenselinje(FlatBufferBuilder builder) { builder.startTable(16); }
   public static void addId(FlatBufferBuilder builder, long id) { builder.addLong(0, id, 0L); }
   public static void addHjelpelinjeKode(FlatBufferBuilder builder, byte hjelpelinjeKode) { builder.addByte(1, hjelpelinjeKode, 0); }
   public static void addOmtvistet(FlatBufferBuilder builder, boolean omtvistet) { builder.addBoolean(2, omtvistet, false); }
@@ -58,6 +66,10 @@ public final class Grenselinje extends Table {
   public static void addLineGeometry(FlatBufferBuilder builder, int lineGeometryOffset) { builder.addOffset(9, lineGeometryOffset, 0); }
   public static void addOppdateringsdato(FlatBufferBuilder builder, int oppdateringsdatoOffset) { builder.addStruct(10, oppdateringsdatoOffset, 0); }
   public static void addKommunenrstrengcache(FlatBufferBuilder builder, int kommunenrstrengcacheOffset) { builder.addOffset(11, kommunenrstrengcacheOffset, 0); }
+  public static void addInformasjon(FlatBufferBuilder builder, int informasjonOffset) { builder.addOffset(12, informasjonOffset, 0); }
+  public static void addVersjon(FlatBufferBuilder builder, int versjon) { builder.addInt(13, versjon, 0); }
+  public static void addVersjonid(FlatBufferBuilder builder, int versjonid) { builder.addInt(14, versjonid, 0); }
+  public static void addOppdatertav(FlatBufferBuilder builder, int oppdatertavOffset) { builder.addOffset(15, oppdatertavOffset, 0); }
   public static int endGrenselinje(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

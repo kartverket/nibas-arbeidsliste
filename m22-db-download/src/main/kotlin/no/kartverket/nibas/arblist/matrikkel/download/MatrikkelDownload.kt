@@ -74,7 +74,11 @@ private val GRENSELINJE_SQL = """
            gl.kurvebuepunkty,              -- 15
            gl.kurvepositions,              -- 16
            gl.oppdateringsdato,            -- 17
-           gl.kommunenrstrengcache         -- 18
+           gl.kommunenrstrengcache,        -- 18
+           gl.informasjon,                 -- 19 (VARCHAR2)
+           gl.versjon,                     -- 20 (NUMBER)
+           gl.versjonid,                   -- 21 (NUMBER)
+           gl.oppdatertav                  -- 22 (VARCHAR2)
     FROM grenselinje gl
     ORDER BY gl.id
 """.trimIndent()

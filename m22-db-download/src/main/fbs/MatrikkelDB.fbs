@@ -58,6 +58,10 @@ table Grenselinje {
   line_geometry:LineGeometry;
   oppdateringsdato:Nibas.Common.Timestamp;
   kommunenrstrengcache:string;
+  informasjon:string;
+  versjon:int;
+  versjonid:int;
+  oppdatertav:string;
 }
 
 
