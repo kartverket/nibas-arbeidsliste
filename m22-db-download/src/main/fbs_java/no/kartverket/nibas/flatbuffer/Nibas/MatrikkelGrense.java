@@ -43,8 +43,11 @@ public final class MatrikkelGrense extends Table {
   public byte noyaktighetsklasse() { int o = __offset(20); return o != 0 ? bb.get(o + bb_pos) : 0; }
   public no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp oppdateringsdato() { return oppdateringsdato(new no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp()); }
   public no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp oppdateringsdato(no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp obj) { int o = __offset(22); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  public String kommunenrstrengcache() { int o = __offset(24); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer kommunenrstrengcacheAsByteBuffer() { return __vector_as_bytebuffer(24, 1); }
+  public ByteBuffer kommunenrstrengcacheInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 24, 1); }
 
-  public static void startMatrikkelGrense(FlatBufferBuilder builder) { builder.startTable(10); }
+  public static void startMatrikkelGrense(FlatBufferBuilder builder) { builder.startTable(11); }
   public static void addCoordinates(FlatBufferBuilder builder, int coordinatesOffset) { builder.addOffset(0, coordinatesOffset, 0); }
   public static void startCoordinatesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(8, numElems, 4); }
   public static void addHjelpelinjeKode(FlatBufferBuilder builder, byte hjelpelinjeKode) { builder.addByte(1, hjelpelinjeKode, 0); }
@@ -56,6 +59,7 @@ public final class MatrikkelGrense extends Table {
   public static void addDatafangstdato(FlatBufferBuilder builder, int datafangstdatoOffset) { builder.addStruct(7, datafangstdatoOffset, 0); }
   public static void addNoyaktighetsklasse(FlatBufferBuilder builder, byte noyaktighetsklasse) { builder.addByte(8, noyaktighetsklasse, 0); }
   public static void addOppdateringsdato(FlatBufferBuilder builder, int oppdateringsdatoOffset) { builder.addStruct(9, oppdateringsdatoOffset, 0); }
+  public static void addKommunenrstrengcache(FlatBufferBuilder builder, int kommunenrstrengcacheOffset) { builder.addOffset(10, kommunenrstrengcacheOffset, 0); }
   public static int endMatrikkelGrense(FlatBufferBuilder builder) {
     int o = builder.endTable();
     builder.required(o, 4);  // coordinates

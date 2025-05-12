@@ -222,6 +222,10 @@ fun fetchGrenslinjer(
                     Grenselinje.addOppdateringsdato(fb, Timestamp.createTimestamp(fb, epochSecond, nano))
                 }
 
+                val kommunenrstrengcacheDbValue: String? = rs.getString(18)
+                val kommunenrstrengcacheOffset: Int? = kommunenrstrengcacheDbValue?.let { fb.createString(it) }
+                kommunenrstrengcacheOffset?.let { Grenselinje.addKommunenrstrengcache(fb, it) }
+
                 offsets.add(Grenselinje.endGrenselinje(fb))
                 count++
 

@@ -144,7 +144,8 @@ internal fun convertGrenselinje(
                 maalingsnoyaktighet = gl.posisjonskvalitet()?.noyaktighet() ?: 0,
                 datafangstDato = gl.datafangstdato()?.toJavaLocalDate(),
                 noyaktighetsklasse = gl.noyaktighetsklasse(),
-                oppdateringsdato = gl.oppdateringsdato().toJavaInstant()
+                oppdateringsdato = gl.oppdateringsdato().toJavaInstant(),
+                kommunenrstrengcacheOffset = gl.kommunenrstrengcache()?.let { fb.createString(it) },
             ).also(offsets::add)
 
             if (i == 0 && lastFile || offset + offsets.size * Int.SIZE_BYTES >= targetBufferSize) {
@@ -187,8 +188,8 @@ private fun FlatBufferBuilder.createMatrikkelGrenseEntry(
     datafangstDato: java.time.LocalDate?,
     maalingsnoyaktighet: Int,
     noyaktighetsklasse: Byte,
-    oppdateringsdato: Instant
-
+    oppdateringsdato: Instant,
+    kommunenrstrengcacheOffset: Int?
 ): Int {
     MatrikkelGrense.startMatrikkelGrense(this)
     MatrikkelGrense.addCoordinates(this, coordsOffset)
@@ -201,6 +202,7 @@ private fun FlatBufferBuilder.createMatrikkelGrenseEntry(
     datafangstDato?.run { MatrikkelGrense.addDatafangstdato(this@createMatrikkelGrenseEntry, LocalDate.createLocalDate(this@createMatrikkelGrenseEntry, year, monthValue.toShort(), dayOfMonth.toShort())) }
     MatrikkelGrense.addNoyaktighetsklasse(this, noyaktighetsklasse)
     oppdateringsdato.run { MatrikkelGrense.addOppdateringsdato(this@createMatrikkelGrenseEntry, Timestamp.createTimestamp(this@createMatrikkelGrenseEntry, this.epochSecond, this.nano)) }
+    kommunenrstrengcacheOffset?.let { MatrikkelGrense.addKommunenrstrengcache(this, it) }
     val offset = MatrikkelGrense.endMatrikkelGrense(this)
         .let { dataOffset ->
             MatrikkelGrenseEntry.startMatrikkelGrenseEntry(this)

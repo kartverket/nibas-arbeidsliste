@@ -41,8 +41,11 @@ public final class Grenselinje extends Table {
   public Table lineGeometry(Table obj) { int o = __offset(22); return o != 0 ? __union(obj, o + bb_pos) : null; }
   public no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp oppdateringsdato() { return oppdateringsdato(new no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp()); }
   public no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp oppdateringsdato(no.kartverket.nibas.flatbuffer.Nibas.Common.Timestamp obj) { int o = __offset(24); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  public String kommunenrstrengcache() { int o = __offset(26); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer kommunenrstrengcacheAsByteBuffer() { return __vector_as_bytebuffer(26, 1); }
+  public ByteBuffer kommunenrstrengcacheInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 26, 1); }
 
-  public static void startGrenselinje(FlatBufferBuilder builder) { builder.startTable(11); }
+  public static void startGrenselinje(FlatBufferBuilder builder) { builder.startTable(12); }
   public static void addId(FlatBufferBuilder builder, long id) { builder.addLong(0, id, 0L); }
   public static void addHjelpelinjeKode(FlatBufferBuilder builder, byte hjelpelinjeKode) { builder.addByte(1, hjelpelinjeKode, 0); }
   public static void addOmtvistet(FlatBufferBuilder builder, boolean omtvistet) { builder.addBoolean(2, omtvistet, false); }
@@ -54,6 +57,7 @@ public final class Grenselinje extends Table {
   public static void addLineGeometryType(FlatBufferBuilder builder, byte lineGeometryType) { builder.addByte(8, lineGeometryType, 0); }
   public static void addLineGeometry(FlatBufferBuilder builder, int lineGeometryOffset) { builder.addOffset(9, lineGeometryOffset, 0); }
   public static void addOppdateringsdato(FlatBufferBuilder builder, int oppdateringsdatoOffset) { builder.addStruct(10, oppdateringsdatoOffset, 0); }
+  public static void addKommunenrstrengcache(FlatBufferBuilder builder, int kommunenrstrengcacheOffset) { builder.addOffset(11, kommunenrstrengcacheOffset, 0); }
   public static int endGrenselinje(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

@@ -57,7 +57,7 @@ table Grenselinje {
   noyaktighetsklasse:MatrikkelDB.Kode.NoyaktighetsklasseKode;
   line_geometry:LineGeometry;
   oppdateringsdato:Nibas.Common.Timestamp;
-  ommunenrstrengcache:string;
+  kommunenrstrengcache:string;
 }
 
 
