@@ -5,7 +5,7 @@ springDependencyManagement = "1.1.7"
 graalvmNative = "0.10.6"
 logstashLogback = "8.1"
 springdocOpenapi = "2.8.8"
-micrometerPrometheus = "1.14.6"
+micrometerPrometheus = "1.15.0"
 flyway = "11.8.1"
 
 [libraries]
