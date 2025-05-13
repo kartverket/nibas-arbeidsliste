@@ -42,7 +42,7 @@ table MatrikkelGrense {
     oppdateringsdato:Nibas.Common.Timestamp (required);
     kommunenrstrengcache:string;
     informasjon:string;
-    versjon:int;
+    versjon:long;
     versjonid:int;
     oppdatertav:string;
 }

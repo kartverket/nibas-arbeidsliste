@@ -146,6 +146,10 @@ internal fun convertGrenselinje(
                 noyaktighetsklasse = gl.noyaktighetsklasse(),
                 oppdateringsdato = gl.oppdateringsdato().toJavaInstant(),
                 kommunenrstrengcacheOffset = gl.kommunenrstrengcache()?.let { fb.createString(it) },
+                informasjoncacheOffset = gl.informasjon()?.let { fb.createString(it) },
+                versjon = gl.versjon(),
+                versjonId = gl.versjonid(),
+                oppdatertAv = gl.oppdatertav()?.let { fb.createString(it) }
             ).also(offsets::add)
 
             if (i == 0 && lastFile || offset + offsets.size * Int.SIZE_BYTES >= targetBufferSize) {
@@ -189,7 +193,11 @@ private fun FlatBufferBuilder.createMatrikkelGrenseEntry(
     maalingsnoyaktighet: Int,
     noyaktighetsklasse: Byte,
     oppdateringsdato: Instant,
-    kommunenrstrengcacheOffset: Int?
+    kommunenrstrengcacheOffset: Int?,
+    informasjoncacheOffset: Int?,
+    versjon: Long,
+    versjonId: Int,
+    oppdatertAv: Int?
 ): Int {
     MatrikkelGrense.startMatrikkelGrense(this)
     MatrikkelGrense.addCoordinates(this, coordsOffset)
@@ -203,6 +211,10 @@ private fun FlatBufferBuilder.createMatrikkelGrenseEntry(
     MatrikkelGrense.addNoyaktighetsklasse(this, noyaktighetsklasse)
     oppdateringsdato.run { MatrikkelGrense.addOppdateringsdato(this@createMatrikkelGrenseEntry, Timestamp.createTimestamp(this@createMatrikkelGrenseEntry, this.epochSecond, this.nano)) }
     kommunenrstrengcacheOffset?.let { MatrikkelGrense.addKommunenrstrengcache(this, it) }
+    informasjoncacheOffset?.let { MatrikkelGrense.addInformasjon(this, it) }
+    MatrikkelGrense.addVersjon(this, versjon)
+    MatrikkelGrense.addVersjonid(this, versjonId)
+    oppdatertAv?.let { MatrikkelGrense.addOppdatertav(this, it) } // 'it' is oppdatertAv (the offset)
     val offset = MatrikkelGrense.endMatrikkelGrense(this)
         .let { dataOffset ->
             MatrikkelGrenseEntry.startMatrikkelGrenseEntry(this)

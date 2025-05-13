@@ -49,7 +49,7 @@ public final class MatrikkelGrense extends Table {
   public String informasjon() { int o = __offset(26); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer informasjonAsByteBuffer() { return __vector_as_bytebuffer(26, 1); }
   public ByteBuffer informasjonInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 26, 1); }
-  public int versjon() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public long versjon() { int o = __offset(28); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
   public int versjonid() { int o = __offset(30); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public String oppdatertav() { int o = __offset(32); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer oppdatertavAsByteBuffer() { return __vector_as_bytebuffer(32, 1); }
@@ -69,7 +69,7 @@ public final class MatrikkelGrense extends Table {
   public static void addOppdateringsdato(FlatBufferBuilder builder, int oppdateringsdatoOffset) { builder.addStruct(9, oppdateringsdatoOffset, 0); }
   public static void addKommunenrstrengcache(FlatBufferBuilder builder, int kommunenrstrengcacheOffset) { builder.addOffset(10, kommunenrstrengcacheOffset, 0); }
   public static void addInformasjon(FlatBufferBuilder builder, int informasjonOffset) { builder.addOffset(11, informasjonOffset, 0); }
-  public static void addVersjon(FlatBufferBuilder builder, int versjon) { builder.addInt(12, versjon, 0); }
+  public static void addVersjon(FlatBufferBuilder builder, long versjon) { builder.addLong(12, versjon, 0L); }
   public static void addVersjonid(FlatBufferBuilder builder, int versjonid) { builder.addInt(13, versjonid, 0); }
   public static void addOppdatertav(FlatBufferBuilder builder, int oppdatertavOffset) { builder.addOffset(14, oppdatertavOffset, 0); }
   public static int endMatrikkelGrense(FlatBufferBuilder builder) {

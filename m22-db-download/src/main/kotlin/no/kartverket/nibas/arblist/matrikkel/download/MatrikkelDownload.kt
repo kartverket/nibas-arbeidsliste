@@ -194,6 +194,14 @@ fun fetchGrenslinjer(
 
                     else -> error("Unknown geometry type $value")
                 }
+
+                val kommunenrstrengcacheDbValue: String? = rs.getString(18)
+                val kommunenrstrengcacheOffset: Int? = kommunenrstrengcacheDbValue?.let { fb.createString(it) }
+                val informasjonDbValue: String? = rs.getString(19)
+                val informasjonOffset: Int? = informasjonDbValue?.let { fb.createString(it) }
+                val oppdatertavDbValue: String? = rs.getString(22)
+                val oppdatertavOffset: Int? = oppdatertavDbValue?.let { fb.createString(it) }
+
                 Grenselinje.startGrenselinje(fb)
                 Grenselinje.addId(fb, rs.getLong(1))
                 Grenselinje.addHjelpelinjeKode(fb, rs.getByte(2))
@@ -226,9 +234,21 @@ fun fetchGrenslinjer(
                     Grenselinje.addOppdateringsdato(fb, Timestamp.createTimestamp(fb, epochSecond, nano))
                 }
 
-                val kommunenrstrengcacheDbValue: String? = rs.getString(18)
-                val kommunenrstrengcacheOffset: Int? = kommunenrstrengcacheDbValue?.let { fb.createString(it) }
                 kommunenrstrengcacheOffset?.let { Grenselinje.addKommunenrstrengcache(fb, it) }
+
+                informasjonOffset?.let { Grenselinje.addInformasjon(fb, it) }
+
+                val versjon: Long = rs.getLong(20)
+                if (!rs.wasNull()) {
+                    Grenselinje.addVersjon(fb, versjon)
+                }
+
+                val versjonid: Int = rs.getInt(21)
+                if (!rs.wasNull()) {
+                    Grenselinje.addVersjonid(fb, versjonid)
+                }
+
+                oppdatertavOffset?.let { Grenselinje.addOppdatertav(fb, it) }
 
                 offsets.add(Grenselinje.endGrenselinje(fb))
                 count++

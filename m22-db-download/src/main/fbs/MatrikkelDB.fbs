@@ -59,7 +59,7 @@ table Grenselinje {
   oppdateringsdato:Nibas.Common.Timestamp;
   kommunenrstrengcache:string;
   informasjon:string;
-  versjon:int;
+  versjon:long;
   versjonid:int;
   oppdatertav:string;
 }

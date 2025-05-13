@@ -52,16 +52,20 @@ fun printData(grenselinjer: ConvertedGrenselinjeFile) {
 
                 // MatrikkelGrense properties
                 val grense = grenselinje.grense()
+
                 println("Administrativ Grensekode: ${grense.administrativGrenseKode()}")
                 println("Hjelpelinje Kode: ${grense.hjelpelinjeKode()}")
                 println("Omtvistet: ${grense.omtvistet()}")
                 println("Terrengdetalj Kode: ${grense.terrengdetaljKode()}")
                 println("Målemetode Kode: ${grense.maalemetodeKode()}")
                 println("Målingsnøyaktighet: ${grense.maalingsnoyaktighet()}")
-                println("KommuneNummer: ${grense.kommunenrstrengcache()}")
-
-
                 println("Nøyaktighetsklasse: ${grense.noyaktighetsklasse()}")
+                println("KommuneNummer: ${grense.kommunenrstrengcache()}")
+                println("Informasjon: ${grense.informasjon()}")
+                println("Versjon: ${grense.versjon()}")
+                println("VersjonID: ${grense.versjonid()}")
+                println("Oppdatert av: ${grense.oppdatertav()}")
+
 
                 // Print kooridnater
                 val coordinates = grense.coordinatesVector()
@@ -89,9 +93,9 @@ fun printData(grenselinjer: ConvertedGrenselinjeFile) {
 }
 
 fun main() {
-//    val endringsnummer = 364590149L
-////    Konverter til nibasvennlige flatbufferfiler
-//    runConverter(endringsnummer)
+    val endringsnummer = 364590149L
+//    Konverter til nibasvennlige flatbufferfiler
+    runConverter(endringsnummer)
 
     val cwd = File(".").canonicalFile
     val convertedGrenselinjePrefix = "matrikkel_grenselinje"
