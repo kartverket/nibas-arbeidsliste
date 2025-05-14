@@ -13,14 +13,19 @@ fun runConverter(endringsnummer: Long) {
     // Konverter til nibasvennlige flatbufferfiler
     // -------------------------------------------------------------------------
     val cwd = File(".").canonicalFile
-    val downloadDir = File(cwd, "M22-DATA1-$endringsnummer")
+    val downloadDir = File(cwd, "M22-DATA-$endringsnummer")
     val flatbufferFiles = downloadDir.listFiles().filter { it.extension == "fb" }
     val grenselinjeFiles = flatbufferFiles.filter { it.name.startsWith("grenselinje") }.sortedBy { it.name }
     val grensepunktFiles = flatbufferFiles.filter { it.name.startsWith("grensepunkt") }.sortedBy { it.name }
     val convertedGrensepunktPrefix = "matrikkel_grensepunkt"
     val convertedGrenselinjePrefix = "matrikkel_grenselinje"
-    convertGrensepunkt(grensepunktFiles)
-    convertGrenselinje(convertedGrenselinjePrefix, grenselinjeFiles, ConvertedGrensepunkt(cwd, convertedGrensepunktPrefix))
+    convertGrensepunkt(grensepunktFiles, downloadDir, convertedGrensepunktPrefix)
+    convertGrenselinje(
+        convertedGrenselinjePrefix,
+        grenselinjeFiles,
+        ConvertedGrensepunkt(downloadDir, convertedGrensepunktPrefix),
+        downloadDir
+    )
 
 }
 
@@ -97,7 +102,7 @@ fun main() {
 //    Konverter til nibasvennlige flatbufferfiler
     runConverter(endringsnummer)
 
-    val cwd = File(".").canonicalFile
+    val cwd = File("M22-DATA-${endringsnummer}").canonicalFile
     val convertedGrenselinjePrefix = "matrikkel_grenselinje"
     val grenselinjer = ConvertedGrenselinjeFile(cwd, convertedGrenselinjePrefix)
     printData(grenselinjer)

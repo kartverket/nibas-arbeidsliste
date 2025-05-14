@@ -5,10 +5,10 @@ Hent in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
 Prosjektet er satt som med moduler bestående av:
 
-* arbeidsliste-api: Api som servere avik til nibas klient
-* m22-db-download: Modul som laster ned grensedata fra Matrikkel-databasen
+* [arbeidsliste-api](#Arbeidsliste-api): Api som servere avvik til nibas klient
+* [m22-db-download](./m22-db-download/README.md): Modul som laster ned grensedata fra Matrikkel-databasen
 
-## arbeidslist-api
+## Arbeidsliste-api
 
 **Autentisering mot NIBAS-backend er ikke implementert ennå, så det er viktig å kjøre NIBAS-backend med "security-off" profilen.**
 
@@ -186,57 +186,6 @@ http://localhost:8082/swagger-ui/index.html#/
 
 * `GET /api/v1/avvik`: Henter alle avvik
 * `GET /api/v1/avvik/kommuner`: Henter kommuner med avvik
-
-## m22-db-download
-
-Modulen er ansvarlig for å laste ned og konvertere grensedata fra Matrikkel-databasen til et optimalisert format for NIBAS-systemet.
-
-### Funksjonalitet
-
-- **Nedlasting av data**: Henter grensepunkter, grenselinjer og teiger fra Matrikkel-databasen
-- **Konvertering**: Transformerer datastrukturer fra Matrikkelens format til NIBAS' format
-- **Optimalisering**: Bruker FlatBuffers for effektiv datarepresentasjon og tilgang
-- **Lagring**: Lagrer konverterte data i binærfiler for videre prosessering
-
-### Komponenter
-
-1. **MatrikkelDownload.kt**: Hovedklasse for nedlasting av data fra Matrikkel-databasen
-    - Inneholder SQL-spørringer for å hente grensepunkter, grenselinjer og teiger
-    - Implementerer effektiv nedlasting med buffering og parallell prosessering
-    - Håndterer koordinattransformasjoner og skalering
-
-2. **Convert.kt**: Konverterer data fra Matrikkel-format til NIBAS-format
-    - Transformerer geometriske strukturer (punkter, linjer, polygoner)
-    - Optimaliserer datarepresentasjon for NIBAS-systemet
-
-3. **ConvertedFile.kt**: Håndterer lagring og lesing av konverterte data
-    - Implementerer effektiv indeksering for rask tilgang til data
-    - Støtter paginering for håndtering av store datamengder
-
-### Datamodell
-
-Modulen bruker FlatBuffers for å definere datastrukturer:
-
-- **MatrikkelDB.fbs**: Definerer strukturer for Matrikkel-data
-- **Nibas.fbs**: Definerer strukturer for NIBAS-systemet
-
-### Bruk
-
-For å kjøre nedlasting og konvertering:
-
-```kotlin
-// Last ned data fra Matrikkel-databasen
-val endringsnummer = runDownloadM22Data()
-
-// Konverter til NIBAS-format
-runConverter(endringsnummer)
-```
-
-Miljøvariabler som må settes:
-
-- `MATRIKKEL_DB_URL`: URL til Matrikkel-databasen
-- `MATRIKKEL_DB_USERNAME`: Brukernavn for Matrikkel-databasen
-- `MATRIKKEL_DB_PASSWORD`: Passord for Matrikkel-databasen
 
 ## TODO:
 

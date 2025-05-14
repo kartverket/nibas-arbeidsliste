@@ -27,6 +27,8 @@ private const val DEFAULT_TARGET_BUFFER_SIZE = 256 * 1024 * 1024
 
 fun convertGrensepunkt(
     grensepunktFiles: Iterable<File>,
+    outputDir: File,
+    prefix: String,
     targetBufferSize: Int = DEFAULT_TARGET_BUFFER_SIZE
 ) {
     val fbi = FlatBufferBuilder(targetBufferSize + targetBufferSize / 128)
@@ -93,9 +95,9 @@ fun convertGrensepunkt(
                 fbi.finish(MatrikkelGrensepunktDB.endMatrikkelGrensepunktDB(fbi), "GPDB")
                 println("Writing file $fileIndex, maxId: $minId, minId: $id")
                 val dataBuffer = fbi.dataBuffer()
-                val outFilePath = String.format("matrikkel_grensepunkt.%03d.%s", fileIndex++, ConvertedFile.Companion.FILENAME_EXT)
-                RandomAccessFile(outFilePath, "rw").use { outFile ->
-                    outFile.channel.write(dataBuffer)
+                val outFile = File(outputDir, String.format("%s.%03d.%s", prefix, fileIndex++, ConvertedFile.Companion.FILENAME_EXT))
+                RandomAccessFile(outFile, "rw").use { raf ->
+                    raf.channel.write(dataBuffer)
                 }
                 fbi.clear()
                 offsets.clear()
@@ -111,6 +113,7 @@ internal fun convertGrenselinje(
     filename: String,
     grenselinjeFiles: Iterable<File>,
     grensepunkt: ConvertedFile.LongKey<MatrikkelGrensepunktEntry.Vector, MatrikkelGrensepunktEntry>,
+    outputDir: File,
     targetBufferSize: Int = DEFAULT_TARGET_BUFFER_SIZE
 ) {
     check(targetBufferSize > 0) { "Target buffer size must be positive" }
@@ -141,8 +144,8 @@ internal fun convertGrenselinje(
                 terrengdetaljKode = gl.terrengdetaljKode(),
                 administrativGrenseKode = gl.administrativGrenseKode(),
                 maalemetodeKode = gl.posisjonskvalitet()?.maalemetodeKode(),
-                maalingsnoyaktighet = gl.posisjonskvalitet()?.noyaktighet() ?: 0,
                 datafangstDato = gl.datafangstdato()?.toJavaLocalDate(),
+                maalingsnoyaktighet = gl.posisjonskvalitet()?.noyaktighet() ?: 0,
                 noyaktighetsklasse = gl.noyaktighetsklasse(),
                 oppdateringsdato = gl.oppdateringsdato().toJavaInstant(),
                 kommunenrstrengcacheOffset = gl.kommunenrstrengcache()?.let { fb.createString(it) },
@@ -163,9 +166,9 @@ internal fun convertGrenselinje(
                 fb.finish(MatrikkelGrenseDB.endMatrikkelGrenseDB(fb), "GLDB")
                 println("Writing file $fileIndex, maxId: $minId, minId: ${gl.id()}")
                 val dataBuffer = fb.dataBuffer()
-                val outFilePath = String.format("%s.%03d.%s", filename, fileIndex++, ConvertedFile.Companion.FILENAME_EXT)
-                RandomAccessFile(outFilePath, "rw").use { outFile ->
-                    outFile.channel.write(dataBuffer)
+                val outFile = File(outputDir, String.format("%s.%03d.%s", filename, fileIndex++, ConvertedFile.Companion.FILENAME_EXT))
+                RandomAccessFile(outFile, "rw").use { raf ->
+                    raf.channel.write(dataBuffer)
                 }
                 fb.clear()
                 offsets.clear()

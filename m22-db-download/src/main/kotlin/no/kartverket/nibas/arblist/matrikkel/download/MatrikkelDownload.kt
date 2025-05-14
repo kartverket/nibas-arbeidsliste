@@ -716,7 +716,7 @@ fun main() {
         url,
         username,
         password,
-        "M22-DATA1"
+        "M22-DATA"
     )
     println(endringsnummer)
 //    val endringsnummer = 364590149L

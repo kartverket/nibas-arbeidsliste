@@ -71,3 +71,45 @@ fun isFlatcInstalled(): Boolean {
 sourceSets.main.configure {
     java.srcDir(fbsGeneratedBaseDir)
 }
+
+tasks.register<JavaExec>("runMatrikkelDownload") {
+    val matrikkelDbUrl: String = project
+        .findProperty("MATRIKKEL_DB_URL")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_URL")
+        ?: error("Please set MATRIKKEL_DB_URL in gradle.properties or env")
+
+    val matrikkelDbUsername: String = project
+        .findProperty("MATRIKKEL_DB_USERNAME")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_USERNAME")
+        ?: error("Please set MATRIKKEL_DB_USERNAME")
+
+    val matrikkelDbPassword: String = project
+        .findProperty("MATRIKKEL_DB_PASSWORD")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_PASSWORD")
+        ?: error("Please set MATRIKKEL_DB_PASSWORD")
+
+    environment("MATRIKKEL_DB_URL", matrikkelDbUrl)
+    environment("MATRIKKEL_DB_USERNAME", matrikkelDbUsername)
+    environment("MATRIKKEL_DB_PASSWORD", matrikkelDbPassword)
+    group = "application"
+    description = "Run MatrikkelDownload main"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("no.kartverket.nibas.arblist.matrikkel.download.MatrikkelDownloadKt")
+}
+
+tasks.register<JavaExec>("runConvert") {
+    group = "application"
+    description = "Run RunConvert.kt main"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("no.kartverket.nibas.arblist.matrikkel.download.RunConvertKt")
+}
+
+tasks.named("runConvert") {
+    mustRunAfter("runMatrikkelDownload")
+}
+
+tasks.register("downloadAndConvert") {
+    dependsOn("runMatrikkelDownload", "runConvert")
+    group = "application"
+    description = "Run MatrikkelDownload and conversion in sequence"
+}
