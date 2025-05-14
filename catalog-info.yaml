@@ -22,7 +22,7 @@ spec:
   type: "security_champion"
   parent: "eiendom_security_champions"
   members:
-  - "AleksanderWK"
+  - "Kristmh"
   children:
   - "resource:nibas-arbeidsliste"
 ---
