@@ -208,13 +208,13 @@ fun fetchGrenslinjer(
                 Grenselinje.addOmtvistet(fb, rs.getBoolean(3))
                 Grenselinje.addTerrengdetaljKode(fb, rs.getByte(4))
                 Grenselinje.addAdministrativGrenseKode(fb, rs.getByte(5))
+                val maalemetodeKode = validateMaalemetodeKode(rs.getObject(6), rs.wasNull())
+
                 Grenselinje.addPosisjonskvalitet(
                     fb,
                     Posisjonskvalitet.createPosisjonskvalitet(
                         fb,
-                        /* maalemetodeKode = */ rs.getByte(6).let {
-                        if (rs.wasNull()) MaalemetodeKode.UKJENT else it
-                    },
+                        /* maalemetodeKode = */ maalemetodeKode,
                         /* noyaktighet = */ rs.getInt(7)
                     )
                 )
@@ -224,10 +224,9 @@ fun fetchGrenslinjer(
                         FBLocalDate.createLocalDate(fb, year, monthValue.toShort(), dayOfMonth.toShort())
                     )
                 }
-                Grenselinje.addNoyaktighetsklasse(fb, rs.getByte(9).let {
-                    if (rs.wasNull()) 0 else NoyaktighetsklasseKode.INGEN_NOYAKTIGHET
-                }
-                )
+
+                val noyaktighetsklasseValue = validateNoyaktighetsklasse(rs.getObject(9), rs.wasNull())
+                Grenselinje.addNoyaktighetsklasse(fb, noyaktighetsklasseValue)
                 Grenselinje.addLineGeometryType(fb, lineGeomtryType)
                 Grenselinje.addLineGeometry(fb, lineGeomOffset)
                 rs.getTimestamp(17).toInstant().run {
@@ -340,7 +339,7 @@ fun fetchGrenspunkt(
                     grensemerkeKode = rs.getByte(6).let {
                         if (rs.wasNull()) GrensemerkeKode.UKJENT else it
                     },
-                    malemetodeKode = rs.getByte(7).let { if (rs.wasNull()) MaalemetodeKode.UKJENT else it },
+                    malemetodeKode = validateMaalemetodeKode(rs.getObject(7), rs.wasNull()),
                     noyaktighet = rs.getInt(8),
                     datafangstdato = rs.getDate(9)?.toLocalDate(),
                     oppdateringsdato = rs.getTimestamp(11).toInstant(),
@@ -576,6 +575,70 @@ fun fetchTeiger(
             }
         }
     }.buffer(1)
+}
+
+/**
+ * Validates and converts a maalemetodeKode value from the database.
+ * Maalemetode is stored as an integer in the Oracle database with values
+ * between 0 and 62 (inclusive), and can be null.
+ *
+ * For null values, MaalemetodeKode.UKJENT (62) is returned.
+ * For any other invalid values, an exception is thrown to ensure data integrity.
+ *
+ * @param rawValue The raw value from the database
+ * @param wasNull Indicates if the database field was null
+ * @return A valid byte value for MaalemetodeKode
+ * @throws IllegalArgumentException if the value is not within the valid range (0-69)
+ * @throws ClassCastException if the value cannot be converted to an integer
+ */
+private fun validateMaalemetodeKode(rawValue: Any?, wasNull: Boolean): Byte {
+    // Handle null values by returning UKJENT (62)
+    if (rawValue == null || wasNull) {
+        return MaalemetodeKode.UKJENT
+    }
+
+    if (rawValue !is Number) {
+        throw ClassCastException("Expected a Number for maalemetodeKode but got ${rawValue.javaClass.name}")
+    }
+
+    val intValue = rawValue.toInt()
+    if (intValue !in 0..69) {
+        throw IllegalArgumentException("MaalemetodeKode value $intValue is outside the valid range (0-69)")
+    }
+
+    return intValue.toByte()
+}
+
+/**
+ * Validates and converts a noyaktighetsklasse value from the database.
+ * Noyaktighetsklasse is stored as an integer in the Oracle database with values
+ * between 0 and 6 (inclusive), and can be null.
+ *
+ * For null values, NoyaktighetsklasseKode.INGEN_NOYAKTIGHET (6) is returned.
+ * For any other invalid values, an exception is thrown to ensure data integrity.
+ *
+ * @param rawValue The raw value from the database
+ * @param wasNull Indicates if the database field was null
+ * @return A valid byte value for NoyaktighetsklasseKode
+ * @throws IllegalArgumentException if the value is not within the valid range (0-6)
+ * @throws ClassCastException if the value cannot be converted to an integer
+ */
+private fun validateNoyaktighetsklasse(rawValue: Any?, wasNull: Boolean): Byte {
+    // Handle null values by returning INGEN_NOYAKTIGHET (6)
+    if (rawValue == null || wasNull) {
+        return NoyaktighetsklasseKode.INGEN_NOYAKTIGHET
+    }
+
+    if (rawValue !is Number) {
+        throw ClassCastException("Expected a Number for noyaktighetsklasse but got ${rawValue.javaClass.name}")
+    }
+
+    val intValue = rawValue.toInt()
+    if (intValue !in 0..6) {
+        throw IllegalArgumentException("NoyaktighetsklasseKode value $intValue is outside the valid range (0-6)")
+    }
+
+    return intValue.toByte()
 }
 
 internal inline fun FlatBufferBuilder.createGrensepunkt(

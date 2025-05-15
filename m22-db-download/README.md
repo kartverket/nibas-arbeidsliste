@@ -1,6 +1,7 @@
 # m22-db-download
-Koden her er kun ment til å kjøre lokalt for å fylle opp arbeidsliste-databasen. 
-Koden bevares hvis man av noen grunnskulle trenge å gjøre det på nytt. 
+
+Koden her er kun ment til å kjøre lokalt for å fylle opp arbeidsliste-databasen.
+Koden bevares hvis man av noen grunnskulle trenge å gjøre det på nytt.
 
 Modulen er ansvarlig for å laste ned og konvertere grensedata fra Matrikkel-databasen til et optimalisert format for NIBAS-systemet.
 
@@ -9,17 +10,17 @@ Modulen er ansvarlig for å laste ned og konvertere grensedata fra Matrikkel-dat
 1. Rename `gradle.properties.template` til `gradle.properties`
 2. Fyll ut matrikkel databasen man ønsker å hente data fra og nibas-arbeidsliste databasen man ønsker å lagre data i.
 
-Last ned og konverter data
+Last ned data fra matrikkel DB, konverter data og fyll nibas-arbeidsliste DB med data:
+
 ```bash
-./gradlew downloadAndConvert
+./gradlew downloadConvertFillDB
 ```
 
 Hvis man trenger å legge til flere kolonner kan man legge til i FlatBuffer skjemaen og kjøre:
+
 ```bash
 ./gradlew generateFlatbuffers
 ```
-
-
 
 ### Funksjonalitet
 
