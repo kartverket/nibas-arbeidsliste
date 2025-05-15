@@ -6,7 +6,7 @@ import java.sql.Types
 import java.sql.Date
 import java.sql.Timestamp
 
-fun importConvertedGrenselinjer(convertedDir: File) {
+fun importConvertedGrenselinjer(convertedDir: File, endringsnummer: Long? = null) {
     println("Listing contents of directory: ${convertedDir.absolutePath}")
     convertedDir.listFiles()?.forEach { f ->
         println("  - ${f.name} (file=${f.isFile}, dir=${f.isDirectory})")
@@ -78,11 +78,27 @@ fun importConvertedGrenselinjer(convertedDir: File) {
             ps.executeBatch()
             println("Imported $imported grenselinjer from converted files.")
         }
+
+        endringsnummer?.let { enr ->
+            conn.prepareStatement(
+                "INSERT INTO nibas_arbeidsliste_schema.matrikkel_endringsnummer(endringsnummer, oppdateringsdato) " +
+                    "VALUES (?, CURRENT_TIMESTAMP) ON CONFLICT (endringsnummer) DO NOTHING"
+            ).use { ps ->
+                ps.setLong(1, enr)
+                ps.executeUpdate()
+                println("Ya mon! Saved endringsnummer: $enr to database")
+            }
+        }
+
         connector.commit()
     }
 }
 
 fun main() {
-    val convertedDir = File("/home/haugkr/IdeaProjects/smia/nibas/nibas-arbeidsliste/m22-db-download/M22-DATA-364590149")
-    importConvertedGrenselinjer(convertedDir)
+    // Extract directory and potentially the endringsnummer from the path
+    // Try to extract endringsnummer from the directory name if it follows the pattern M22-DATA-{endringsnummer}
+    val endringsnummer = 364590149L
+    val dirPath = File("M22-DATA-${endringsnummer}").canonicalFile
+
+    importConvertedGrenselinjer(dirPath, endringsnummer)
 }
