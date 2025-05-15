@@ -86,7 +86,7 @@ fun importConvertedGrenselinjer(convertedDir: File, endringsnummer: Long? = null
             ).use { ps ->
                 ps.setLong(1, enr)
                 ps.executeUpdate()
-                println("Ya mon! Saved endringsnummer: $enr to database")
+                println("Saved endringsnummer: $enr to database")
             }
         }
 

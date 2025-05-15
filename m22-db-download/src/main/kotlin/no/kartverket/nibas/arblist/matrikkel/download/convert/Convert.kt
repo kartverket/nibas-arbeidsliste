@@ -130,10 +130,76 @@ internal fun convertGrenselinje(
         }
         for (i in lastIndex downTo 0) {
             val gl = glBuf.grenselinjer(i)
-            val coordsOffset = when (val geomType = gl.lineGeometryType()) {
+
+            // Store geometry type and IDs before creating coordinates vector
+            val geomType = gl.lineGeometryType()
+
+            // Get the IDs of the grensepunkt
+            var firstPointId: Long = 0
+            var lastPointId: Long = 0
+
+            when (geomType) {
+                LineGeometry.Polyline -> {
+                    val polyline = Polyline().also(gl::lineGeometry)
+                    firstPointId = polyline.firstPointId()
+                    lastPointId = polyline.lastPointId()
+                }
+
+                LineGeometry.Arc -> {
+                    val arc = Arc().also(gl::lineGeometry)
+                    firstPointId = arc.firstPointId()
+                    lastPointId = arc.lastPointId()
+                }
+
+                else -> error("Unknown geometry type: $geomType")
+            }
+
+            // Create coordinates vector
+            val coordsOffset = when (geomType) {
                 LineGeometry.Polyline -> fb.createCoordinatesVector(Polyline().also(gl::lineGeometry), grensepunkt, scale)
                 LineGeometry.Arc -> fb.createCoordinatesVector(Arc().also(gl::lineGeometry), grensepunkt, scale)
                 else -> error("Unknown geometry type: $geomType")
+            }
+
+            // Get noyaktighet from grensepunkt if grenselinje noyaktighet is 0
+            val originalNoyaktighet = gl.posisjonskvalitet()?.noyaktighet() ?: 0
+            var noyaktighetToUse = originalNoyaktighet
+            val originalMaalemetodeKode = gl.posisjonskvalitet()?.maalemetodeKode()
+            var maalemetodeKodeToUse = originalMaalemetodeKode
+
+            if (originalNoyaktighet == 0) {
+                // If the grenselinje's noyaktighet is 0, try to use the grensepunkt's noyaktighet
+                try {
+                    val firstPointNoyaktighet = grensepunkt.getById(firstPointId)
+                        .grensepunkt()
+                        .maalingsnoyaktighet()
+
+                    val lastPointNoyaktighet = grensepunkt.getById(lastPointId)
+                        .grensepunkt()
+                        .maalingsnoyaktighet()
+
+                    val firstPointMaalemetodeKode = grensepunkt.getById(firstPointId)
+                        .grensepunkt()
+                        .maalemetodeKode()
+
+                    val lastPointMaalemetodeKode = grensepunkt.getById(lastPointId)
+                        .grensepunkt()
+                        .maalemetodeKode()
+
+                    // If both points have noyaktighet > 0, use the higher one (worse accuracy)
+                    if (firstPointNoyaktighet > 0 && lastPointNoyaktighet > 0) {
+                        noyaktighetToUse = maxOf(firstPointNoyaktighet, lastPointNoyaktighet)
+                        maalemetodeKodeToUse = if (noyaktighetToUse == firstPointNoyaktighet) firstPointMaalemetodeKode else lastPointMaalemetodeKode
+                    } else if (firstPointNoyaktighet > 0) {
+                        noyaktighetToUse = firstPointNoyaktighet
+                        maalemetodeKodeToUse = firstPointMaalemetodeKode
+                    } else if (lastPointNoyaktighet > 0) {
+                        noyaktighetToUse = lastPointNoyaktighet
+                        maalemetodeKodeToUse = lastPointMaalemetodeKode
+                    }
+                } catch (e: Exception) {
+                    println("Failed to get grensepunkt noyaktighet for grenselinje id=${gl.id()}: ${e.message}")
+                }
             }
 
             val offset = fb.createMatrikkelGrenseEntry(
@@ -143,9 +209,9 @@ internal fun convertGrenselinje(
                 omtvistet = gl.omtvistet(),
                 terrengdetaljKode = gl.terrengdetaljKode(),
                 administrativGrenseKode = gl.administrativGrenseKode(),
-                maalemetodeKode = gl.posisjonskvalitet()?.maalemetodeKode(),
+                maalemetodeKode = maalemetodeKodeToUse,
                 datafangstDato = gl.datafangstdato()?.toJavaLocalDate(),
-                maalingsnoyaktighet = gl.posisjonskvalitet()?.noyaktighet() ?: 0,
+                maalingsnoyaktighet = noyaktighetToUse,
                 noyaktighetsklasse = gl.noyaktighetsklasse(),
                 oppdateringsdato = gl.oppdateringsdato().toJavaInstant(),
                 kommunenrstrengcacheOffset = gl.kommunenrstrengcache()?.let { fb.createString(it) },

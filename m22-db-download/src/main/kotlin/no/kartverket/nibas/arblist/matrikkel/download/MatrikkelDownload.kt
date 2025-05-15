@@ -746,20 +746,20 @@ fun downloadMatrikkelGeometry(url: String, username: String, password: String?, 
             }
         }
 
-        withContext(writeDispatcher) {
-            val (progress, flow) = fetchTeiger(matrikkeldb, 1024 * 1024 * 1024)
-            CoroutineScope(Dispatchers.Default).launch {
-                println("Querying for teiger...")
-                progress.collect { (current, total) ->
-                    println("Teig: $current / ca. $total")
-                }
-            }
-            flow.flowOn(fetchDispatcher).collectIndexed { index, value ->
-                RandomAccessFile(File(outDir, String.format("teig%03d.fb", index)), "rw").use { file ->
-                    file.channel.write(value.byteBuffer)
-                }
-            }
-        }
+//        withContext(writeDispatcher) {
+//            val (progress, flow) = fetchTeiger(matrikkeldb, 1024 * 1024 * 1024)
+//            CoroutineScope(Dispatchers.Default).launch {
+//                println("Querying for teiger...")
+//                progress.collect { (current, total) ->
+//                    println("Teig: $current / ca. $total")
+//                }
+//            }
+//            flow.flowOn(fetchDispatcher).collectIndexed { index, value ->
+//                RandomAccessFile(File(outDir, String.format("teig%03d.fb", index)), "rw").use { file ->
+//                    file.channel.write(value.byteBuffer)
+//                }
+//            }
+//        }
 
         endringsnummer
     }
