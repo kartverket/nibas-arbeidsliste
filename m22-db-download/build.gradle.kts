@@ -108,8 +108,66 @@ tasks.named("runConvert") {
     mustRunAfter("runMatrikkelDownload")
 }
 
+
 tasks.register("downloadAndConvert") {
     dependsOn("runMatrikkelDownload", "runConvert")
     group = "application"
     description = "Run MatrikkelDownload and conversion in sequence"
+}
+
+
+tasks.register<JavaExec>("runFillDBWithGrenselinjer") {
+    val matrikkelDbUrl: String = project
+        .findProperty("MATRIKKEL_DB_URL")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_URL")
+        ?: error("Please set MATRIKKEL_DB_URL in gradle.properties or env")
+
+    val matrikkelDbUsername: String = project
+        .findProperty("MATRIKKEL_DB_USERNAME")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_USERNAME")
+        ?: error("Please set MATRIKKEL_DB_USERNAME")
+
+    val matrikkelDbPassword: String = project
+        .findProperty("MATRIKKEL_DB_PASSWORD")?.toString()
+        ?: System.getenv("MATRIKKEL_DB_PASSWORD")
+        ?: error("Please set MATRIKKEL_DB_PASSWORD")
+
+    val arbeidslisteDbUrl: String = project
+        .findProperty("ARBEIDSLISTE_DB_URL")?.toString()
+        ?: System.getenv("ARBEIDSLISTE_DB_URL")
+        ?: error("Please set ARBEIDSLISTE_DB_URL in gradle.properties or env")
+
+    val arbeidslisteDbUsername: String = project
+        .findProperty("ARBEIDSLISTE_DB_USERNAME")?.toString()
+        ?: System.getenv("ARBEIDSLISTE_DB_USERNAME")
+        ?: error("Please set ARBEIDSLISTE_DB_USERNAME")
+
+    val arbeidslisteDbPassword: String = project
+        .findProperty("ARBEIDSLISTE_DB_PASSWORD")?.toString()
+        ?: System.getenv("ARBEIDSLISTE_DB_PASSWORD")
+        ?: error("Please set ARBEIDSLISTE_DB_PASSWORD")
+
+
+    environment("MATRIKKEL_DB_URL", matrikkelDbUrl)
+    environment("MATRIKKEL_DB_USERNAME", matrikkelDbUsername)
+    environment("MATRIKKEL_DB_PASSWORD", matrikkelDbPassword)
+    environment("ARBEIDSLISTE_DB_URL", arbeidslisteDbUrl)
+    environment("ARBEIDSLISTE_DB_USERNAME", arbeidslisteDbUsername)
+    environment("ARBEIDSLISTE_DB_PASSWORD", arbeidslisteDbPassword)
+
+
+    group = "application"
+    description = "Run FillDBWithGrenselinjer main"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("no.kartverket.nibas.arblist.matrikkel.download.FillDBWithGrenselinjerKt")
+}
+
+tasks.named("runFillDBWithGrenselinjer") {
+    mustRunAfter("downloadAndConvert")
+}
+
+tasks.register("downloadConvertFillDB") {
+    dependsOn("downloadAndConvert", "runFillDBWithGrenselinjer")
+    group = "application"
+    description = "Run MatrikkelDownload, conversion and fill DB in sequence"
 }

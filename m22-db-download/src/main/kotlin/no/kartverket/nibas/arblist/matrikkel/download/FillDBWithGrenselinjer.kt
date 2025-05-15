@@ -23,8 +23,9 @@ fun importConvertedGrenselinjer(convertedDir: File) {
         conn.prepareStatement(
             "INSERT INTO nibas_arbeidsliste_schema.matrikkel_grenselinje(" +
                 "id, hjelpelinjetype_id, omtvistet, folgerterrengdetalj_id, administrativgrensekode_id, " +
-                "malemetode_id, noyaktighet, datafangstdato, lagretnoyaktighetsklasse, geom, oppdateringsdato" +
-                ") VALUES (?,?,?,?,?,?,?,?,?,ST_GeomFromText(?, 25833),?) ON CONFLICT (id) DO NOTHING"
+                "malemetode_id, noyaktighet, datafangstdato, lagretnoyaktighetsklasse, geom, oppdateringsdato, " +
+                "kommunenrstrengcache, informasjoncache, versjon, versjon_id, oppdatert_av" +
+                ") VALUES (?,?,?,?,?,?,?,?,?,ST_GeomFromText(?, 25833),?,?,?,?,?,?) ON CONFLICT (id) DO NOTHING"
         ).use { ps ->
             var imported = 0
             for (file in grenselinjeFiles) {
@@ -60,6 +61,14 @@ fun importConvertedGrenselinjer(convertedDir: File) {
                         } else {
                             ps.setNull(11, Types.TIMESTAMP)
                         }
+                        val knrStr = grense.kommunenrstrengcache()
+                        if (knrStr != null) ps.setString(12, knrStr) else ps.setNull(12, Types.VARCHAR)
+                        val infoStr = grense.informasjon()
+                        if (infoStr != null) ps.setString(13, infoStr) else ps.setNull(13, Types.VARCHAR)
+                        ps.setLong(14, grense.versjon())
+                        ps.setInt(15, grense.versjonid())
+                        val oppStr = grense.oppdatertav()
+                        if (oppStr != null) ps.setString(16, oppStr) else ps.setNull(16, Types.VARCHAR)
                         ps.addBatch()
                         imported++
                         println("Queued grenselinje id=${entry.id()} from file=${file.name}")
@@ -74,6 +83,6 @@ fun importConvertedGrenselinjer(convertedDir: File) {
 }
 
 fun main() {
-    val convertedDir = File("/home/haugkr/IdeaProjects/smia/nibas/nibas-arbeidsliste/Converted")
+    val convertedDir = File("/home/haugkr/IdeaProjects/smia/nibas/nibas-arbeidsliste/m22-db-download/M22-DATA-364590149")
     importConvertedGrenselinjer(convertedDir)
 }
