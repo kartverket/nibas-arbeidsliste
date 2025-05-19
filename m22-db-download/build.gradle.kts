@@ -18,7 +18,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-fx-coroutines")
 
-    implementation("com.oracle.database.jdbc:ojdbc11:23.3.0.23.09")
+    implementation("com.oracle.database.jdbc:ojdbc11:23.8.0.25.04")
 }
 
 val fbsSchemaDir = file("src/main/fbs")
