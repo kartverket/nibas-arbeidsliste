@@ -8,7 +8,7 @@ dependencies {
     implementation("com.google.flatbuffers:flatbuffers-java:25.2.10")
 
     implementation("org.locationtech.proj4j:proj4j:1.3.0")
-    implementation("org.locationtech.proj4j:proj4j-epsg:1.3.0")
+    implementation("org.locationtech.proj4j:proj4j-epsg:1.4.0")
 
 //    implementation("it.unimi.dsi:sux4j:5.4.1")
     implementation("it.unimi.dsi:fastutil:8.5.15")
