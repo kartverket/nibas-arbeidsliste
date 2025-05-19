@@ -1,8 +1,9 @@
 *.bin
+*.fb
 HELP.md
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+!arbeidsliste-api/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -39,3 +40,5 @@ out/
 
 ### Kotlin ###
 .kotlin
+.env
+gradle.properties

@@ -3,7 +3,12 @@
 Microtjeneste for håndtering av avvik i grensedata mellom NIBAS og Matrikkelen.
 Hent in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
-## Mock oppsett
+Prosjektet er satt som med moduler bestående av:
+
+* [arbeidsliste-api](#Arbeidsliste-api): Api som servere avvik til nibas klient
+* [m22-db-download](./m22-db-download/README.md): Modul som laster ned grensedata fra Matrikkel-databasen
+
+## Arbeidsliste-api
 
 **Autentisering mot NIBAS-backend er ikke implementert ennå, så det er viktig å kjøre NIBAS-backend med "security-off" profilen.**
 
@@ -204,6 +209,8 @@ http://localhost:8082/swagger-ui/index.html#/
 #### Real-API
 
 - [x] Hente grenser fra NIBAS-backend
-- [ ] Hente grenser fra Matrikkelen
+- [x] Hente grenser fra Matrikkelen
+- [ ] Lagre grenser fra M22 i arbeidsliste database
+- [ ] Endepunkt som viser M22 grenser til nibas klient.
 - [ ] Finn avvik i grenser mellom NIBAS og Matrikkelen
 - [ ] Lagre avvik mellom NIBAS-backend og Matrikkelen i database

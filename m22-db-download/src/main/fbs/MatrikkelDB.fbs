@@ -1,0 +1,96 @@
+include "MatrikkelDB.Kode.fbs";
+include "Nibas.Common.fbs";
+
+
+namespace MatrikkelDB;
+
+
+struct Posisjonskvalitet {
+    maalemetode_kode:Kode.MaalemetodeKode;
+    noyaktighet:int;
+}
+
+struct Koordinat {
+    x: long;
+    y: long;
+}
+
+table Polyline {
+    first_point_id: long;
+    middle_point_coordinates:[Koordinat];
+    last_point_id: long;
+    koordinatsystem_kode: Kode.KoordinatsystemKode;
+}
+
+table Arc {
+    first_point_id: long;
+    middle_point_coordinate:Koordinat;
+    last_point_id: long;
+    koordinatsystem_kode: Kode.KoordinatsystemKode;
+}
+
+table Grensepunkt {
+  id:long;
+  koordinat:Koordinat;
+  koordinatsystem_kode: Kode.KoordinatsystemKode;
+  grensmerkode_kode: Kode.GrensemerkeKode;
+  grensemerke_nedsatt_i_kode: Kode.GrensemerkeNedsattIKode;
+  posisjonskvalitet: Posisjonskvalitet;
+  datafangstdato:Nibas.Common.LocalDate;
+  grensepunktnr: string;
+  oppdateringsdato:Nibas.Common.Timestamp;
+}
+
+union LineGeometry {
+    Polyline,
+    Arc
+}
+
+table Grenselinje {
+  id:long;
+  hjelpelinje_kode:Kode.HjelpelineKode;
+  omtvistet:bool;
+  terrengdetalj_kode:MatrikkelDB.Kode.TerrengdetaljKode;
+  administrativ_grense_kode:MatrikkelDB.Kode.AdministrativGrenseKode;
+  posisjonskvalitet:Posisjonskvalitet;
+  datafangstdato: Nibas.Common.LocalDate;
+  noyaktighetsklasse:MatrikkelDB.Kode.NoyaktighetsklasseKode;
+  line_geometry:LineGeometry;
+  oppdateringsdato:Nibas.Common.Timestamp;
+  kommunenrstrengcache:string;
+  informasjon:string;
+  versjon:long;
+  versjonid:int;
+  oppdatertav:string;
+}
+
+
+table TeigInterior {
+    grenselinje_directions:[GrenselinjeDirection];
+}
+
+struct GrenselinjeDirection {
+    grenselinje_id:long;
+    reversed:bool;
+}
+
+table Teig {
+    teig_id:long;
+    matrikkelnummer:[Nibas.Common.Matrikkelnummer];
+    grenselinje_directions:[GrenselinjeDirection];
+    interiors:[TeigInterior];
+}
+
+table TeigBuffer {
+    teiger:[Teig];
+}
+
+table GrenselinjeBuffer {
+    grenselinjer:[Grenselinje];
+    koordinat_scale: uint32;
+}
+
+table GrensepunktBuffer {
+    grensepunkter:[Grensepunkt];
+    koordinat_scale: uint32;
+}

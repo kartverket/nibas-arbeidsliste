@@ -1,0 +1,20 @@
+namespace Nibas.Common;
+
+struct LocalDate {
+    year:int;
+    month:short;
+    day:short;
+}
+
+struct Timestamp {
+    seconds:long;
+    nanos:int;
+}
+
+struct Matrikkelnummer {
+    kommunenummer:short;
+    gaardsnummer:int;
+    bruksnummer:short;
+    festenummer:short;
+    seksjonsnummer:short;
+}
