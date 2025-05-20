@@ -14,7 +14,7 @@ dependencies {
     implementation("it.unimi.dsi:fastutil:8.5.15")
 
 
-    implementation(platform("io.arrow-kt:arrow-stack:2.0.1"))
+    implementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-fx-coroutines")
 
