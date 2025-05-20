@@ -4,7 +4,7 @@ plugins {
 
 
 dependencies {
-    implementation("org.postgresql:postgresql:42.7.3")  // PostgreSQL JDBC driver
+    implementation("org.postgresql:postgresql:42.7.5")  // PostgreSQL JDBC driver
     implementation("com.google.flatbuffers:flatbuffers-java:25.2.10")
 
     implementation("org.locationtech.proj4j:proj4j:1.3.0")
