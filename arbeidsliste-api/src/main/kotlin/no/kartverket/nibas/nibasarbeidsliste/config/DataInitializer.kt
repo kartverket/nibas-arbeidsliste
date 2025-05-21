@@ -23,6 +23,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.PreparedStatementCallback
 import java.io.InputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -41,76 +44,73 @@ class DataInitializer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = ObjectMapper()
-
     private val geometryFactory = GeometryFactory(PrecisionModel(), 25833)
+    
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+    
+    companion object {
+        private const val LOCK_ID = 1
+        private const val LOCK_TIMEOUT_MINUTES = 5L
+    }
 
 
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun initData() {
-
         try {
-            // Resetter db med Flyway.
-            if (avvikRepository.count() == 0L) {
+            // Always reset the database on startup
+            resetDatabase()
+            
+            logger.info("Starting to populate database with initial data...")
+            
+            // Read mock data from JSON file
+            val mockData = readMockData()
+            var savedCount = 0
 
-                resetDatabase()
-                logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
+            for ((lokalId, _) in mockData) {
+                logger.info("Fetching border with localId={} from Nibas API", lokalId)
 
-                // Henter avvik fra JSON-fil
-                val mockData = readMockData()
-                var savedCount = 0
-
-                for ((lokalId, _) in mockData) {
-                    logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
-
-                    val response = try {
-                        // Henter grense fra Nibas API
-                        nibasGrenserService.hentGrenseByLokalId(lokalId)
-                            .doOnError { error ->
-                                logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
-                            }
-                            .blockOptional()
-                            .orElse(null)
-                    } catch (e: Exception) {
-                        logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
-                        null
-                    }
-
-                    if (response != null) {
-                        try {
-                            logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
-
-                            val grense = parseGrenseJson(response)
-                            val mockDataForGrense = mockData[lokalId]
-                            val avvik = createAvvik(grense, mockDataForGrense)
-
-                            avvikRepository.save(avvik)
-                            avvikRepository.flush()
-                            savedCount++
-
-                            logger.info("Lagret avvik #{} for grense med lokalID={}", savedCount, lokalId)
-                        } catch (e: Exception) {
-                            logger.error("Feil ved lagring av avvik for grense med lokalID={}: {}", lokalId, e.message, e)
+                val response = try {
+                    // Fetch border from Nibas API
+                    nibasGrenserService.hentGrenseByLokalId(lokalId)
+                        .doOnError { error ->
+                            logger.error("Error fetching border with localId={}: {}", lokalId, error.message, error)
                         }
-                    } else {
-                        logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
-                    }
+                        .blockOptional()
+                        .orElse(null)
+                } catch (e: Exception) {
+                    logger.error("Error fetching border with localId={} from Nibas API", lokalId, e)
+                    null
                 }
-                logger.info("Initialisert {} avvik i databasen", savedCount)
-            } else {
-                logger.info("Database is not empty. Ensuring schema is up-to-date using Flyway.")
-                try {
-                    flyway.migrate() // Validates schema and applies any pending migrations
-                    logger.info("Flyway migration check complete. Database schema is current.")
-                } catch (e: FlywayException) {
-                    logger.error("Flyway migration/validation failed for non-empty database: {}", e.message, e)
-                    // Depending on policy, you might want to rethrow or handle this as a startup failure
+
+                if (response != null) {
+                    try {
+                        logger.info("Processing border with localId={}", lokalId)
+
+                        val grense = parseGrenseJson(response)
+                        val mockDataForGrense = mockData[lokalId]
+                        val avvik = createAvvik(grense, mockDataForGrense)
+
+                        avvikRepository.save(avvik)
+                        avvikRepository.flush()
+                        savedCount++
+
+
+                        logger.info("Saved issue #{} for border with localId={}", savedCount, lokalId)
+                    } catch (e: Exception) {
+                        logger.error("Error saving issue for border with localId={}: {}", lokalId, e.message, e)
+                    }
+                } else {
+                    logger.warn("Could not fetch border with localId={} from Nibas API", lokalId)
                 }
             }
-
+            
+            logger.info("Successfully initialized {} issues in the database", savedCount)
+            
         } catch (e: Exception) {
-            logger.error("Feil ved initialisering av testdata: {}", e.message, e)
-            logger.error("Dette kan skyldes manglende databasetilkobling, men API-nøkkel funksjonalitet kan likevel fungere.")
+            logger.error("Error during database initialization: {}", e.message, e)
+            throw IllegalStateException("Failed to initialize database", e)
         }
     }
 
@@ -170,23 +170,72 @@ class DataInitializer(
         return if (kommuneListe.isEmpty()) null else kommuneListe
     }
 
+    @Transactional
     fun resetDatabase() {
         try {
-            logger.info("Resetter database...")
-            try {
-                logger.info("Forsøker å reparere Flyway checksums...")
-                flyway.repair()
-                logger.info("Flyway reparasjon fullført")
+            logger.info("Attempting to acquire database lock for initialization...")
+            
+            // Try to acquire a lock
+            val lockAcquired = try {
+                val sql = """
+                    WITH updated AS (
+                        INSERT INTO database_lock (id, locked_until) 
+                        VALUES (?, NOW() + (? || ' minutes')::interval)
+                        ON CONFLICT (id) DO UPDATE SET 
+                            locked_until = CASE 
+                                WHEN database_lock.locked_until < NOW() 
+                                THEN NOW() + (? || ' minutes')::interval 
+                                ELSE database_lock.locked_until 
+                            END 
+                        RETURNING id, locked_until = NOW() + (? || ' minutes')::interval as is_acquired
+                    )
+                    SELECT is_acquired FROM updated
+                    """.trimIndent()
+                
+                jdbcTemplate.queryForObject(
+                    sql,
+                    { rs, _ -> rs.getBoolean("is_acquired") },
+                    LOCK_ID,
+                    LOCK_TIMEOUT_MINUTES,
+                    LOCK_TIMEOUT_MINUTES,
+                    LOCK_TIMEOUT_MINUTES
+                ) ?: false
             } catch (e: Exception) {
-                logger.warn("Flyway reparasjon feilet, fortsetter med clean: {}", e.message)
+                logger.warn("Failed to acquire database lock: ${e.message}")
+                false
             }
 
-            flyway.clean()
-            flyway.migrate()
-            logger.info("Database reset fullført")
+            if (!lockAcquired) {
+                logger.info("Another instance is already initializing the database. Skipping...")
+                return
+            }
+
+            try {
+                logger.info("Acquired database lock. Resetting database...")
+                
+                // Clean the database (drops all objects in the configured schemas)
+                logger.info("Cleaning database...")
+                flyway.clean()
+                
+                // Run migrations
+                logger.info("Running migrations...")
+                val migrationResult = flyway.migrate()
+                
+                logger.info("Database reset completed successfully. Applied {} migrations.", migrationResult.migrationsExecuted)
+                
+            } finally {
+                // Release the lock
+                try {
+                    jdbcTemplate.update("DELETE FROM database_lock WHERE id = ?", LOCK_ID)
+                    logger.info("Released database lock")
+                } catch (e: Exception) {
+                    logger.error("Failed to release database lock: ${e.message}", e)
+                }
+            }
+            
         } catch (e: Exception) {
-            logger.error("Feil ved resetting av database: {}", e.message, e)
-            throw e
+            logger.error("Error resetting database: ${e.message}", e)
+            throw IllegalStateException("Failed to reset database: ${e.message}", e)
         }
     }
 
