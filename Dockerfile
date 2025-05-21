@@ -15,7 +15,8 @@ ENV TZ=Europe/Oslo
 EXPOSE 8080
 
 WORKDIR /app
-COPY build/libs/*.jar app.jar
+
+COPY arbeidsliste-api/build/libs/*.jar app.jar
 
 VOLUME /tmp
 

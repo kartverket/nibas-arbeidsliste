@@ -1,4 +1,4 @@
-name: Release app
+name: Deploy to DEV
 on:
   push:
     branches: [ main ]
