@@ -48,69 +48,59 @@ class DataInitializer(
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun initData() {
-
         try {
-            // Resetter db med Flyway.
-            if (avvikRepository.count() == 0L) {
+            // Always reset the database on startup
+            resetDatabase()
+            
+            logger.info("Starting to populate database with initial data...")
+            
+            // Read mock data from JSON file
+            val mockData = readMockData()
+            var savedCount = 0
 
-                resetDatabase()
-                logger.info("Starter initialisering av testdata for avvik fra Nibas API...")
+            for ((lokalId, _) in mockData) {
+                logger.info("Fetching border with localId={} from Nibas API", lokalId)
 
-                // Henter avvik fra JSON-fil
-                val mockData = readMockData()
-                var savedCount = 0
-
-                for ((lokalId, _) in mockData) {
-                    logger.info("Henter grense med lokalID={} fra Nibas API", lokalId)
-
-                    val response = try {
-                        // Henter grense fra Nibas API
-                        nibasGrenserService.hentGrenseByLokalId(lokalId)
-                            .doOnError { error ->
-                                logger.error("Feil ved henting av grense med lokalID={}: {}", lokalId, error.message, error)
-                            }
-                            .blockOptional()
-                            .orElse(null)
-                    } catch (e: Exception) {
-                        logger.error("Feil ved henting av grense med lokalID={} fra Nibas API", lokalId, e)
-                        null
-                    }
-
-                    if (response != null) {
-                        try {
-                            logger.info("Opprettet avvik for grense med lokalID={}", lokalId)
-
-                            val grense = parseGrenseJson(response)
-                            val mockDataForGrense = mockData[lokalId]
-                            val avvik = createAvvik(grense, mockDataForGrense)
-
-                            avvikRepository.save(avvik)
-                            avvikRepository.flush()
-                            savedCount++
-
-                            logger.info("Lagret avvik #{} for grense med lokalID={}", savedCount, lokalId)
-                        } catch (e: Exception) {
-                            logger.error("Feil ved lagring av avvik for grense med lokalID={}: {}", lokalId, e.message, e)
+                val response = try {
+                    // Fetch border from Nibas API
+                    nibasGrenserService.hentGrenseByLokalId(lokalId)
+                        .doOnError { error ->
+                            logger.error("Error fetching border with localId={}: {}", lokalId, error.message, error)
                         }
-                    } else {
-                        logger.warn("Kunne ikke hente grense med lokalID={} fra Nibas API", lokalId)
-                    }
+                        .blockOptional()
+                        .orElse(null)
+                } catch (e: Exception) {
+                    logger.error("Error fetching border with localId={} from Nibas API", lokalId, e)
+                    null
                 }
-                logger.info("Initialisert {} avvik i databasen", savedCount)
-            } else {
-                logger.info("Database is not empty. Ensuring schema is up-to-date using Flyway.")
-                try {
-                    flyway.migrate() // Validates schema and applies any pending migrations
-                    logger.info("Flyway migration check complete. Database schema is current.")
-                } catch (e: FlywayException) {
-                    logger.error("Flyway migration/validation failed for non-empty database: {}", e.message, e)
-                    // Depending on policy, you might want to rethrow or handle this as a startup failure
+
+                if (response != null) {
+                    try {
+                        logger.info("Processing border with localId={}", lokalId)
+
+                        val grense = parseGrenseJson(response)
+                        val mockDataForGrense = mockData[lokalId]
+                        val avvik = createAvvik(grense, mockDataForGrense)
+
+                        avvikRepository.save(avvik)
+                        avvikRepository.flush()
+                        savedCount++
+
+
+                        logger.info("Saved issue #{} for border with localId={}", savedCount, lokalId)
+                    } catch (e: Exception) {
+                        logger.error("Error saving issue for border with localId={}: {}", lokalId, e.message, e)
+                    }
+                } else {
+                    logger.warn("Could not fetch border with localId={} from Nibas API", lokalId)
                 }
             }
-
+            
+            logger.info("Successfully initialized {} issues in the database", savedCount)
+            
         } catch (e: Exception) {
-            logger.error("Feil ved initialisering av testdata: {}", e.message, e)
-            logger.error("Dette kan skyldes manglende databasetilkobling, men API-nøkkel funksjonalitet kan likevel fungere.")
+            logger.error("Error during database initialization: {}", e.message, e)
+            throw IllegalStateException("Failed to initialize database", e)
         }
     }
 
