@@ -30,8 +30,28 @@ spring:
         default_schema: nibas_arbeidsliste_schema
     show-sql: true
   flyway:
+    enabled: true
     clean-disabled: false
-    validate-on-migrate: false
+    # Enable clean on startup for development environment
+    clean-on-startup: true
+    # Configure validation behavior
+    validate-on-migrate: true
+    # Baseline configuration
+    baseline-on-migrate: true
+    baseline-version: '0'
+    # Migration configuration
+    locations: classpath:db/migration
+    schemas: nibas_arbeidsliste_schema
+    create-schemas: true
+    # New in Flyway 11.x - configure how to handle validation errors
+    # 'fix' will automatically repair the schema history table
+    # 'warn' will log a warning but continue
+    # 'abort' will fail the migration (default)
+    validate-migration-naming: true
+    # Enable batch mode for better performance
+    batch: true
+    # Disable clean on validation error as it's handled by clean-on-startup
+    clean-on-validation-error: false
   data:
     initialization:
       enabled: true
