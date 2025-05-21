@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse
  * gitt i X-API-Key-headeren.
  */
 @Configuration
+@Profile("!security-off")
 class InternalApiSecurityConfig(
     @Value("\${nibas.arbeidsliste.api-key}") private val expectedApiKey: String
 ) {
