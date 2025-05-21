@@ -3,12 +3,37 @@ logging:
     console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: nibas_arbeidsliste_schema
+    show-sql: true
   flyway:
     enabled: true
+    clean-disabled: false
+    validate-on-migrate: true
+    baseline-on-migrate: true
+    baseline-version: '0'
+    locations: classpath:db/migration
     schemas: nibas_arbeidsliste_schema
     create-schemas: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    # New in Flyway 11.x: Configure how to handle validation errors
+    # 'fix' will automatically repair the schema history table
+    # 'warn' will log a warning but continue
+    # 'abort' will fail the migration (default)
+    validate-migration-naming: true
+    # Configure whether to automatically call clean when validation fails
+    # This replaces the old clean-on-validation-error
+    clean-on-validation-error: false
+    # Enable batch mode for better performance
+    batch: true
+  sql:
+    init:
+      mode: always
+      platform: postgresql
 
 springdoc:
   api-docs:
