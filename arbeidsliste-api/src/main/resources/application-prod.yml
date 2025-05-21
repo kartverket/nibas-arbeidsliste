@@ -42,15 +42,20 @@ management:
   endpoints:
     web:
       exposure:
-        include: 'health, prometheus'
+        include: 'health,info,prometheus'
+      base-path: /actuator
     jmx:
       exposure:
         include: '*'
   endpoint:
     health:
+      show-details: always
+      show-components: always
+      group:
+        readiness:
+          include: readiness,db
       probes:
         enabled: true
-      show-details: always
       access: unrestricted
   info:
     env:
