@@ -20,12 +20,27 @@ fun importConvertedGrenselinjer(convertedDir: File, endringsnummer: Long? = null
     }
     ArbeidslisteDbConnector().use { connector ->
         val conn = connector.connection
+        // First, create a temporary table to track duplicates
+        conn.createStatement().use { stmt ->
+            stmt.execute("""
+                CREATE TEMP TABLE temp_duplicate_ids (id BIGINT) ON COMMIT DROP;
+                CREATE INDEX IF NOT EXISTS idx_temp_duplicate_ids ON temp_duplicate_ids(id);
+            """.trimIndent())
+        }
+
         conn.prepareStatement(
-            "INSERT INTO nibas_arbeidsliste_schema.matrikkel_grenselinje(" +
-                "id, hjelpelinjetype_id, omtvistet, folgerterrengdetalj_id, administrativgrensekode_id, " +
-                "malemetode_id, noyaktighet, datafangstdato, lagretnoyaktighetsklasse, geom, oppdateringsdato, " +
-                "kommunenrstrengcache, informasjoncache, versjon, versjon_id, oppdatert_av" +
-                ") VALUES (?,?,?,?,?,?,?,?,?,ST_GeomFromText(?, 25833),?,?,?,?,?,?) ON CONFLICT (id) DO NOTHING"
+            """
+            WITH inserted AS (
+                INSERT INTO nibas_arbeidsliste_schema.matrikkel_grenselinje(
+                    id, hjelpelinjetype_id, omtvistet, folgerterrengdetalj_id, administrativgrensekode_id, 
+                    malemetode_id, noyaktighet, datafangstdato, lagretnoyaktighetsklasse, geom, oppdateringsdato,
+                    kommunenr1, kommunenr2, informasjoncache, versjon, versjon_id, oppdatert_av
+                ) VALUES (?,?,?,?,?,?,?,?,?,ST_GeomFromText(?, 25833),?,?,?,?,?,?,?)
+                ON CONFLICT (id) DO NOTHING
+                RETURNING id
+            )
+            SELECT id FROM inserted
+            """.trimIndent()
         ).use { ps ->
             var imported = 0
             for (file in grenselinjeFiles) {
@@ -61,22 +76,75 @@ fun importConvertedGrenselinjer(convertedDir: File, endringsnummer: Long? = null
                         } else {
                             ps.setNull(11, Types.TIMESTAMP)
                         }
+                        // Always ensure kommunenr1 is set, kommunenr2 can be null
                         val knrStr = grense.kommunenrstrengcache()
-                        if (knrStr != null) ps.setString(12, knrStr) else ps.setNull(12, Types.VARCHAR)
+                        if (knrStr != null) {
+                            val kommuner = knrStr.split(',').map { it.trim().padStart(4, '0') }
+                            // First municipality number is required
+                            ps.setString(12, kommuner.firstOrNull() ?: "0000")
+                            // Second municipality number is optional
+                            ps.setString(13, kommuner.getOrNull(1)?.takeIf { it.isNotBlank() })
+                        } else {
+                            // If no municipality string is available, use a default value for kommunenr1
+                            ps.setString(12, "0000")
+                            ps.setNull(13, Types.VARCHAR)
+                        }
+
                         val infoStr = grense.informasjon()
-                        if (infoStr != null) ps.setString(13, infoStr) else ps.setNull(13, Types.VARCHAR)
-                        ps.setLong(14, grense.versjon())
-                        ps.setInt(15, grense.versjonid())
+                        if (infoStr != null) ps.setString(14, infoStr) else ps.setNull(14, Types.VARCHAR)
+                        ps.setLong(15, grense.versjon())
+                        ps.setInt(16, grense.versjonid())
                         val oppStr = grense.oppdatertav()
-                        if (oppStr != null) ps.setString(16, oppStr) else ps.setNull(16, Types.VARCHAR)
+                        if (oppStr != null) ps.setString(17, oppStr) else ps.setNull(17, Types.VARCHAR)
                         ps.addBatch()
                         imported++
-                        println("Queued grenselinje id=${entry.id()} from file=${file.name}")
+
+                        // Check if this ID already exists
+                        val id = entry.id()
+                        val exists = conn.prepareStatement(
+                            "SELECT 1 FROM nibas_arbeidsliste_schema.matrikkel_grenselinje WHERE id = ?"
+                        ).use { checkStmt ->
+                            checkStmt.setLong(1, id)
+                            checkStmt.executeQuery().next()
+                        }
+
+                        if (exists) {
+                            println("WARNING: Duplicate ID ${id} found in file=${file.name}")
+                            // Log the duplicate to our temp table
+                            conn.prepareStatement("INSERT INTO temp_duplicate_ids (id) VALUES (?)").use { dupStmt ->
+                                dupStmt.setLong(1, id)
+                                dupStmt.execute()
+                            }
+                        } else {
+                            println("Queued grenselinje id=${id} from file=${file.name}")
+                        }
                     }
                 }
             }
-            ps.executeBatch()
-            println("Imported $imported grenselinjer from converted files.")
+            val insertedCount = ps.executeBatch().sum()
+            println("Processed $imported grenselinjer, inserted $insertedCount new records.")
+
+            // Log any duplicates we found
+            conn.createStatement().use { stmt ->
+                val rs = stmt.executeQuery("""
+                    SELECT id, COUNT(*) as cnt
+                    FROM temp_duplicate_ids
+                    GROUP BY id
+                    ORDER BY cnt DESC
+                    LIMIT 10
+                """.trimIndent())
+
+                if (rs.next()) {
+                    println("\n=== DUPLICATE IDS FOUND ===")
+                    println("ID\tOCCURRENCES")
+                    do {
+                        println("${rs.getLong(1)}\t${rs.getInt(2)}")
+                    } while (rs.next())
+                    println("==========================")
+                } else {
+                    println("No duplicate IDs found in this import batch.")
+                }
+            }
         }
 
         endringsnummer?.let { enr ->

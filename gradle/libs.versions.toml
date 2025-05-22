@@ -7,6 +7,9 @@ logstashLogback = "8.1"
 springdocOpenapi = "2.8.8"
 micrometerPrometheus = "1.15.0"
 flyway = "11.8.2"
+jts-core = "1.19.0"
+jackson-datatype-jts = "1.2.10"
+postgis-jdbc = "2021.1.0"
 
 [libraries]
 # Spring Boot
@@ -14,6 +17,7 @@ spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-start
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 
@@ -27,6 +31,10 @@ kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 
 # Jackson
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-datatype-jts = { module = "org.n52.jackson:jackson-datatype-jts", version.ref = "jackson-datatype-jts" }
+
+locationtech-jts-core = { module = "org.locationtech.jts:jts-core", version.ref = "jts-core" }
+postgis-jdbc = { module = "net.postgis:postgis-jdbc", version.ref = "postgis-jdbc" }
 
 # Logging and Monitoring
 logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstashLogback" }

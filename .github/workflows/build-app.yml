@@ -15,7 +15,7 @@ on:
         value: ${{ jobs.build.outputs.image_url }}
 
 env:
-  image_name: nibas-arbeidsliste # Updated image name
+  image_name: arbeidsliste-api
   registry: ghcr.io
   registry_path: kartverket
 
@@ -52,7 +52,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build -x test --info
+        run: ./gradlew :arbeidsliste-api:build -x test --info
         env:
           JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Oslo"
 

@@ -1,4 +1,4 @@
-name: Release app
+name: Deploy to DEV
 on:
   push:
     branches: [ main ]
@@ -33,11 +33,11 @@ jobs:
         with:
           allow_severity_level: critical
           image_url: ${{ needs.build.outputs.image_url }}
-   
+
   deploy-argo:
     permissions:
       id-token: write
-    needs: [build]
+    needs: [ build ]
     uses: kartverket/smia-apps/.github/workflows/release-app-octo-sts.yml@main
     with:
       application: nibas-arbeidsliste

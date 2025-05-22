@@ -3,12 +3,18 @@ logging:
     console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
 
 spring:
-  flyway:
-    enabled: true
-    schemas: nibas_arbeidsliste_schema
-    create-schemas: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: nibas_arbeidsliste_schema
+    show-sql: true
+  sql:
+    init:
+      mode: always
+      platform: postgresql
 
 springdoc:
   api-docs:

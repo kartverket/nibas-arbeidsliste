@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS nibas_arbeidsliste_schema.matrikkel_grenselinje
     lagretnoyaktighetsklasse   SMALLINT,
     geom                       geometry(LineString, 25833),
     oppdateringsdato           TIMESTAMP(6),
-    kommunenrstrengcache       VARCHAR,
+    kommunenr1                 VARCHAR(4),
+    kommunenr2                 VARCHAR(4),
     informasjoncache           VARCHAR,
     versjon                    BIGINT,
     versjon_id                 INTEGER,
@@ -27,3 +28,14 @@ CREATE TABLE IF NOT EXISTS nibas_arbeidsliste_schema.matrikkel_endringsnummer
 
 CREATE INDEX IF NOT EXISTS idx_matrikkel_grenselinje_id
     ON nibas_arbeidsliste_schema.matrikkel_grenselinje (id);
+
+
+CREATE INDEX IF NOT EXISTS idx_matrikkel_grenselinje_kommune1
+    ON nibas_arbeidsliste_schema.matrikkel_grenselinje (kommunenr1);
+
+CREATE INDEX IF NOT EXISTS idx_matrikkel_grenselinje_kommune2
+    ON nibas_arbeidsliste_schema.matrikkel_grenselinje (kommunenr2);
+
+ALTER TABLE nibas_arbeidsliste_schema.matrikkel_grenselinje
+    ADD CONSTRAINT chk_kommuner
+        CHECK (kommunenr1 IS NOT NULL AND (kommunenr2 IS NULL OR kommunenr2 != kommunenr1));
