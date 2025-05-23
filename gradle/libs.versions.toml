@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.1.21"
-springBoot = "3.4.5"
+springBoot = "3.5.0"
 springDependencyManagement = "1.1.7"
 graalvmNative = "0.10.6"
 logstashLogback = "8.1"
