@@ -16,6 +16,7 @@ private const val UTM33_Y_MIN_EXCLUSIVE = UTM33_CENTER_Y - UTM33_EXTENT / 2.0
  * DTO for MatrikkelGrenselinje that converts to GeoJSON format.
  */
 data class MatrikkelGrenselinjeDto(
+    val id: String,
     val type: String = "Feature",
     val geometry: GeometryDto,
     val properties: PropertiesDto
@@ -52,6 +53,7 @@ data class MatrikkelGrenselinjeDto(
             } ?: emptyList()
 
             return MatrikkelGrenselinjeDto(
+                id = "M22AdministrativeGrenser." + entity.id,
                 geometry = GeometryDto(coordinates = coordinates),
                 properties = PropertiesDto(
                     id = entity.id,
