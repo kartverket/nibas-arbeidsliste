@@ -30,4 +30,4 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           comment-summary-in-pr: always
-          allow-licenses: MIT, Apache-2.0
+          allow-licenses: MIT, Apache-2.0, BSD-3-Clause, EPL-2.0, LGPL-2.1, BSD-2-Clause
