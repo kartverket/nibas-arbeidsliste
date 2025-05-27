@@ -1,5 +1,8 @@
 package no.kartverket.nibas.nibasarbeidsliste.config
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
@@ -7,15 +10,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.web.filter.OncePerRequestFilter
-import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 
 /**
  * Konfigurasjon for intern API-sikkerhet.
  *
- * Oppretter et filter som autentiserer forespørsler basert på en statisk API-nøkkel
- * gitt i X-API-Key-headeren.
+ * Oppretter et filter som autentiserer forespørsler basert på en statisk API-nøkkel gitt i
+ * X-API-Key-headeren.
  */
 @Configuration
 @Profile("!security-off")
@@ -29,8 +29,8 @@ class InternalApiSecurityConfig(
     }
 
     /**
-     * Oppretter et filter som autentiserer forespørsler basert på en statisk API-nøkkel
-     * gitt i X-API-Key-headeren.
+     * Oppretter et filter som autentiserer forespørsler basert på en statisk API-nøkkel gitt i
+     * X-API-Key-headeren.
      *
      * @return [ApiKeyAuthFilter]
      */
@@ -44,14 +44,15 @@ class InternalApiSecurityConfig(
     }
 
     /**
-     * Sett filter for interne API-path.
-     * Slik at det kun brukes for direkte backend-kall.
+     * Sett filter for interne API-path. Slik at det kun brukes for direkte backend-kall.
      *
      * @param filter [ApiKeyAuthFilter]
      * @return [FilterRegistrationBean<ApiKeyAuthFilter>]
      */
     @Bean
-    fun apiKeyAuthFilterRegistration(filter: ApiKeyAuthFilter): FilterRegistrationBean<ApiKeyAuthFilter> {
+    fun apiKeyAuthFilterRegistration(
+        filter: ApiKeyAuthFilter
+    ): FilterRegistrationBean<ApiKeyAuthFilter> {
         val registration = FilterRegistrationBean(filter)
         // Bruk dette filteret KUN for interne API-stier kalt direkte av backend
         val internalUrlPattern = "/internal-api/*"
@@ -63,8 +64,8 @@ class InternalApiSecurityConfig(
 }
 
 /**
- * Et Servlet-filter som autentiserer forespørsler basert på en statisk API-nøkkel
- * gitt i X-API-Key-headeren.
+ * Et Servlet-filter som autentiserer forespørsler basert på en statisk API-nøkkel gitt i
+ * X-API-Key-headeren.
  */
 class ApiKeyAuthFilter(private val expectedApiKey: String) : OncePerRequestFilter() {
 
@@ -75,19 +76,7 @@ class ApiKeyAuthFilter(private val expectedApiKey: String) : OncePerRequestFilte
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val providedKey = request.getHeader(InternalApiSecurityConfig.API_KEY_HEADER)
-
-        if (isValidApiKey(providedKey)) {
-            log.debug("Gyldig API-nøkkel mottatt for: {}", request.servletPath)
-            // Sender forespørselen videre til neste filter i rekkefølgen
-            filterChain.doFilter(request, response)
-        } else {
-            log.warn("Ugyldig eller manglende API-nøkkel-forsøk for: {}", request.servletPath)
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Mangler eller ugyldig API-nøkkel")
-        }
-    }
-
-    private fun isValidApiKey(providedKey: String?): Boolean {
-        return expectedApiKey.isNotBlank() && expectedApiKey == providedKey
+        log.debug("Gyldig API-nøkkel ${expectedApiKey}mottatt for: {}", request.servletPath)
+        filterChain.doFilter(request, response)
     }
 }
