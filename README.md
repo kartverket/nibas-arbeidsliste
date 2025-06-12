@@ -1,7 +1,7 @@
 # Nibas Arbeidsliste
 
 Microtjeneste for håndtering av avvik i grensedata mellom NIBAS og Matrikkelen.
-Hent in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
+Henter in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
 Prosjektet er satt som med moduler bestående av:
 
@@ -10,39 +10,16 @@ Prosjektet er satt som med moduler bestående av:
 
 ## Arbeidsliste-api
 
-**Autentisering mot NIBAS-backend er ikke implementert ennå, så det er viktig å kjøre NIBAS-backend med "security-off" profilen.**
-
-Mock dataen er grenser i nibas som vi vet har avvik mot Matrikkelen.
-
-For å kjøre applikasjonen med mock-data, følg disse stegene:
-
 1. **Sett opp NIBAS API lokalt**:
-    - Klon NIBAS backend fra GitHub: `git clone https://github.com/kartverket/nibas-backend.git`
-    - Bytt til branch: `git checkout TS-1761-nytt-endepunkt`
+    - `git clone https://github.com/kartverket/nibas-backend.git`
     - Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
 
 2. **Konfigurer Arbeidsliste**:
     - Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
     - Sørg for at applikasjonen kjører med profilen `localhost,security-off`
 
-3. **Mock-data konfigurasjon**:
-    - Mock-data blir hentet fra NIBAS API basert på lokalIDer definert i `DataInitializer.kt`
-    - Du kan endre listen med lokalIDer i `DataInitializer.kt` for å hente andre grenser
-
-4. **Database konfigurasjon**:
+3. **Database konfigurasjon**:
    Applikasjonen bruker Flyway for databasemigrasjoner. Dette sikrer at databaseskjemaet er konsistent på tvers av miljøer.
-
-   I `application-localhost.yml` kan du konfigurere om testdata skal lastes ved oppstart:
-   ```yaml
-   spring:
-     data:
-       initialization:
-         # Aktiver/deaktiver lasting av testdata ved oppstart
-         enabled: true
-   ```
-
-Ved oppstart vil applikasjonen automatisk hente grensedata fra NIBAS API for de definerte lokalIDene og lagre dem som avvik i databasen. Disse avvikene kan
-deretter vises via API-endepunktet `GET /api/v1/avvik`.
 
 ## Tech Stack
 
@@ -128,19 +105,12 @@ Migrasjonsskriptene følger navnekonvensjonen `V{versjon}__{beskrivelse}.sql`. A
 
 - `V1__Initial_Tabeller.sql` - Oppretter alle nødvendige tabeller og indekser
 
-### Database Reset
+### Tøm databasedata
 
-Under utvikling vil databasen automatisk resettes og lastes med testdata hver gang applikasjonen starter. Dette er konfigurert i `application-localhost.yml` med
-følgende innstillinger:
+For å tømme all data fra tabellene uten å slette selve tabellene:
 
-```yaml
-spring:
-  flyway:
-    clean-disabled: false  # Tillater Flyway å rense databasen
-    validate-on-migrate: false  # Deaktiverer validering av migrasjonsskript under utvikling
-  data:
-    initialization:
-      enabled: true  # Aktiverer lasting av testdata ved oppstart
+```bash
+PGPASSWORD=nibas_arbeidsliste psql -h localhost -d nibas -U nibas_arbeidsliste -f clear_data.sql
 ```
 
 ### Databasekonfigurasjon (application-localhost.yml)
@@ -194,23 +164,39 @@ http://localhost:8082/swagger-ui/index.html#/
 - [x] SKIP oppsett. DEV
 - [x] Auth mot NIBAS-backend.
 - [x] Auth mot nibas-frontend via proxy.
+    - [x] Proxy i nibas-backend som kaller arbeidsliste
 - [x] Database DEV
+    - [x] Lag bruker og schema for arbeidsliste i dev
+    - [ ] Fyll opp DEV database med grenser.
 - [ ] Database PROD
+    - [ ] Lag bruker og schema for arbeidsliste i prod
+    - [ ] Fyll opp PROD database med grenser.
 - [ ] SKIP oppsett. PROD
+- [ ] Tilgang til M22 database med de nyeste dataene.
 
-### Funksjoner
-
-#### Mock-API
-
-- [x] GET-endepunkt med avvik
-- [x] Hent en grense fra NIBAS-backend via lokalID
-- [x] Fylle opp mock-data "avvik" i database
-
-#### Real-API
+### Funksjonalitet
 
 - [x] Hente grenser fra NIBAS-backend
 - [x] Hente grenser fra Matrikkelen
-- [ ] Lagre grenser fra M22 i arbeidsliste database
-- [ ] Endepunkt som viser M22 grenser til nibas klient.
-- [ ] Finn avvik i grenser mellom NIBAS og Matrikkelen
-- [ ] Lagre avvik mellom NIBAS-backend og Matrikkelen i database
+- [x] Lagre grenser fra M22 i arbeidsliste database
+- [x] Endepunkt som viser M22 grenser til nibas klient.
+- [x] Finn avvik i grenser mellom NIBAS og Matrikkelen
+- [x] Lagre avvik mellom NIBAS-backend og Matrikkelen i database
+- [ ] Fjern falske positive fra avvik. Beholder all avvik.
+- [ ] Behendling av nye avvik. Ved kjøring av sammeligning av grenser vil oppstå dublikate avvik.
+    - [ ] Ikke legg til nye avvik hvis det allerede finnes et avvik for grensen, hvis status er NY eller VENT. Sjekk per localID
+    - [ ] Hvis status er LØST, så skal det opprettes et nytt avvik. Siden da er det feil under behandling eller det har kommet ett faktisk nytt på sammen
+      grense.
+    - [ ] 
+- [ ] Lag endepunkt som viser antall avvik for analyse / dashboard
+    - [ ] Hvor mange ekte og falske avvik
+    - [ ] Hvor mange avvik per grensetype (kommunegrense etcc)
+    - [ ] Hvor mange avvik løst. Total og per grensetype. 
+    - [ ] Hvor mange kommuner med avvik og uten avvik.
+- [ ] Endringlogg fra M22 til å oppdatere grenser
+- [ ] Vis teiggrenser (samme prosess som for admn-grenser)
+    - [ ] Hente teiggrens fra M22
+    - [ ] Konverters til rikitig format
+    - [ ] Lagre grenser i arbeidslist-db
+    - [ ] Lag endpunkt som viser teiggrenser til klient
+    - [ ] 

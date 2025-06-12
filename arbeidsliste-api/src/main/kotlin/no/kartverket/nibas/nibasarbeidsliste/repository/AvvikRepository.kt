@@ -37,15 +37,17 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
             k.kommuneLokalID,
             k.kommunenummer,
             k.kommunenavn,
-            CAST(COUNT(a) AS int)
+            CAST(COUNT(DISTINCT a.id) AS int)
         )
-        FROM Avvik a JOIN a.kommuner k
+        FROM Avvik a JOIN a.kommuner k JOIN a.koordinaterMedAvvik coord
         WHERE a.status IN :statuses
+        AND a.grensetype IN ('Kommunegrense', 'Fylkesgrense')
         AND (:grensetyper IS NULL OR a.grensetype IN :grensetyper)
         AND k.kommunenummer IS NOT NULL
         AND k.kommunenavn IS NOT NULL
+        AND (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false)
         GROUP BY k.fylkesLokalID, k.kommuneLokalID, k.kommunenummer, k.kommunenavn
-        ORDER BY COUNT(a) DESC
+        ORDER BY COUNT(DISTINCT a.id) DESC
     """)
     fun findKommuneAvvikSummaryPage(
         @Param("statuses") statuses: Collection<AvvikStatus>,

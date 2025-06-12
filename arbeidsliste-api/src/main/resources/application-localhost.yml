@@ -11,6 +11,9 @@ nibas:
   arbeidsliste:
     api-key: 'super-secret-api-key'
 
+api:
+  key:
+    matrikkel: 'super-secret-api-key'
 
 spring:
   datasource:

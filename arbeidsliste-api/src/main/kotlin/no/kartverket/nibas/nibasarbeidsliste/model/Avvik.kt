@@ -33,8 +33,7 @@ data class Avvik(
     @Column(nullable = false)
     val status: AvvikStatus = AvvikStatus.NY,
 
-    //-------- Felter fra avvik json ----------
-    // Ting som blir hentet far avvik json
+    //-------- Felter fra sammelignig ----------
 
     // Totalt antall koordinater
     @Column(name = "antall_koordinater")
@@ -45,21 +44,20 @@ data class Avvik(
     val antallKoordinaterMedAvvik: Int? = null,
 
     // Liste med koordinater som har avvik
-    @ElementCollection
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     @CollectionTable(
         name = "koordinater_med_avvik",
+        schema = "nibas_arbeidsliste_schema",
         joinColumns = [JoinColumn(name = "avvik_id")]
     )
     val koordinaterMedAvvik: List<KoordinaterMedAvvik>? = null,
 
     // tolerance
     @Column(nullable = false)
-    val tolerance: Int? = null,
+    val tolerance: Double? = null,
 
 
     //-------- Felter fra NIBAS grense ----------
-    // Disse trengs kanksje ikke i arbeidslisten apiet?
-    // Kan hente dem rett fra nibas-backend hvis det trengs?
     @Column(name = "grense_id")
     val grenseId: String? = null,
 
@@ -105,9 +103,10 @@ data class Avvik(
     @Column(name = "noeyaktighet")
     val noeyaktighet: Int? = null,
 
-    @ElementCollection
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     @CollectionTable(
         name = "grense_kommuner",
+        schema = "nibas_arbeidsliste_schema",
         joinColumns = [JoinColumn(name = "avvik_id")]
     )
     val kommuner: List<Kommune>? = null,
@@ -145,11 +144,15 @@ data class KoordinaterMedAvvik(
 
     @Column(name = "distanse_mellom_koordinater")
     val distanseMellomKoordinater: Double? = null,
+
+    @Column(name = "er_paa_matrikkel_linje")
+    val erPaaMatrikkelLinje: Boolean? = null,
 ) {
     private constructor() : this(
         koordinatFraNibas = null,
         koordinatFraMatrikkelen = null,
-        distanseMellomKoordinater = null
+        distanseMellomKoordinater = null,
+        erPaaMatrikkelLinje = null
     )
 }
 

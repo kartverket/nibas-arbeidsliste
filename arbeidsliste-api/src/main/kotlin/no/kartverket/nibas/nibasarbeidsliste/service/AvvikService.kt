@@ -38,8 +38,12 @@ class AvvikService(
         } else {
             avvikRepository.findAll(pageable)
         }
-        val avvikDto = avvik.map { convertToDTO(it) }
-        return avvikDto
+        val avvikDto = avvik.mapNotNull { avvik ->
+            val dto = convertToDTO(avvik)
+            // Only return avvik that have real avvik points (not just helper points)
+            if (dto.antallKoordinaterMedAvvik != null && dto.antallKoordinaterMedAvvik > 0) dto else null
+        }
+        return PageImpl(avvikDto, pageable, avvikDto.size.toLong())
     }
 
     /**
@@ -56,7 +60,11 @@ class AvvikService(
         } else {
             avvikRepository.findKommuneByLokalId(lokalid)
         }
-        return avvikList.map { convertToDTO(it) }
+        return avvikList.mapNotNull { avvik ->
+            val dto = convertToDTO(avvik)
+            // Only return avvik that have real avvik points (not just helper points)
+            if (dto.antallKoordinaterMedAvvik != null && dto.antallKoordinaterMedAvvik > 0) dto else null
+        }
     }
 
     /**
@@ -119,6 +127,11 @@ class AvvikService(
             GeoJsonLineString(coordinates = coordinates)
         } else null
 
+        // Filter out helper points - only keep real avvik
+        val realAvvikKoordinater = avvik.koordinaterMedAvvik?.filter { 
+            it.erPaaMatrikkelLinje != true 
+        }
+
         return AvvikDTO(
             id = avvik.id,
             registrertDato = avvik.registrertDato,
@@ -140,9 +153,9 @@ class AvvikService(
             maalemetode = avvik.maalemetode,
             noeyaktighet = avvik.noeyaktighet,
             antallKoordinater = avvik.antallKoordinater,
-            antallKoordinaterMedAvvik = avvik.antallKoordinaterMedAvvik,
+            antallKoordinaterMedAvvik = realAvvikKoordinater?.size,
             tolerance = avvik.tolerance,
-            koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { koordinat ->
+            koordinaterMedAvvik = realAvvikKoordinater?.map { koordinat ->
                 KoordinaterMedAvvikDTO(
                     nibasKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraNibas?.x ?: 0.0, koordinat.koordinatFraNibas?.y ?: 0.0)),
                     matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y
