@@ -76,7 +76,7 @@ data class AvvikDTO(
     val koordinaterMedAvvik: List<KoordinaterMedAvvikDTO>?,
 
     @JsonProperty("tolerance")
-    val tolerance: Int?,
+    val tolerance: Double?,
 
     @JsonProperty("kommuner")
     val kommuner: List<KommuneDTO>? = null,
