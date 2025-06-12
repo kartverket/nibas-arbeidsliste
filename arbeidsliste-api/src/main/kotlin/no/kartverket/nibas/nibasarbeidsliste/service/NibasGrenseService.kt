@@ -20,10 +20,3 @@ class NibasGrenseService(
         return nibasClient.getGrenser(page, size)
     }
 }
-
-
-fun main() {
-    val client = NibasGrenseService(NibasClient("http://localhost:8080/v1", "123456"))
-    val grenser = client.getGrenser(0, 1)
-    println(grenser)
-}

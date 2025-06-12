@@ -34,9 +34,3 @@ class NibasClient(
         return response.body ?: throw RuntimeException("Failed to get response from NIBAS API")
     }
 }
-
-fun main() {
-    val client = NibasClient("http://localhost:8080/v1", "123456")
-    val grenser = client.getGrenser()
-    println(grenser)
-}

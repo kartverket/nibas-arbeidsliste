@@ -36,6 +36,17 @@ CREATE INDEX IF NOT EXISTS idx_matrikkel_grenselinje_kommune1
 CREATE INDEX IF NOT EXISTS idx_matrikkel_grenselinje_kommune2
     ON nibas_arbeidsliste_schema.matrikkel_grenselinje (kommunenr2);
 
-ALTER TABLE nibas_arbeidsliste_schema.matrikkel_grenselinje
-    ADD CONSTRAINT chk_kommuner
-        CHECK (kommunenr1 IS NOT NULL AND (kommunenr2 IS NULL OR kommunenr2 != kommunenr1));
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1
+                       FROM information_schema.table_constraints
+                       WHERE table_schema = 'nibas_arbeidsliste_schema'
+                         AND table_name = 'matrikkel_grenselinje'
+                         AND constraint_name = 'chk_kommuner') THEN
+            ALTER TABLE nibas_arbeidsliste_schema.matrikkel_grenselinje
+                ADD CONSTRAINT chk_kommuner
+                    CHECK (kommunenr1 IS NOT NULL AND (kommunenr2 IS NULL OR kommunenr2 != kommunenr1));
+        END IF;
+    END
+$$;
