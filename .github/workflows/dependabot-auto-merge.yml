@@ -16,7 +16,6 @@ jobs:
         id: octo-sts
         with:
           scope: kartverket/nibas-arbeidsliste
-          identity: nibas
 
       - name: Checkout repository
         uses: actions/checkout@v4
