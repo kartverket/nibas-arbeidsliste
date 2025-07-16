@@ -17,6 +17,7 @@ import org.locationtech.jts.index.strtree.STRtree
 import org.locationtech.jts.operation.distance.DistanceOp
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import kotlin.math.roundToInt
 import kotlin.time.measureTime
 
 
@@ -45,7 +46,7 @@ class GrenseSammenlignerService(
         log.info("Fant ${nibasGrenser.size} NIBAS grenser")
 
         // 3. Hent M22 grenser
-        // M22 grenser er lagert som UTM33 i nibas database.
+        // M22 grenser er lagret som UTM33 i nibas database.
         log.info("\nHenter M22 grenser...")
         val m22Grenser = matrikkelRepo.findAll()
         log.info("Fant ${m22Grenser.size} M22 grenser")
@@ -55,7 +56,6 @@ class GrenseSammenlignerService(
         val totalTime = measureTime {
             resultat = sammenlignGrenser(nibasGrenser, m22Grenser, toleranseMeter)
         }
-
 
         return GrenseSammenligningResultat(
             antallGrenserSjekket = nibasGrenser.size,
@@ -88,7 +88,6 @@ class GrenseSammenlignerService(
             return geometryFactory.createLineString(coordinates)
         }
 
-        // Build spatial index for M22 linestrings (all in UTM33)
         val m22LineIndex = STRtree()
         m22Grenser.forEach { m22 ->
             m22.geom?.let { line -> m22LineIndex.insert(line.envelopeInternal, line) }
@@ -103,7 +102,6 @@ class GrenseSammenlignerService(
         for ((grenseIndex, nibasGrense) in nibasGrenser.withIndex()) {
             val nibasLine = nibasGeometriToLineString(nibasGrense.geometri)
 
-            // Progress logging
             if ((grenseIndex + 1) % 100 == 0 || grenseIndex == nibasGrenser.size - 1) {
                 log.info("Progress: ${grenseIndex + 1}/${nibasGrenser.size} grenser sjekket, $totalAvvik avvik funnet så langt...")
             }
@@ -129,8 +127,8 @@ class GrenseSammenlignerService(
                         closestDistance = distance
                         val rawCoord = tempClosestPoint[0]
                         closestM22Coord = Coordinate(
-                            Math.round(rawCoord.x * 100.0) / 100.0,
-                            Math.round(rawCoord.y * 100.0) / 100.0
+                            (rawCoord.x * 100.0).roundToInt() / 100.0,
+                            (rawCoord.y * 100.0).roundToInt() / 100.0
                         )
                     }
                 }
@@ -166,7 +164,7 @@ class GrenseSammenlignerService(
             Avvik(
                 grenseId = nibasGrense.id,
                 lokalId = nibasGrense.lokalid,
-                status = AvvikStatus.NY, // Set default status for new deviations
+                status = AvvikStatus.NY,
                 grensetype = nibasGrense.grensetype,
                 geometri = nibasLine,
                 gyldigFra = nibasGrense.gyldighet.gyldigFra,
@@ -196,8 +194,6 @@ class GrenseSammenlignerService(
             val existingAvvik = existingAvvikMap[calculatedAvvik.lokalId]
 
             if (existingAvvik == null) {
-                // This is a completely new deviation
-                log.info("Nytt avvik funnet for lokalId: ${calculatedAvvik.lokalId}")
                 avvikToSave.add(calculatedAvvik)
             } else {
                 // A deviation for this lokalId already exists. Check its status.
@@ -217,7 +213,7 @@ class GrenseSammenlignerService(
         }
 
         val savedAvvik = avvikRepository.saveAll(avvikToSave)
-        log.info("Lagret ${savedAvvik.size} nye eller regresjonsavvik til database")
+        log.info("Lagret ${savedAvvik.size} nye til database")
 
         return SammenligningInternResultat(
             antallGrenserMedAvvik = grenseResultater.count { it.value.avvikPunkter.isNotEmpty() },
