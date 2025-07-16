@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxws:bindings
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
+>
+    <jaxws:bindings node="wsdl:definitions"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    wsdlLocation="../../../build/schema-customized/no/kartverket/nibas/matrikkel/api/wsdl/EndringsloggServiceWS.wsdl">
+        <jaxws:package name="no.kartverket.nibas.matrikkel.api.service.endringslogg"/>
+    </jaxws:bindings>
+</jaxws:bindings>
