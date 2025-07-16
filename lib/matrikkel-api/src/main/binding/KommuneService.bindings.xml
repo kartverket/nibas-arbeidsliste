@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxws:bindings
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws"
+>
+    <jaxws:bindings xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    node="wsdl:definitions"
+                    wsdlLocation="../../../build/schema-customized/no/kartverket/nibas/matrikkel/api/wsdl/KommuneServiceWS.wsdl">
+        <jaxws:package name="no.kartverket.nibas.matrikkel.api.service.kommune"/>
+    </jaxws:bindings>
+</jaxws:bindings>

@@ -54,6 +54,12 @@ data class MatrikkelGrenselinje(
     @Column(name = "kommunenr2", length = 4)
     val kommunenr2: String? = null,
 
+    @Column(name = "kommunenavn1", length = 100)
+    val kommunenavn1: String? = null,
+
+    @Column(name = "kommunenavn2", length = 100)
+    val kommunenavn2: String? = null,
+
     @Column(name = "informasjoncache")
     val informasjoncache: String? = null,
 
@@ -65,6 +71,4 @@ data class MatrikkelGrenselinje(
 
     @Column(name = "oppdatert_av")
     val oppdatertAv: String? = null
-) {
-    constructor() : this(id = 0)
-}
+)

@@ -8,27 +8,21 @@ import org.springframework.stereotype.Repository
 @Repository
 interface StatisticsRepository : JpaRepository<Avvik, Long> {
 
-    @Query("SELECT COUNT(a) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false)")
+    @Query("SELECT COUNT(a) FROM Avvik a")
     fun countTotalAvvik(): Long
 
-    @Query("SELECT a.status, COUNT(a) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false) GROUP BY a.status")
+    @Query("SELECT a.status, COUNT(a) FROM Avvik a GROUP BY a.status")
     fun countByStatus(): List<Array<Any>>
 
-    @Query("SELECT a.grensetype, COUNT(a) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false) GROUP BY a.grensetype")
-    fun countByGrensetype(): List<Array<Any>>
-
-    @Query("SELECT COUNT(DISTINCT k.kommuneLokalID) FROM Avvik a JOIN a.kommuner k JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false)")
+    @Query("SELECT COUNT(DISTINCT k.kommuneLokalID) FROM Avvik a JOIN a.kommuner k")
     fun countDistinctKommunerWithAvvik(): Long
 
-    @Query("SELECT a.grensetype, COUNT(DISTINCT a.id) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false) GROUP BY a.grensetype")
+    @Query("SELECT a.grensetype, COUNT(DISTINCT a.id) FROM Avvik a GROUP BY a.grensetype")
     fun countBordersByGrensetype(): List<Array<Any>>
 
-    @Query("SELECT a.grensetype, COUNT(coord) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false) GROUP BY a.grensetype")
-    fun countRealAvvikPointsByGrensetype(): List<Array<Any>>
+    @Query("SELECT a.grensetype, COUNT(coord) FROM Avvik a JOIN a.koordinaterMedAvvik coord GROUP BY a.grensetype")
+    fun countAvvikPointsByGrensetype(): List<Array<Any>>
 
-    @Query("SELECT a.grensetype, COUNT(coord) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE coord.erPaaMatrikkelLinje = true GROUP BY a.grensetype")
-    fun countHelperPointsByGrensetype(): List<Array<Any>>
-
-    @Query("SELECT a.status, COUNT(a) FROM Avvik a JOIN a.koordinaterMedAvvik coord WHERE a.grensetype IN ('Kommunegrense', 'Fylkesgrense') AND (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false) GROUP BY a.status")
+    @Query("SELECT a.status, COUNT(a) FROM Avvik a WHERE a.grensetype IN ('Kommunegrense', 'Fylkesgrense') GROUP BY a.status")
     fun countByStatusForArbeidsGrensetype(): List<Array<Any>>
 }

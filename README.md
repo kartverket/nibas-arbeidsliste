@@ -3,23 +3,31 @@
 Microtjeneste for håndtering av avvik i grensedata mellom NIBAS og Matrikkelen.
 Henter in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
+## Viktig: Nylig refaktorering av tabeller
+
+**Før du starter applikasjonen første gang etter nylig refaktorering:**
+
+1. Slett alle eksisterende tabeller fra `nibas_arbeidsliste_schema`:
+
+2. Start applikasjonen som normalt - Flyway vil opprette alle tabeller på nytt med korrekt struktur.
+
 Prosjektet er satt som med moduler bestående av:
 
-* [arbeidsliste-api](#Arbeidsliste-api): Api som servere avvik til nibas klient
+* [arbeidsliste-api](#arbeidsliste-api): Api som servere avvik til nibas klient
 * [m22-db-download](./m22-db-download/README.md): Modul som laster ned grensedata fra Matrikkel-databasen
 
 ## Arbeidsliste-api
 
 1. **Sett opp NIBAS API lokalt**:
-    - `git clone https://github.com/kartverket/nibas-backend.git`
-    - Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
+    * `git clone https://github.com/kartverket/nibas-backend.git`
+    * Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
 
 2. **Konfigurer Arbeidsliste**:
-    - Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
-    - Sørg for at applikasjonen kjører med profilen `localhost,security-off`
+    * Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
+    * Sørg for at applikasjonen kjører med profilen `localhost,security-off`
 
 3. **Database konfigurasjon**:
-   Applikasjonen bruker Flyway for databasemigrasjoner. Dette sikrer at databaseskjemaet er konsistent på tvers av miljøer.
+   Applikasjonen bruker Flyway for databasemigrasjoner.
 
 ## Tech Stack
 
@@ -34,7 +42,7 @@ Prosjektet er satt som med moduler bestående av:
 
 # Lokalt Oppsett (på egen maskin)
 
-## Krever følgende installert:
+## Krever følgende installert
 
 * Java JDK 21
 * PostgreSQL med PostGIS-utvidelse
@@ -103,7 +111,7 @@ oppstart.
 
 Migrasjonsskriptene følger navnekonvensjonen `V{versjon}__{beskrivelse}.sql`. Applikasjonen bruker ett enkelt migrasjonsskript:
 
-- `V1__Initial_Tabeller.sql` - Oppretter alle nødvendige tabeller og indekser
+* `V1__Initial_Tabeller.sql` - Oppretter alle nødvendige tabeller og indekser
 
 ### Tøm databasedata
 
@@ -117,9 +125,9 @@ PGPASSWORD=nibas_arbeidsliste psql -h localhost -d nibas -U nibas_arbeidsliste -
 
 Standardinnstillingene for lokal utvikling (`localhost`-profilen) er definert i `src/main/resources/application-localhost.yml`:
 
-- URL: `jdbc:postgresql://localhost:5432/nibas`
-- Brukernavn: `nibas_arbeidsliste`
-- Passord: `nibas_arbeidsliste`
+* URL: `jdbc:postgresql://localhost:5432/nibas`
+* Brukernavn: `nibas_arbeidsliste`
+* Passord: `nibas_arbeidsliste`
 
 ## Lokal kjøring
 
@@ -152,51 +160,4 @@ Applikasjonen vil starte på port 8082 med localhost-profilen, som definert i `a
 
 ## API
 
-http://localhost:8082/swagger-ui/index.html#/
-
-* `GET /api/v1/avvik`: Henter alle avvik
-* `GET /api/v1/avvik/kommuner`: Henter kommuner med avvik
-
-## TODO:
-
-### Setup tings...
-
-- [x] SKIP oppsett. DEV
-- [x] Auth mot NIBAS-backend.
-- [x] Auth mot nibas-frontend via proxy.
-    - [x] Proxy i nibas-backend som kaller arbeidsliste
-- [x] Database DEV
-    - [x] Lag bruker og schema for arbeidsliste i dev
-    - [ ] Fyll opp DEV database med grenser.
-- [ ] Database PROD
-    - [ ] Lag bruker og schema for arbeidsliste i prod
-    - [ ] Fyll opp PROD database med grenser.
-- [ ] SKIP oppsett. PROD
-- [ ] Tilgang til M22 database med de nyeste dataene.
-
-### Funksjonalitet
-
-- [x] Hente grenser fra NIBAS-backend
-- [x] Hente grenser fra Matrikkelen
-- [x] Lagre grenser fra M22 i arbeidsliste database
-- [x] Endepunkt som viser M22 grenser til nibas klient.
-- [x] Finn avvik i grenser mellom NIBAS og Matrikkelen
-- [x] Lagre avvik mellom NIBAS-backend og Matrikkelen i database
-- [ ] Fjern falske positive fra avvik. Beholder all avvik.
-- [ ] Behendling av nye avvik. Ved kjøring av sammeligning av grenser vil oppstå dublikate avvik.
-    - [ ] Ikke legg til nye avvik hvis det allerede finnes et avvik for grensen, hvis status er NY eller VENT. Sjekk per localID
-    - [ ] Hvis status er LØST, så skal det opprettes et nytt avvik. Siden da er det feil under behandling eller det har kommet ett faktisk nytt på sammen
-      grense.
-    - [ ] 
-- [ ] Lag endepunkt som viser antall avvik for analyse / dashboard
-    - [ ] Hvor mange ekte og falske avvik
-    - [ ] Hvor mange avvik per grensetype (kommunegrense etcc)
-    - [ ] Hvor mange avvik løst. Total og per grensetype. 
-    - [ ] Hvor mange kommuner med avvik og uten avvik.
-- [ ] Endringlogg fra M22 til å oppdatere grenser
-- [ ] Vis teiggrenser (samme prosess som for admn-grenser)
-    - [ ] Hente teiggrens fra M22
-    - [ ] Konverters til rikitig format
-    - [ ] Lagre grenser i arbeidslist-db
-    - [ ] Lag endpunkt som viser teiggrenser til klient
-    - [ ] 
+<http://localhost:8082/swagger-ui/index.html#/>
