@@ -25,28 +25,31 @@ class KommuneLookupService(
 
     @Transactional
     fun refreshKommuneLookupTable(): Int {
-        log.info("Refreshing kommune lookup table from Kartverket API...")
-
         val existingCount = countKommunerInLookup()
-        log.info("Current lookup table has {} kommuner.", existingCount)
+        log.info("Starting kommune lookup table refresh. Current count: {}", existingCount)
 
-        val kommuner = try {
-            restTemplate.getForObject(kommuneApiUrl, Array<KommuneDto>::class.java)
-                ?: throw IllegalStateException("API returned null body for kommuner")
+        try {
+            log.info("Fetching all municipalities from Kartverket API at {}", kommuneApiUrl)
+            val kommuner = restTemplate.getForObject(kommuneApiUrl, Array<KommuneDto>::class.java)
+                ?: throw IllegalStateException("API call to $kommuneApiUrl returned a null body.")
+            log.info("Fetched {} municipalities from API.", kommuner.size)
+
+            clearLookupTable()
+            populateLookupTable(kommuner.toList())
+
+            val newCount = countKommunerInLookup()
+            log.info("Kommune lookup table was refreshed successfully. New count: {} municipalities.", newCount)
+            return newCount
+
         } catch (e: Exception) {
-            log.error("Failed to fetch kommuner from API: {}", e.message, e)
-            throw IllegalStateException("Failed to fetch kommuner from Kartverket API at $kommuneApiUrl", e)
+            log.error(
+                "Failed to refresh kommune lookup table due to an error. " +
+                    "The application will proceed with the existing {} cached entries. " +
+                    "Any partial database changes have been rolled back. Error: {}",
+                existingCount, e.message
+            )
+            return existingCount
         }
-
-        log.info("Fetched {} kommuner from API.", kommuner.size)
-
-        clearLookupTable()
-        populateLookupTable(kommuner.toList())
-
-        val newCount = countKommunerInLookup()
-        log.info("Kommune lookup table updated successfully. New count: {} kommuner.", newCount)
-
-        return newCount
     }
 
     private fun clearLookupTable() {
