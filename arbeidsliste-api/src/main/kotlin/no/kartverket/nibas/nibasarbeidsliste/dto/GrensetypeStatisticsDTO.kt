@@ -3,12 +3,9 @@ package no.kartverket.nibas.nibasarbeidsliste.dto
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GrensetypeStatisticsDTO(
-    @JsonProperty("antallGrenserMedAvvik")
+    @param:JsonProperty("antallGrenserMedAvvik")
     val antallGrenserMedAvvik: Long,
 
-    @JsonProperty("antallEkteAvvikPunkter")
-    val antallEkteAvvikPunkter: Long,
-
-    @JsonProperty("antallHelperPunkter")
-    val antallHelperPunkter: Long
+    @param:JsonProperty("antallAvvikPunkter")
+    val antallAvvikPunkter: Long
 )

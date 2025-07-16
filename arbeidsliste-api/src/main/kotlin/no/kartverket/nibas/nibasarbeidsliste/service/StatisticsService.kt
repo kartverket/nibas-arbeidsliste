@@ -53,42 +53,30 @@ class StatisticsService(
                 grensetype to count
             }
 
-        val realPointCounts = statisticsRepository.countRealAvvikPointsByGrensetype()
+        val avvikPointCounts = statisticsRepository.countAvvikPointsByGrensetype()
             .associate { result ->
                 val grensetype = result[0] as String
                 val count = (result[1] as Number).toLong()
                 grensetype to count
             }
 
-        val helperPointCounts = statisticsRepository.countHelperPointsByGrensetype()
-            .associate { result ->
-                val grensetype = result[0] as String
-                val count = (result[1] as Number).toLong()
-                grensetype to count
-            }
-
-        val allGrensetyper = (borderCounts.keys + realPointCounts.keys + helperPointCounts.keys).distinct()
+        val allGrensetyper = (borderCounts.keys + avvikPointCounts.keys).distinct()
 
         val grensetypeDetails = allGrensetyper.associateWith { grensetype ->
             GrensetypeStatisticsDTO(
                 antallGrenserMedAvvik = borderCounts[grensetype] ?: 0L,
-                antallEkteAvvikPunkter = realPointCounts[grensetype] ?: 0L,
-                antallHelperPunkter = helperPointCounts[grensetype] ?: 0L
+                antallAvvikPunkter = avvikPointCounts[grensetype] ?: 0L
             )
         }
 
-        val totalHelperPunkter = helperPointCounts.values.sum()
         val arbeidsGrenser = (borderCounts["Kommunegrense"] ?: 0L) + (borderCounts["Fylkesgrense"] ?: 0L)
-        val arbeidsAvvikPunkter = (realPointCounts["Kommunegrense"] ?: 0L) + (realPointCounts["Fylkesgrense"] ?: 0L)
-        val arbeidsHelperPunkter = (helperPointCounts["Kommunegrense"] ?: 0L) + (helperPointCounts["Fylkesgrense"] ?: 0L)
+        val arbeidsAvvikPunkter = (avvikPointCounts["Kommunegrense"] ?: 0L) + (avvikPointCounts["Fylkesgrense"] ?: 0L)
         val kommunerMedAvvik = statisticsRepository.countDistinctKommunerWithAvvik()
 
         return AvvikStatisticsDTO(
             totalAvvik = totalAvvik,
-            totalHelperPunkter = totalHelperPunkter,
             arbeidsGrenser = arbeidsGrenser,
             arbeidsAvvikPunkter = arbeidsAvvikPunkter,
-            arbeidsHelperPunkter = arbeidsHelperPunkter,
             statusCounts = statusCounts,
             arbeidsStatusCounts = arbeidsStatusCounts,
             grensetypeDetails = grensetypeDetails,
