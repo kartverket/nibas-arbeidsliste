@@ -28,7 +28,7 @@ spring:
       hibernate:
         format_sql: true
         default_schema: nibas_arbeidsliste_schema
-    show-sql: true
+    show-sql: false
   flyway:
     enabled: true
     locations: classpath:db/migration

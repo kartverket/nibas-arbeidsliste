@@ -10,10 +10,11 @@ spring:
       hibernate:
         format_sql: true
         default_schema: nibas_arbeidsliste_schema
-    show-sql: true
+    show-sql: false
+    open-in-view: false
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgresql
 
 springdoc:
@@ -25,3 +26,10 @@ springdoc:
     tagsSorter: alpha
     docExpansion: none
   packages-to-scan: no.kartverket.nibas.nibasarbeidsliste.controller
+
+matrikkelen:
+  urlEndringslogg: https://matrikkel.no/matrikkelapi/wsapi/v1
+  username: ${MATRIKKELEN_USERNAME}
+  password: ${MATRIKKELEN_PASSWORD}
+  sync-on-startup: true
+  patch-on-startup: true
