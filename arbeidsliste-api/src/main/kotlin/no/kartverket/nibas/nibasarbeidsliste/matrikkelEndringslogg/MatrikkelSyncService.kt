@@ -52,10 +52,15 @@ class MatrikkelSyncService(
         val startTime = System.currentTimeMillis()
 
         try {
-            kommuneMap = createKommuneCache()
 
             val startEndringsnummer = endringsnummerService.getLastProcessedEndringsnummer()
-                ?: throw IllegalStateException("No start endringsnummer found in database! Run bulk import first.")
+            if (startEndringsnummer == null) {
+                log.error("Cannot start Matrikkel sync: No starting 'endringsnummer' found in the database. " +
+                    "Please perform the initial bulk import first.")
+                return
+            }
+
+            kommuneMap = createKommuneCache()
 
             val latestRemoteEndringsnummer = endringsloggService.findSisteEndringId(matrikkelContext).value
 

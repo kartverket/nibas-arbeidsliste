@@ -1,6 +1,5 @@
 package no.kartverket.nibas.nibasarbeidsliste.config
 
-import jakarta.xml.ws.BindingProvider
 import no.kartverket.nibas.matrikkel.api.domain.MatrikkelContext
 import no.kartverket.nibas.matrikkel.api.domain.geometri.koder.KoordinatsystemKodeId
 import no.kartverket.nibas.matrikkel.api.service.endringslogg.EndringsloggService
@@ -14,12 +13,13 @@ import no.kartverket.nibas.matrikkel.api.service.store.StoreServiceWS
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import jakarta.xml.ws.BindingProvider
 
 @Configuration
 class MatrikkelAPIConfig(
     @param:Value("\${matrikkelen.urlEndringslogg}") private val apiUrl: String,
-    @param:Value("\${matrikkelen.username}") private val apiUser: String,
-    @param:Value("\${matrikkelen.password}") private val apiPass: String
+    @param:Value($$"${matrikkelen.username}") private val apiUser: String,
+    @param:Value($$"${matrikkelen.password}") private val apiPass: String
 ) {
 
     private fun <T> configurePort(port: T, servicePath: String): T {
@@ -51,7 +51,7 @@ class MatrikkelAPIConfig(
     fun matrikkelContext(): MatrikkelContext = MatrikkelContext(
         "nb_NO",
         true,
-        KoordinatsystemKodeId(11), // EUREF89 UTM sone 33
+        KoordinatsystemKodeId(11),
         "4.13.1.0",
         "nibas_arbeidsliste",
         null
