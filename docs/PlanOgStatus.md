@@ -67,6 +67,28 @@ Dette er relativt enkelt å implementere.
 * Arbeidsflyt. Opprette avvik, fikse avvik, se list med publiseret retta avvik.
 * Se liste med publiseret retta avvik. (Alleredre påbegynt sak TS-2152)
 
+### Arbeidsliste med administrative grenser
+
+En mulighet er å ikke ha teiggrenser i arbeidsliste siden ikke all grunnkretsgrenser følger teiggrenser.
+Det er usikkert hva reglesne til grunnkretsgrenser er. 
+Noen følger teiggrenses slavisk. 
+Mens andre stedre typisk en vei eller vann går grunnkretsgrensen mellom 2 teigggrenser. 
+Har ikke funnet noen steder hvor grunnkretsgrensen krysser en teiggrense, men er usikker på om detter er slik alle steder.
+Her må det utforsker mer og snakke med fagperson
+
+Rent teknisk kan det løses ved å sette begrensninger på hvordan man lager administrative grenser i NIABS.
+
+Det budre være slike at admn grenser i NIBAS alltid må følge grense fra M22 og kun de som kommer fra Arbeidslist.
+Det byter at både ved tegning og flytting av punkt så må de følge grense fra M22. 
+(Med antagelse om at NIBAS alltid må følge M22 og at man alltid må oppdater i M22 først).
+
+Både grenses fra NIBAS og M22 har grensetype.
+Så en mulighet her at
+* Kommunegrense i NIBAS må følge en Kommunegrense i M22.
+* Fylkesgrense --> Fylkesgrense
+*
+
+
 ## Implementasjon detaljer
 
 ### Funksjonalitet
@@ -106,9 +128,11 @@ Dette er relativt enkelt å implementere.
     * [x] Proxy i nibas-backend som kaller arbeidsliste
 * [x] Database DEV
     * [x] Lag bruker og schema for arbeidsliste i dev
-    * [ ] Fyll opp DEV database med grenser.
-* [ ] Database PROD
-* [ ] Tilgang til M22 database med de nyeste dataene.
-    * [ ] Lag bruker og schema for arbeidsliste i prod
-    * [ ] Fyll opp PROD database med grenser.
-* [ ] SKIP oppsett. PROD
+    * [x] Fyll opp DEV database med grenser.
+
+### TODO før prod
+* [ ] Dobbelskjekk security og API setup, siden nå kjører det uten sikkerhet.
+* [ ] Endre til å kjøre endringsloggen 1 gang om natten.
+* [ ] Database PROD: Lag bruker og schema for arbeidsliste i nibas-prod DB.
+* [ ] Smia-apps: SKIP oppsett PROD.
+* [ ] Fyll opp PROD database med grenser med skript fra lokal maskin. 
