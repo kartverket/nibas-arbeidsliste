@@ -15,7 +15,9 @@ NIBAS (både backend og frontend) bruker og lagrer koordinater i databasen med k
 * Koordinater lagres i meter
 
 ## Koordinatområder
-Koordinatene bør normalt være mellom 0 og 1 000 000. Men siden NIBAS kun støtter ett koordinatsystem, kan noen koordinater i Norge falle utenfor dette området. Disse koordinatene kan lagres som:
+Koordinatene bør normalt være mellom 0 og 1 000 000. 
+Men siden NIBAS kun støtter ett koordinatsystem, kan noen koordinater i Norge falle utenfor dette området. 
+Disse koordinatene kan lagres som:
 - Negative tall
 - Verdier over 1 000 000
 Når de faller utenfor det definerte området for UTM33
@@ -29,7 +31,7 @@ Ved transformasjon av koordinater mellom UTM-soner er det viktig å forstå føl
 
 2. **Forventede resultater etter transformasjon**:
    - Koordinater fra UTM32 (Vestlandet) vil ofte bli negative når de transformeres til UTM33
-   - Koordinater fra UTM35 (Østlandet) vil ofte overstige 1 000 000 meter når de transformeres til UTM33
+   - Koordinater fra UTM35 (Øst, Finnmark) vil ofte overstige 1 000 000 meter når de transformeres til UTM33
    - Dette er normal og forventet oppførsel når man arbeider på tvers av UTM-soner
 
 3. **Konsekvenser for lagring**:
@@ -44,4 +46,3 @@ For å vise grenser fra M22 i NIBAS, må vi transformere alle ikke-UTM33-koordin
 2. Hvis koordinaten er i UTM32: Transformer til UTM33 for å matche NIBAS sitt koordinatsystem
 3. Hvis koordinaten er i UTM35: Transformer til UTM33 for å matche NIBAS sitt koordinatsystem
 
-#
