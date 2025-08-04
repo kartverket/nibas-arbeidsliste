@@ -3,12 +3,35 @@
 Administrative grenser i Norge er geografiske avgrensninger som definerer myndighetsområdet og ansvarsområdet til ulike offentlige forvaltningsnivåer. Disse
 grensene er avgjørende for styring, planlegging, tjenesteyting og statistikk.
 
-### Hovedtyper administrative grenser i Norge inkluderer:
+## Hovedtyper administrative grenser i Norge inkluderer:
+
 
 Kommunegrenser: Deler fylkene inn i kommuner, som er det laveste administrative og folkevalgte nivået i Norge. Kommunegrensene bestemmer en kommunes geografiske jurisdiksjon for en rekke tjenester og oppgaver, som skole, helse, arealplanlegging og tekniske tjenester.
 Fylkesgrenser: Deler Norge inn i fylker, som er regionale administrative og politiske enheter. Disse grensene regulerer ansvarsområdet til fylkeskommunene og Statsforvalteren.
 Riksgrense: Linjen som skiller norsk territorium fra nabolandenes territorium (Sverige, Finland og Russland), samt maritime grenser mot andre stater i havet.
 Maritime grenser: Dette inkluderer grunnlinjen (utgangspunktet for måling av sjøterritoriet), territorialgrensen (strekker seg normalt 12 nautiske mil fra grunnlinjen), Norges økonomiske sone og kontinentalsokkelen. Disse definerer Norges rettigheter og jurisdiksjon til havs.
+
+## Norges ytre grenser:
+
+
+
+### Riksgrenser
+
+### Maritime grenser
+Norges suverenitet til havs er definert av Lov om Norges territorialfarvann og tilstøtende sone.
+https://lovdata.no/dokument/NL/lov/2003-06-27-57
+https://snl.no/territorialfarvannsloven
+
+* Grunnlinjen: En juridisk definert linje trukket mellom de ytterste punktene på kysten.
+Kongen fastsetter grunnlinjene i forskrift.
+Er grunnlinjen ikke fastsatt i forskrift, følger den lavvannslinjen langs kysten, inkludert holmer og skjær.
+Denne linjen er utgangspunktet for beregning av alle maritime soner.
+
+* Territorialfarvannet: Sjøområdet innenfor 12 nautiske mil fra grunnlinjen, hvor Norge har full suverenitet.
+
+* Avtalt avgrensningslinje: Den maritime ekvivalenten til riksgrensen.
+Dette er grenser fastsatt gjennom bilaterale avtaler med naboland (Sverige, Danmark, Storbritannia, Færøyene, Island, Grønland og Russland) for å avgrense Norges økonomiske sone og kontinentalsokkel.
+
 
 ### Administrative grenser i NIBAS
 
@@ -18,7 +41,7 @@ Maritime grenser: Dette inkluderer grunnlinjen (utgangspunktet for måling av sj
 | Territorialgrense | Yttergrense for Norges sjøterritorium, 12 nautiske mil fra grunnlinjene. | Territorialfarvannsloven | Utenriksdepartementet | Kartverket |
 | Avtalt avgrensningslinje | Maritim grense mot andre stater for økonomisk sone/kontinentalsokkel. | Bilaterale avtaler | Utenriksdepartementet | Kartverket |
 | Fylkesgrense | Grense mellom fylker. | Inndelingslova | Stortinget | Kartverket |
-| Kommunegrense | Grense mellom kommuner. | Inndelingslova | Regjeringen (Kongen i statsråd), Stortinget, Statsforvalter | Kartverket |
+| Kommunegrense | Grense mellom kommuner. | Inndelingslova | Regjeringen, Stortinget, Statsforvalter | Kartverket |
 | Delområdegrense | Statistisk enhet bestående av flere grunnkretser. | Statistikkloven | Statistisk sentralbyrå (SSB) | Kartverket (etter avtale med SSB) |
 | Grunnkretsgrense | Minste stabile statistiske enhet. | Statistikkloven | Statistisk sentralbyrå (SSB) | Kartverket (etter avtale med SSB) |
 | Stemmekretsgrense | Inndeling for gjennomføring av valg. | Valgloven | Kommunestyret (eller delegert til valgstyret) | Kartverket |
