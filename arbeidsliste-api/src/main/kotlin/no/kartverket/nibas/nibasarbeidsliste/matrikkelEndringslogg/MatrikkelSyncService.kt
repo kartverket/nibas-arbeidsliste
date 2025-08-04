@@ -46,7 +46,7 @@ class MatrikkelSyncService(
         }
     }
 
-    @Scheduled(cron = "0 0 * * * * ", zone = "Europe/Oslo")
+    @Scheduled(cron = "0 0 2 * * * ", zone = "Europe/Oslo")
     fun sync() {
         log.info("Matrikkel sync - starting processing")
         val startTime = System.currentTimeMillis()
