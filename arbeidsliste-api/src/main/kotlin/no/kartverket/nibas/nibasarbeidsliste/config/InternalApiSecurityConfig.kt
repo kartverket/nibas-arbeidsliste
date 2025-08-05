@@ -1,8 +1,5 @@
 package no.kartverket.nibas.nibasarbeidsliste.config
 
-import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
@@ -10,6 +7,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.web.filter.OncePerRequestFilter
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 
 /**
  * Konfigurasjon for intern API-sikkerhet.
@@ -68,15 +68,27 @@ class InternalApiSecurityConfig(
  * X-API-Key-headeren.
  */
 class ApiKeyAuthFilter(private val expectedApiKey: String) : OncePerRequestFilter() {
-
     private val log = LoggerFactory.getLogger(javaClass)
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        log.debug("Gyldig API-nøkkel ${expectedApiKey}mottatt for: {}", request.servletPath)
-        filterChain.doFilter(request, response)
+        val providedKey = request.getHeader(InternalApiSecurityConfig.API_KEY_HEADER)
+        if (isValidApiKey(providedKey)) {
+            log.debug("Gyldig API-nøkkel mottatt for: {}", request.servletPath)
+            // Sender forespørselen videre til neste filter i rekkefølgen
+            filterChain.doFilter(request, response)
+        } else {
+            log.warn("Ugyldig eller manglende API-nøkkel-forsøk for: {}", request.servletPath)
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            response.contentType = "application/json"
+            response.writer.write("""{"error": "Unauthorized", "message": "Valid API key required"}""")
+            return
+        }
+    }
+
+    private fun isValidApiKey(providedKey: String?): Boolean {
+        return expectedApiKey.isNotBlank() && expectedApiKey == providedKey
     }
 }
