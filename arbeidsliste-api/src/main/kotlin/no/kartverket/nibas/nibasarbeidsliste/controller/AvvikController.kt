@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/api/v1/avvik")
+@RequestMapping("/internal-api/v1/avvik")
 class AvvikController(private val avvikService: AvvikService) : AvvikApi {
     private val logger = LoggerFactory.getLogger(AvvikController::class.java)
 
