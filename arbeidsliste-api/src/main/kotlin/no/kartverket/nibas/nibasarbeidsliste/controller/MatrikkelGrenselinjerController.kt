@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
  * @property matrikkelGrenselinjerService Tjenesten som håndterer forretningslogikk for grenselinjer
  */
 @RestController
-@RequestMapping("/api/v1/matrikkel/grenselinjer")
+@RequestMapping("/internal-api/api/v1/matrikkel/grenselinjer")
 class MatrikkelGrenselinjerController(
     private val matrikkelGrenselinjerService: MatrikkelGrenselinjerService
 ) : MatrikkelGrenselinjerApi {
