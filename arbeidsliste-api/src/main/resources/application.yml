@@ -31,5 +31,5 @@ matrikkelen:
   urlEndringslogg: https://matrikkel.no/matrikkelapi/wsapi/v1
   username: ${MATRIKKELEN_USERNAME}
   password: ${MATRIKKELEN_PASSWORD}
-  sync-on-startup: true
-  patch-on-startup: true
+  sync-on-startup: false
+  patch-on-startup: false
