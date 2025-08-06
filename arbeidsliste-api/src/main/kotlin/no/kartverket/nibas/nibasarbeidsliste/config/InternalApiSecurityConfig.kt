@@ -6,6 +6,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -18,11 +21,23 @@ import jakarta.servlet.http.HttpServletResponse
  * X-API-Key-headeren.
  */
 @Configuration
+@EnableWebSecurity
 @Profile("!security-off")
 class InternalApiSecurityConfig(
     @Value("\${nibas.arbeidsliste.api-key}") private val expectedApiKey: String
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        log.info("Konfigurerer Spring Security med API-nøkkel autentisering")
+        return http
+            .authorizeHttpRequests { auth ->
+                auth.anyRequest().permitAll()
+            }
+            .csrf { csrf -> csrf.disable() }
+            .build()
+    }
 
     companion object {
         const val API_KEY_HEADER = "X-API-Key"
@@ -69,6 +84,7 @@ class InternalApiSecurityConfig(
  */
 class ApiKeyAuthFilter(private val expectedApiKey: String) : OncePerRequestFilter() {
     private val log = LoggerFactory.getLogger(javaClass)
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
