@@ -70,24 +70,24 @@ Dette er relativt enkelt å implementere.
 ### Arbeidsliste med administrative grenser
 
 En mulighet er å ikke ha teiggrenser i arbeidsliste siden ikke all grunnkretsgrenser følger teiggrenser.
-Det er usikkert hva reglesne til grunnkretsgrenser er. 
-Noen følger teiggrenses slavisk. 
-Mens andre stedre typisk en vei eller vann går grunnkretsgrensen mellom 2 teigggrenser. 
+Det er usikkert hva reglesne til grunnkretsgrenser er.
+Noen følger teiggrenses slavisk.
+Mens andre stedre typisk en vei eller vann går grunnkretsgrensen mellom 2 teigggrenser.
 Har ikke funnet noen steder hvor grunnkretsgrensen krysser en teiggrense, men er usikker på om detter er slik alle steder.
 Her må det utforsker mer og snakke med fagperson
 
 Rent teknisk kan det løses ved å sette begrensninger på hvordan man lager administrative grenser i NIABS.
 
 Det budre være slike at admn grenser i NIBAS alltid må følge grense fra M22 og kun de som kommer fra Arbeidslist.
-Det byter at både ved tegning og flytting av punkt så må de følge grense fra M22. 
+Det byter at både ved tegning og flytting av punkt så må de følge grense fra M22.
 (Med antagelse om at NIBAS alltid må følge M22 og at man alltid må oppdater i M22 først).
 
 Både grenses fra NIBAS og M22 har grensetype.
 Så en mulighet her at
+
 * Kommunegrense i NIBAS må følge en Kommunegrense i M22.
 * Fylkesgrense --> Fylkesgrense
 *
-
 
 ## Implementasjon detaljer
 
@@ -112,13 +112,7 @@ Så en mulighet her at
 * [x] Behandling av nye avvik. Ved kjøring av sammenligning av grenser kan duplikate avvik oppstå.
     * [x] Ikke legg til nye avvik hvis det allerede finnes et avvik for grensen med status NY eller VENT (sjekk per localId).
     * [x] Hvis status er LØST, skal det opprettes et nytt avvik. Dette fanger opp feil under retting eller nye, faktiske avvik på samme grense.
-* [ ] Vis teiggrenser (samme prosess som for admn-grenser)
-    * [ ] Hente teiggrens fra M22
-    * [ ] Konverter til riktig format
-    * [ ] Lagre grenser i arbeidslist-db
-    * [ ] Endringslogg teiggrenser
-    * [ ] Lag endpunkt som viser teiggrenser til klient
-* Bytt ut eksiterende teiggrense verktøy med nytt fra arbeidsliste.
+* [ ] Legge til en begrensning slik at man kun kan snappe administrative grenser mot grenser fra arbeidsliste.
 
 ### Setup tings
 
@@ -131,8 +125,9 @@ Så en mulighet her at
     * [x] Fyll opp DEV database med grenser.
 
 ### TODO før prod
-* [ ] Dobbelskjekk security og API setup, siden nå kjører det uten sikkerhet.
-* [ ] Endre til å kjøre endringsloggen 1 gang om natten.
-* [ ] Database PROD: Lag bruker og schema for arbeidsliste i nibas-prod DB.
-* [ ] Smia-apps: SKIP oppsett PROD.
-* [ ] Fyll opp PROD database med grenser med skript fra lokal maskin. 
+
+* [x] Dobbelskjekk security og API setup, siden nå kjører det uten sikkerhet.
+* [x] Endre til å kjøre endringsloggen 1 gang om natten.
+* [x] Database PROD: Lag bruker og schema for arbeidsliste i nibas-prod DB.
+* [x] Smia-apps: SKIP oppsett PROD.
+* [x] Fyll opp PROD database med grenser med skript fra lokal maskin. 
