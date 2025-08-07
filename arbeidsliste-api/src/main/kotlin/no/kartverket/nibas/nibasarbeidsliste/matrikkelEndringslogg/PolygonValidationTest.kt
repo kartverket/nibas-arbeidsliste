@@ -62,7 +62,14 @@ class PolygonValidationTest(
 
         if (results.isNotEmpty()) {
             val successRate = (perfectKommuner.toDouble() / results.size * 100)
-            logger.info("Success rate: {}%", String.format("%.1f", successRate))
+            val formattedSuccessRate = String.format("%.1f", successRate)
+
+            if (perfectKommuner == results.size) {
+                logger.info("Polygon validation success rate={}%", formattedSuccessRate)
+            } else {
+                logger.error("Polygon Validation feilet: {}/{} kommuner ok ({}%). Feilet: {}. Ser mer detaljerte logger i grafana",
+                    perfectKommuner, results.size, formattedSuccessRate, problemList.joinToString(", "))
+            }
         }
     }
 
