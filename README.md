@@ -1,26 +1,21 @@
 # Nibas Arbeidsliste
 
 Microtjeneste for håndtering av avvik i grensedata mellom NIBAS og Matrikkelen.
-Henter in grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
+Henter grensedata fra NIBAS og Matrikkelen og lagrer avvik i database.
 
-## Viktig: Nylig refaktorering av tabeller
+## Moduler
 
-**Før du starter applikasjonen første gang etter nylig refaktorering:**
-
-1. Slett alle eksisterende tabeller fra `nibas_arbeidsliste_schema`:
-
-2. Start applikasjonen som normalt - Flyway vil opprette alle tabeller på nytt med korrekt struktur.
-
-Prosjektet er satt som med moduler bestående av:
+Prosjektet er satt opp med moduler bestående av:
 
 * [arbeidsliste-api](#arbeidsliste-api): Api som servere avvik til nibas klient
 * [m22-db-download](./m22-db-download/README.md): Modul som laster ned grensedata fra Matrikkel-databasen
+* [lib](./lib/README.md): Biblioteker for Matrikkel API integrasjon
 
 ## Arbeidsliste-api
 
-1. **Sett opp NIBAS API lokalt**:
+1. **Sett opp nibas-backend lokalt**:
     * `git clone https://github.com/kartverket/nibas-backend.git`
-    * Start NIBAS API lokalt på port 8080 med 'localhost,security-off' profil
+    * Start nibas-backend lokalt på port 8080 med 'localhost,security-off' profil
 
 2. **Konfigurer Arbeidsliste**:
     * Følg det lokale oppsettet for Arbeidsliste som beskrevet nedenfor
@@ -109,9 +104,11 @@ SHOW
 Applikasjonen bruker Flyway for å håndtere databasemigrasjoner. Migrasjonsskriptene ligger i `src/main/resources/db/migration` og kjøres automatisk ved
 oppstart.
 
-Migrasjonsskriptene følger navnekonvensjonen `V{versjon}__{beskrivelse}.sql`. Applikasjonen bruker ett enkelt migrasjonsskript:
+Migrasjonsskriptene følger navnekonvensjonen `V{versjon}__{beskrivelse}.sql`.
 
 * `V1__Initial_Tabeller.sql` - Oppretter alle nødvendige tabeller og indekser
+
+Følg samme logikk hvis man ønsker å gjøre endringer på tabellene.
 
 ### Tøm databasedata
 
