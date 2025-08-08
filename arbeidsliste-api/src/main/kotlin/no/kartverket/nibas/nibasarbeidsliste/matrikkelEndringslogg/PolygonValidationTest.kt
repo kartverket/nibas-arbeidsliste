@@ -49,7 +49,6 @@ class PolygonValidationTest(
             problemList.add("${kommune.kommunenr} (${kommune.kommunenavn}): ${result.problemDescription}")
         }
 
-        logger.error("TEST ERROR")
         logger.info("=================================================================================")
         logger.info("FINAL SUMMARY:")
         logger.info("Total kommuner tested: {}", results.size)
