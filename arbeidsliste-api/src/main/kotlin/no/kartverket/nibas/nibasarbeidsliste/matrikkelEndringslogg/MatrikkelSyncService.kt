@@ -48,6 +48,10 @@ class MatrikkelSyncService(
 
     @Scheduled(cron = "0 0 2 * * * ", zone = "Europe/Oslo")
     fun sync() {
+        if (!endringsnummerService.tryAcquireSyncLock()) {
+            return
+        }
+
         log.info("Matrikkel sync - starting processing")
         val startTime = System.currentTimeMillis()
 
@@ -113,6 +117,8 @@ class MatrikkelSyncService(
         } catch (e: Exception) {
             log.error("Matrikkel sync FAILED. Raw data sync or NIBAS conversion failed. Bookmark not updated, will retry from last successful position. Error: {}", e.message, e)
             throw e
+        } finally {
+            endringsnummerService.releaseSyncLock()
         }
     }
 

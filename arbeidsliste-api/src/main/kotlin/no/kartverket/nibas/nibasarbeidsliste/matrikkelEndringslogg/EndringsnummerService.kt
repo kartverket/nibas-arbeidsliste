@@ -5,6 +5,8 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Timestamp
+import java.time.Instant
 
 @Service
 class EndringsnummerService(
@@ -42,6 +44,50 @@ class EndringsnummerService(
             """,
             endringsnummer
         )
+    }
+
+    /**
+     * Prevents multiple pods from syncing simultaneously.
+     * Uses atomic database operation
+     *
+     * @return true if lock acquired, false if another sync already running
+     */
+    @Transactional
+    fun tryAcquireSyncLock(): Boolean {
+        val lockTimeoutSeconds: Long = 3 * 60 * 60
+        val lockUntil = Instant.now().plusSeconds(lockTimeoutSeconds)
+
+        val updated = jdbcTemplate.update(
+            """
+            UPDATE nibas_arbeidsliste_schema.sync_lock
+            SET locked_until = ?
+            WHERE id = 1 AND (locked_until IS NULL OR locked_until < CURRENT_TIMESTAMP)
+            """,
+            Timestamp.from(lockUntil)
+        )
+
+        return if (updated > 0) {
+            log.info("Sync lock acquired")
+            true
+        } else {
+            log.info("Sync already running, skipping")
+            false
+        }
+    }
+
+    /**
+     * Cleans up sync lock. Always called in finally block.
+     * Safe to call even if lock wasn't acquired.
+     */
+    @Transactional
+    fun releaseSyncLock() {
+        jdbcTemplate.update(
+            """
+            UPDATE nibas_arbeidsliste_schema.sync_lock 
+            SET locked_until = NULL
+            WHERE id = 1
+            """)
+        log.info("Sync lock released")
     }
 
 }
