@@ -1,10 +1,11 @@
 package no.kartverket.nibas.nibasarbeidsliste
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 
-@SpringBootApplication
+@SpringBootApplication(exclude = [UserDetailsServiceAutoConfiguration::class])
 @EnableScheduling
 class NibasArbeidslisteApplication
 
