@@ -4,9 +4,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.sql.Timestamp
-import java.time.Instant
 
 @Service
 class EndringsnummerService(
@@ -52,18 +51,17 @@ class EndringsnummerService(
      *
      * @return true if lock acquired, false if another sync already running
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun tryAcquireSyncLock(): Boolean {
         val lockTimeoutSeconds: Long = 3 * 60 * 60
-        val lockUntil = Instant.now().plusSeconds(lockTimeoutSeconds)
 
         val updated = jdbcTemplate.update(
             """
             UPDATE nibas_arbeidsliste_schema.sync_lock
-            SET locked_until = ?
+            SET locked_until = CURRENT_TIMESTAMP + (? * INTERVAL '1 second')
             WHERE id = 1 AND (locked_until IS NULL OR locked_until < CURRENT_TIMESTAMP)
             """,
-            Timestamp.from(lockUntil)
+            lockTimeoutSeconds
         )
 
         return if (updated > 0) {
