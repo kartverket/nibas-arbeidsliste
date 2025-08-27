@@ -1,7 +1,7 @@
 package no.kartverket.nibas.download
 
 fun verifyImport() {
-    println("Starting import verification...")
+    println("Starting import verification..")
 
     var success = true
 
