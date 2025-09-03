@@ -44,5 +44,5 @@ jobs:
       namespace: nibas-main
       version: ${{ needs.build.outputs.version }}
       deploy_dev: true
-      deploy_prod: false
+      deploy_prod: true
       identity: nibas
