@@ -5,35 +5,15 @@ grensene er avgjørende for styring, planlegging, tjenesteyting og statistikk.
 
 ## Hovedtyper administrative grenser i Norge inkluderer:
 
-
-Kommunegrenser: Deler fylkene inn i kommuner, som er det laveste administrative og folkevalgte nivået i Norge. Kommunegrensene bestemmer en kommunes geografiske jurisdiksjon for en rekke tjenester og oppgaver, som skole, helse, arealplanlegging og tekniske tjenester.
-Fylkesgrenser: Deler Norge inn i fylker, som er regionale administrative og politiske enheter. Disse grensene regulerer ansvarsområdet til fylkeskommunene og Statsforvalteren.
+Kommunegrenser: Deler fylkene inn i kommuner, som er det laveste administrative og folkevalgte nivået i Norge. 
+Kommunegrensene bestemmer en kommunes geografiske jurisdiksjon for en rekke tjenester og oppgaver, som skole, helse, arealplanlegging og tekniske tjenester.
+Fylkesgrenser: Deler Norge inn i fylker, som er regionale administrative og politiske enheter.
+Disse grensene regulerer ansvarsområdet til fylkeskommunene og Statsforvalteren.
 Riksgrense: Linjen som skiller norsk territorium fra nabolandenes territorium (Sverige, Finland og Russland), samt maritime grenser mot andre stater i havet.
-Maritime grenser: Dette inkluderer grunnlinjen (utgangspunktet for måling av sjøterritoriet), territorialgrensen (strekker seg normalt 12 nautiske mil fra grunnlinjen), Norges økonomiske sone og kontinentalsokkelen. Disse definerer Norges rettigheter og jurisdiksjon til havs.
+Maritime grenser: Dette inkluderer grunnlinjen (utgangspunktet for måling av sjøterritoriet), territorialgrensen (strekker seg normalt 12 nautiske mil fra grunnlinjen), Norges økonomiske sone og kontinentalsokkelen.
+Disse definerer Norges rettigheter og jurisdiksjon til havs.
 
-## Norges ytre grenser:
-
-
-
-### Riksgrenser
-
-### Maritime grenser
-Norges suverenitet til havs er definert av Lov om Norges territorialfarvann og tilstøtende sone.
-https://lovdata.no/dokument/NL/lov/2003-06-27-57
-https://snl.no/territorialfarvannsloven
-
-* Grunnlinjen: En juridisk definert linje trukket mellom de ytterste punktene på kysten.
-Kongen fastsetter grunnlinjene i forskrift.
-Er grunnlinjen ikke fastsatt i forskrift, følger den lavvannslinjen langs kysten, inkludert holmer og skjær.
-Denne linjen er utgangspunktet for beregning av alle maritime soner.
-
-* Territorialfarvannet: Sjøområdet innenfor 12 nautiske mil fra grunnlinjen, hvor Norge har full suverenitet.
-
-* Avtalt avgrensningslinje: Den maritime ekvivalenten til riksgrensen.
-Dette er grenser fastsatt gjennom bilaterale avtaler med naboland (Sverige, Danmark, Storbritannia, Færøyene, Island, Grønland og Russland) for å avgrense Norges økonomiske sone og kontinentalsokkel.
-
-
-### Administrative grenser i NIBAS
+## Administrative grenser i NIBAS
 
 | Grensetype | Definisjon | Primært Lovgrunnlag | Besluttende Myndighet | Teknisk Forvalter (Matrikkelmyndighet) |
 |------------|------------|-------------------|----------------------|---------------------------------------|
@@ -46,16 +26,117 @@ Dette er grenser fastsatt gjennom bilaterale avtaler med naboland (Sverige, Danm
 | Grunnkretsgrense | Minste stabile statistiske enhet. | Statistikkloven | Statistisk sentralbyrå (SSB) | Kartverket (etter avtale med SSB) |
 | Stemmekretsgrense | Inndeling for gjennomføring av valg. | Valgloven | Kommunestyret (eller delegert til valgstyret) | Kartverket |
 
-### Kommunegrenser
+### Riksgrenser og AvtaltVvgrensningslinje
 
+### Maritime grenser
+Norges suverenitet til havs er definert av Lov om Norges territorialfarvann og tilstøtende sone.
+https://lovdata.no/dokument/NL/lov/2003-06-27-57
+https://snl.no/territorialfarvannsloven
+
+* Grunnlinjen: En juridisk definert linje trukket mellom de ytterste punktene på kysten.
+Kongen fastsetter grunnlinjene i forskrift.
+Er grunnlinjen ikke fastsatt i forskrift, følger den lavvannslinjen langs kysten, inkludert holmer og skjær.
+Denne linjen er utgangspunktet for beregning av alle maritime soner.
+* Territorialfarvannet: Sjøområdet innenfor 12 nautiske mil fra grunnlinjen, hvor Norge har full suverenitet.
+* Avtalt avgrensningslinje: Den maritime ekvivalenten til riksgrensen.
+Dette er grenser fastsatt gjennom bilaterale avtaler med naboland (Sverige, Danmark, Storbritannia, Færøyene, Island, Grønland og Russland) for å avgrense Norges økonomiske sone og kontinentalsokkel.
+
+Grensene legges inn i M22 og NIBAS kan hente dem derfra.
+
+### Kommunegrenser
+Fasit fra M22
+
+Kommunegrenser deler fylkene inn i kommuner, som er det laveste administrative og folkevalgte nivået i Norge. 
+
+**Ansvar og forvaltning:**
+- Kartverket forvalter og formidler kommunegrensedata
+- Statsforvalteren fastetter kommunegrenser der det ikke er tvist
+- Ved tvist eller uklare grenser: Kommunal- og distriktsdepartementet avgjør
+
+**Hovedkrav:**
+- Skal som hovedregel følge eiendomsgrenser i matrikkelen
+- Endringer reguleres av Inndelingslova (prosesslov, ikke teknisk standard)
+- Kommuner kan ikke endre egne grenser - krever vedtak på høyere nivå
+- Må være geografisk sammenhengende områder
+- Nøyaktighet arves fra underliggende eiendomsgrenser - ingen separate krav til geometrisk presisjon
+
+**Endringstyper:**
+- Sammenslåing: To eller flere kommuner blir til én ny
+- Grensejustering: Område flyttes fra en kommune til en annen  
+- Grensefastsetting: Fastsetting av uklare eller omstridte grenser
 
 ### Fylkesgrenser
-### Territorialgrense
-### Riksgrense
-### AvtaltAvgrensningslinje
-### Stemmekretsegrenser 
-### Grunnkretsgrenser
-### Delområdegrenser
+Får fasit fra M22
+
+Fylkesgrenser deler Norge inn i fylker, som er regionale administrative og politiske enheter. Per 2024 har Norge 15 fylker.
+
+**Ansvar og forvaltning:**
+- Kartverket forvalter og formidler fylkesgrensedata
+- Kommunal- og distriktsdepartementet avgjør fylkesgrenseendringer
+- Endringer krever vedtak på statlig nivå
+
+**Hovedkrav:**
+- Skal som hovedregel følge eiendomsgrenser i matrikkelen  
+- Endringer reguleres av Inndelingslova (prosesslov, ikke teknisk standard)
+- Må være geografisk sammenhengende områder
+- Består av hele kommuner (kommuner kan ikke deles mellom fylker)
+- Nøyaktighet arves fra underliggende eiendomsgrenser - ingen separate krav til geometrisk presisjon
+
+### Stemmekretsgrenser
+
+Stemmekretser er geografiske inndelinger for gjennomføring av valg.
+Disse grensene bestemmer hvor velgere skal stemme og hvordan valgresultater rapporteres.
+
+**Ansvar og forvaltning:**
+- Kommunestyret har ansvar for å fastsette stemmekretsgrenser
+- Myndigheten kan delegeres til valgstyret
+- Kartverket forvalter de tekniske grensedata
+
+**Hovedkrav:**
+- Må ligge fullstendig innenfor én kommunes grenser
+- Bør følge eksisterende administrative grenser der det er praktisk mulig
+- Anbefales å bruke grunnkretser som byggeklosser (men ikke lovkrav)
+- Ingen spesifikke krav til geometrisk nøyaktighet (i motsetning til eiendomsgrenser)
+
+https://www.kartverket.no/eiendom/lokal-matrikkelmyndighet/endring-av-stemmekrets-for-val
+https://lovdata.no/dokument/NL/lov/2023-06-16-62/KAPITTEL_9#%C2%A79-2
+### Delområdegrenser og Grunnkretsgrenser
+
+Norge er delt inn i ca. 14 000 grunnkretser som igjen er gruppert sammen til ca. 1 550 delområder.
+
+**Grunnkretser:**
+Formålet med å dele kommunen inn i grunnkretser er å lage små, stabile og geografisk enheter som kan gi et fleksibelt grunnlag for arbeide med og presentere regionalstatistikk. 
+Hensikten med dette er igjen å gi et mer effektivt statistisk grunnlag for kommunal og regional analyse, forvaltning og planlegging.
+
+SSB bestemmer hvordan grunnkretsene skal se ut og Kartverket har i oppgave å endre og forvalte dem teknisk. 
+
+Hovedkriterier for grunnkretser:
+- Være stabile over en rimelig tidsperiode
+- Bestå av et geografisk sammenhengende område
+- Være mest mulig ensartede når det gjelder natur og næringsgrunnlag, kommunikasjonsforhold og bygningsmessig struktur
+- Må ligge fullstendig innenfor én kommunes grenser (kan ikke krysse kommunegrenser)
+- Bør så langt det er mulig følge eksisterende teiggrenser/eiendomsgrenser for å unngå å dele eiendommer
+
+**Delområder:**
+Delområde er et mellomnivå mellom kommune og grunnkrets.
+En slik delområdeinndeling er egnet for data som blir for detaljert på grunnkretsnivå, samtidig som den er egnet til regionale oversiktsanalyser.
+Ved utarbeidelse av delområder ble det lagt vekt på at området hørte naturlig sammen kommunikasjonsmessig, og helst burde området være en naturlig enhet.
+
+Delområder må også ligge fullstendig innenfor én kommunes grenser, siden de består av samlinger av grunnkretser fra samme kommune.
+
+**Teknisk kvalitet og nøyaktighet:**
+Grunnkretsgrensene er av varierende geometrisk kvalitet, siden de ble digitalisert på 1980-tallet fra kildemateriale av forskjellig presisjon.
+I byområder kan nøyaktigheten være høy (fra tekniske kart), mens den i grisgrendte områder ofte er lavere (fra N50-kart). 
+
+Kvaliteten dokumenteres gjennom metadata-attributtet "Posisjonskvalitet/nøyaktighet" som oppgir punktstandardavviket i cm.
+Dette er beskrivende metadata, ikke krav til presisjon.
+
+Det viktigste kvalitetskriteriet er at grensen går riktig i forhold til adressepunktene - dvs. at adresser havner i riktig grunnkrets for statistikkformål.
+
+
+https://www.ssb.no/klass/klassifikasjoner/1
+
+
 
 ### Hierarki av grenser
 
