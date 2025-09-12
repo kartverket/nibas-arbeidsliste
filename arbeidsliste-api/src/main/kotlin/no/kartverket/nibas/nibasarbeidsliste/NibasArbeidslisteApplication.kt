@@ -6,6 +6,7 @@ import org.springframework.boot.runApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 
 // Test
+// Test
 @SpringBootApplication(exclude = [UserDetailsServiceAutoConfiguration::class])
 @EnableScheduling
 class NibasArbeidslisteApplication
