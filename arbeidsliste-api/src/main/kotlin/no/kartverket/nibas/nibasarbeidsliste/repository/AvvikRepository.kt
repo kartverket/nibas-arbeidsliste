@@ -1,6 +1,7 @@
 package no.kartverket.nibas.nibasarbeidsliste.repository
 
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneParAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 import org.springframework.data.domain.Page
@@ -54,5 +55,57 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
         @Param("grensetyper") grensetyper: List<String>?,
         pageable: Pageable
     ): Page<KommuneAvvikDTO>
+
+    @Query("""
+        SELECT new no.kartverket.nibas.nibasarbeidsliste.dto.KommuneParAvvikDTO(
+            new no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO(
+                k1.fylkesLokalID,
+                k1.kommuneLokalID,
+                k1.kommunenummer,
+                k1.kommunenavn
+            ),
+            new no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO(
+                k2.fylkesLokalID,
+                k2.kommuneLokalID,
+                k2.kommunenummer,
+                k2.kommunenavn
+            ),
+            CAST(COUNT(DISTINCT a.id) AS int)
+        )
+        FROM Avvik a
+        JOIN a.kommuner k1
+        JOIN a.kommuner k2
+        JOIN a.koordinaterMedAvvik coord
+        WHERE k1.kommunenummer < k2.kommunenummer
+        AND a.status IN :statuses
+        AND (:grensetyper IS NULL OR a.grensetype IN :grensetyper)
+        AND k1.kommunenummer IS NOT NULL
+        AND k2.kommunenummer IS NOT NULL
+        AND k1.kommunenavn IS NOT NULL
+        AND k2.kommunenavn IS NOT NULL
+        AND (coord.erPaaMatrikkelLinje IS NULL OR coord.erPaaMatrikkelLinje = false)
+        GROUP BY k1.fylkesLokalID, k1.kommuneLokalID, k1.kommunenummer, k1.kommunenavn,
+                 k2.fylkesLokalID, k2.kommuneLokalID, k2.kommunenummer, k2.kommunenavn
+        ORDER BY COUNT(DISTINCT a.id) DESC
+    """)
+    fun findKommuneParAvvikSummaryPage(
+        @Param("statuses") statuses: Collection<AvvikStatus>,
+        @Param("grensetyper") grensetyper: List<String>?,
+        pageable: Pageable
+    ): Page<KommuneParAvvikDTO>
+
+    @Query("""
+        SELECT a FROM Avvik a
+        JOIN a.kommuner k1
+        JOIN a.kommuner k2
+        WHERE k1.kommuneLokalID = :lokalId1
+        AND k2.kommuneLokalID = :lokalId2
+        AND (:grensetyper IS NULL OR a.grensetype IN :grensetyper)
+    """)
+    fun findByKommunePar(
+        @Param("lokalId1") lokalId1: String,
+        @Param("lokalId2") lokalId2: String,
+        @Param("grensetyper") grensetyper: List<String>?
+    ): List<Avvik>
 
 }
