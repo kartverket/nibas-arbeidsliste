@@ -63,7 +63,8 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
                 k2.kommunenummer,
                 k2.kommunenavn
             ),
-            CAST(COUNT(DISTINCT a.id) AS int)
+            CAST(COUNT(DISTINCT a.id) AS int),
+            CAST(COALESCE(SUM(a.antallKoordinaterMedAvvik), 0) AS int)
         )
         FROM Avvik a
         JOIN a.kommuner k1
