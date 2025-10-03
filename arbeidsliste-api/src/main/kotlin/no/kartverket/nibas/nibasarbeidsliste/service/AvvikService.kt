@@ -62,6 +62,7 @@ class AvvikService(
     /**
      * Henter en paginert list av kommuner med avvik, sortert etter antall avvik (synkende).
      *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
      * @param pageable Pagineringinformasjon (sidenummer, antall per side).
      * @return En [Page] med [KommuneAvvikDTO].
      */
