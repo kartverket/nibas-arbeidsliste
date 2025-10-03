@@ -4,6 +4,7 @@ import no.kartverket.nibas.nibasarbeidsliste.api.AvvikApi
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.BulkAvvikRequestDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneParAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.service.AvvikService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -95,5 +96,42 @@ class AvvikController(private val avvikService: AvvikService) : AvvikApi {
             logger.error("Uventet feil ved oppdatering av avvik", e)
             return ResponseEntity.internalServerError().build()
         }
+    }
+
+    /**
+     * Henter en oppsummering som viser antall avvik per kommune-par.
+     * Returnerer en liste over kommune-par som har minst ett avvik.
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @param side Sidenummer for paginering.
+     * @param antall Maksimalt antall kommune-par per side.
+     * @return En [ResponseEntity] som inneholder en liste med [KommuneParAvvikDTO].
+     */
+    @GetMapping("/kommunepar", produces = [MediaType.APPLICATION_JSON_VALUE])
+    override fun hentKommuneParMedAvvikSummary(
+        @RequestParam(defaultValue = "Fylkesgrense,Kommunegrense") grensetyper: List<String>?,
+        @RequestParam(defaultValue = "0") side: Int,
+        @RequestParam(defaultValue = "10") antall: Int
+    ): ResponseEntity<Page<KommuneParAvvikDTO>> {
+        logger.info("Henter liste med kommune-par som har avvik. Side $side, antall per side $antall")
+        val summary = avvikService.hentKommuneParMedAvvikSummary(grensetyper, PageRequest.of(side, antall))
+        return ResponseEntity.ok(summary)
+    }
+
+    /**
+     * Henter alle avvik mellom to spesifikke kommuner.
+     * @param lokalId1 LokalId for første kommune
+     * @param lokalId2 LokalId for andre kommune
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @return En liste med [AvvikDTO] for grensen mellom de to kommunene.
+     */
+    @GetMapping("/kommunepar/{lokalId1}/{lokalId2}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    override fun hentAvvikForKommunePar(
+        @PathVariable lokalId1: String,
+        @PathVariable lokalId2: String,
+        @RequestParam(defaultValue = "Fylkesgrense,Kommunegrense") grensetyper: List<String>?
+    ): ResponseEntity<List<AvvikDTO>> {
+        logger.info("Henter avvik mellom kommune {} og {}", lokalId1, lokalId2)
+        val avvik = avvikService.hentAvvikForKommunePar(lokalId1, lokalId2, grensetyper)
+        return ResponseEntity.ok(avvik)
     }
 }
