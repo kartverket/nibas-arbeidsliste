@@ -33,3 +33,7 @@ matrikkelen:
   password: ${MATRIKKELEN_PASSWORD}
   sync-on-startup: false
   patch-on-startup: false
+
+grense-sammenligner:
+  run-on-startup: false
+  tolerance-meter: 0.1

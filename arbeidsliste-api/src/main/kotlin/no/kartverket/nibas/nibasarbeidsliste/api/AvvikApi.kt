@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import no.kartverket.nibas.nibasarbeidsliste.dto.AvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.BulkAvvikRequestDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneParAvvikDTO
 import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -86,6 +87,48 @@ interface AvvikApi {
         @RequestParam(defaultValue = "0") side: Int,
         @RequestParam(defaultValue = "10") antall: Int
     ): ResponseEntity<Page<KommuneAvvikDTO>>
+
+    @Operation(
+        summary = "Liste med kommune-par med avvik",
+        description = "Henter liste over kommune-par med avvik og antall avvik per par"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Vellykket operasjon",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = KommuneParAvvikDTO::class))]
+            ),
+            ApiResponse(responseCode = "500", description = "Serverfeil", content = [Content()])
+        ]
+    )
+    @GetMapping(path = ["/kommunepar"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentKommuneParMedAvvikSummary(
+        @RequestParam(required = false) grensetyper: List<String>?,
+        @RequestParam(defaultValue = "0") side: Int,
+        @RequestParam(defaultValue = "10") antall: Int
+    ): ResponseEntity<Page<KommuneParAvvikDTO>>
+
+    @Operation(
+        summary = "Alle avvik mellom to kommuner",
+        description = "Henter alle avvik på grensen mellom to spesifikke kommuner"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Vellykket operasjon",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = AvvikDTO::class))]
+            ),
+            ApiResponse(responseCode = "500", description = "Serverfeil", content = [Content()])
+        ]
+    )
+    @GetMapping(path = ["/kommunepar/{lokalId1}/{lokalId2}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun hentAvvikForKommunePar(
+        @PathVariable lokalId1: String,
+        @PathVariable lokalId2: String,
+        @RequestParam(required = false) grensetyper: List<String>?
+    ): ResponseEntity<List<AvvikDTO>>
 
     @Operation(
         summary = "Oppdater flere avvik",

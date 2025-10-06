@@ -6,13 +6,13 @@ import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonLineString
 import no.kartverket.nibas.nibasarbeidsliste.dto.GeoJsonPoint
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneDTO
+import no.kartverket.nibas.nibasarbeidsliste.dto.KommuneParAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.dto.KoordinaterMedAvvikDTO
 import no.kartverket.nibas.nibasarbeidsliste.model.Avvik
 import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 import no.kartverket.nibas.nibasarbeidsliste.repository.AvvikRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -38,12 +38,7 @@ class AvvikService(
         } else {
             avvikRepository.findAll(pageable)
         }
-        val avvikDto = avvik.mapNotNull { avvik ->
-            val dto = convertToDTO(avvik)
-            // Only return avvik that have real avvik points (not just helper points)
-            if (dto.antallKoordinaterMedAvvik != null && dto.antallKoordinaterMedAvvik > 0) dto else null
-        }
-        return PageImpl(avvikDto, pageable, avvikDto.size.toLong())
+        return avvik.map { convertToDTO(it) }
     }
 
     /**
@@ -60,16 +55,13 @@ class AvvikService(
         } else {
             avvikRepository.findKommuneByLokalId(lokalid)
         }
-        return avvikList.mapNotNull { avvik ->
-            val dto = convertToDTO(avvik)
-            // Only return avvik that have real avvik points (not just helper points)
-            if (dto.antallKoordinaterMedAvvik != null && dto.antallKoordinaterMedAvvik > 0) dto else null
-        }
+        return avvikList.map { convertToDTO(it) }
     }
 
     /**
      * Henter en paginert list av kommuner med avvik, sortert etter antall avvik (synkende).
      *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
      * @param pageable Pagineringinformasjon (sidenummer, antall per side).
      * @return En [Page] med [KommuneAvvikDTO].
      */
@@ -83,6 +75,41 @@ class AvvikService(
             grensetyper = grensetyper,
             pageable = pageable
         )
+    }
+
+    /**
+     * Henter en paginert liste av kommune-par med avvik, sortert etter antall avvik (synkende).
+     *
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @param pageable Pagineringinformasjon (sidenummer, antall per side).
+     * @return En [Page] med [KommuneParAvvikDTO].
+     */
+    fun hentKommuneParMedAvvikSummary(grensetyper: List<String>?, pageable: Pageable): Page<KommuneParAvvikDTO> {
+        logger.info("Henter paginert oppsummering av kommune-par med avvik. Filtre: grensetyper={}, Side: {}, Antall: {}", grensetyper, pageable.pageNumber, pageable.pageSize)
+
+        val allowedStatuses = setOf(AvvikStatus.NY, AvvikStatus.UNDER_BEHANDLING, AvvikStatus.VENT)
+
+        return avvikRepository.findKommuneParAvvikSummaryPage(
+            statuses = allowedStatuses,
+            grensetyper = grensetyper,
+            pageable = pageable
+        )
+    }
+
+    /**
+     * Henter alle avvik mellom to spesifikke kommuner.
+     *
+     * @param lokalId1 LokalId for første kommune
+     * @param lokalId2 LokalId for andre kommune
+     * @param grensetyper Liste med grensetyper som skal inkluderes i søket
+     * @return En liste ([List]) med [AvvikDTO] for grensen mellom de to kommunene.
+     */
+    fun hentAvvikForKommunePar(lokalId1: String, lokalId2: String, grensetyper: List<String>?): List<AvvikDTO> {
+        logger.info("Henter avvik mellom kommune {} og {} med grensetyper {}", lokalId1, lokalId2, grensetyper)
+
+        val avvikList = avvikRepository.findByKommunePar(lokalId1, lokalId2, grensetyper)
+
+        return avvikList.map { convertToDTO(it) }
     }
 
     /**
@@ -127,11 +154,6 @@ class AvvikService(
             GeoJsonLineString(coordinates = coordinates)
         } else null
 
-        // Filter out helper points - only keep real avvik
-        val realAvvikKoordinater = avvik.koordinaterMedAvvik?.filter { 
-            it.erPaaMatrikkelLinje != true 
-        }
-
         return AvvikDTO(
             id = avvik.id,
             registrertDato = avvik.registrertDato,
@@ -153,9 +175,9 @@ class AvvikService(
             maalemetode = avvik.maalemetode,
             noeyaktighet = avvik.noeyaktighet,
             antallKoordinater = avvik.antallKoordinater,
-            antallKoordinaterMedAvvik = realAvvikKoordinater?.size,
+            antallKoordinaterMedAvvik = avvik.koordinaterMedAvvik?.size,
             tolerance = avvik.tolerance,
-            koordinaterMedAvvik = realAvvikKoordinater?.map { koordinat ->
+            koordinaterMedAvvik = avvik.koordinaterMedAvvik?.map { koordinat ->
                 KoordinaterMedAvvikDTO(
                     nibasKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraNibas?.x ?: 0.0, koordinat.koordinatFraNibas?.y ?: 0.0)),
                     matrikkelKoordinat = GeoJsonPoint(coordinates = listOf(koordinat.koordinatFraMatrikkelen?.x ?: 0.0, koordinat.koordinatFraMatrikkelen?.y
