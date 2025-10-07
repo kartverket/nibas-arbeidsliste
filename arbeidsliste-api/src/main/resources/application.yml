@@ -32,7 +32,7 @@ matrikkelen:
   username: ${MATRIKKELEN_USERNAME}
   password: ${MATRIKKELEN_PASSWORD}
   sync-on-startup: true
-  patch-on-startup: false
+  patch-on-startup: true
 
 grense-sammenligner:
   run-on-startup: false
