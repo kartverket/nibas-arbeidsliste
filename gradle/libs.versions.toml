@@ -2,7 +2,7 @@
 kotlin = "2.2.20"
 springBoot = "3.5.6"
 springDependencyManagement = "1.1.7"
-graalvmNative = "0.11.1"
+graalvmNative = "0.11.2"
 logstashLogback = "8.1"
 springdocOpenapi = "2.8.13"
 micrometerPrometheus = "1.15.4"
