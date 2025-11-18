@@ -36,7 +36,6 @@ interface AvvikRepository : JpaRepository<Avvik, Long> {
         )
         FROM Avvik a JOIN a.kommuner k
         WHERE a.status IN :statuses
-        AND a.grensetype IN ('Kommunegrense', 'Fylkesgrense')
         AND (:grensetyper IS NULL OR a.grensetype IN :grensetyper)
         AND k.kommunenummer IS NOT NULL
         AND k.kommunenavn IS NOT NULL
