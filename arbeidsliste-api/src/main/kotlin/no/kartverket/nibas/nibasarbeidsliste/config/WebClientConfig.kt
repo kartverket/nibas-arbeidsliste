@@ -11,10 +11,10 @@ import org.springframework.web.reactive.function.client.WebClient
 class WebClientConfig(
     private val environment: Environment,
 
-    @Value("\${nibas.api.base-url}")
+    @param:Value("\${nibas.api.base-url}")
     private val baseUrl: String,
 
-    @Value("\${api.key.matrikkel:#{null}}")
+    @param:Value("\${api.key.matrikkel:#{null}}")
     private val matrikkelApiKey: String?
 ) {
     private val logger = LoggerFactory.getLogger(WebClientConfig::class.java)

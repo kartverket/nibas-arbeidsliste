@@ -6,16 +6,16 @@ import no.kartverket.nibas.nibasarbeidsliste.model.AvvikStatus
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AvvikRequestDTO(
-    @JsonProperty("id")
+    @param:JsonProperty("id")
     val id: Long,
 
-    @JsonProperty("status")
+    @param:JsonProperty("status")
     val status: AvvikStatus,
 
     )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BulkAvvikRequestDTO(
-    @JsonProperty("avvikUpdates")
+    @param:JsonProperty("avvikUpdates")
     val avvikUpdates: List<AvvikRequestDTO>
 )
