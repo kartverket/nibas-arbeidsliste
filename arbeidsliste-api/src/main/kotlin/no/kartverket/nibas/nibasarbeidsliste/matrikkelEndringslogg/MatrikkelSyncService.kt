@@ -36,7 +36,7 @@ class MatrikkelSyncService(
     private val log = LoggerFactory.getLogger(javaClass)
     private lateinit var kommuneMap: Map<Int, Kommune>
 
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         if (syncOnStartup) {
             log.info("=== Starting Matrikkel Sync on Startup ===")
             sync()

@@ -17,7 +17,7 @@ class PolygonValidationTest(
 ) : ApplicationRunner {
     private val logger = LoggerFactory.getLogger(PolygonValidationTest::class.java)
 
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
 
         logger.info("=== Starting Polygon Validation for All Kommuner ===")
         testAllKommuner()
