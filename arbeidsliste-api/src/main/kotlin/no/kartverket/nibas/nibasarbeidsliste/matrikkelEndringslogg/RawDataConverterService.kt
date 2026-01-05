@@ -20,7 +20,7 @@ class RawDataConverterService(
     private val logger = LoggerFactory.getLogger(RawDataConverterService::class.java)
 
     val runOnStartup = true
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         if (runOnStartup) {
             logger.info("=== RawDataConverterService ===")
             kommuneLookupService.refreshKommuneLookupTable()

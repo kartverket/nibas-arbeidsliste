@@ -19,7 +19,7 @@ class GrenseSammenlignerStartupRunner(
         private val log = LoggerFactory.getLogger(GrenseSammenlignerStartupRunner::class.java)
     }
 
-    override fun run(vararg args: String?) {
+    override fun run(vararg args: String) {
         if (runOnStartup) {
             log.info("Running grense sammenligner on startup with tolerance $toleranceMeter meters")
             grenseSammenlignerService.finnAvvik(toleranceMeter)
