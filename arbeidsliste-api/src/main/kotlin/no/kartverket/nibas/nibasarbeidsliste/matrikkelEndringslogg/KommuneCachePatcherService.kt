@@ -22,7 +22,7 @@ class KommuneCachePatcherService(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         if (patchOnStartup) {
             log.info("=== KommuneCachePatcherService: Starting patch process ===")
             val fixesApplied = applyHardcodedFixes()

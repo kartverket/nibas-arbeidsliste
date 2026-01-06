@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse
 @EnableWebSecurity
 @Profile("!security-off")
 class InternalApiSecurityConfig(
-    @Value("\${nibas.arbeidsliste.api-key}") private val expectedApiKey: String
+    @param:Value("\${nibas.arbeidsliste.api-key}") private val expectedApiKey: String
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 

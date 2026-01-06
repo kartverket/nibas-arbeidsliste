@@ -12,8 +12,8 @@ import org.springframework.web.client.RestTemplate
 @Component
 class NibasClient(
     private val environment: Environment,
-    @Value("\${nibas.api.base-url}") private val baseUrl: String,
-    @Value("\${api.key.matrikkel:#{null}}") private val apiKey: String?
+    @param:Value("\${nibas.api.base-url}") private val baseUrl: String,
+    @param:Value("\${api.key.matrikkel:#{null}}") private val apiKey: String?
 ) {
     private val restTemplate = RestTemplate()
 
