@@ -44,7 +44,7 @@ jobs:
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew build -x test --info
+          ./gradlew build -x test --no-daemon
         continue-on-error: false
 
       - name: Perform CodeQL Analysis
