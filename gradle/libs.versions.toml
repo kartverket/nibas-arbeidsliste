@@ -1,11 +1,11 @@
 [versions]
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 springBoot = "4.0.1"
 springDependencyManagement = "1.1.7"
 graalvmNative = "0.11.3"
 logstashLogback = "9.0"
 springdocOpenapi = "3.0.1"
-micrometerPrometheus = "1.16.1"
+micrometerPrometheus = "1.16.2"
 flyway = "11.20.1"
 jts-core = "1.20.0"
 jackson-datatype-jts = "2.0.0"
