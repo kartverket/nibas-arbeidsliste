@@ -20,8 +20,8 @@ spring:
     # Bruker NIBAS-database med eget schema og bruker.
     # Bruker sin default search_path for å bruke riktig schema.
     url: jdbc:postgresql://localhost:5432/nibas
-    username: nibas_arbeidsliste
-    password: nibas_arbeidsliste
+    username: nibas
+    password: nibas
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
