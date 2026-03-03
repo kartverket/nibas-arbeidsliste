@@ -8,118 +8,118 @@ import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AvvikDTO(
-    @JsonProperty("id")
+    @param:JsonProperty("id")
     val id: Long? = null,
 
-    @JsonProperty("registrertDato")
+    @param:JsonProperty("registrertDato")
     val registrertDato: LocalDateTime? = null,
 
-    @JsonProperty("status")
+    @param:JsonProperty("status")
     val status: AvvikStatus = AvvikStatus.NY,
 
-    @JsonProperty("harGeometri")
+    @param:JsonProperty("harGeometri")
     val harGeometri: Boolean = false,
 
     // Grense fields
-    @JsonProperty("grenseId")
+    @param:JsonProperty("grenseId")
     val grenseId: String? = null,
 
-    @JsonProperty("lokalId")
+    @param:JsonProperty("lokalId")
     val lokalId: String? = null,
 
-    @JsonProperty("grensetype")
+    @param:JsonProperty("grensetype")
     val grensetype: String? = null,
 
-    @JsonProperty("geometri")
+    @param:JsonProperty("geometri")
     val geometri: GeoJsonLineString? = null,
 
-    @JsonProperty("gyldigFra")
+    @param:JsonProperty("gyldigFra")
     val gyldigFra: LocalDate? = null,
 
-    @JsonProperty("gyldigTil")
+    @param:JsonProperty("gyldigTil")
     val gyldigTil: LocalDate? = null,
 
-    @JsonProperty("datafangstdato")
+    @param:JsonProperty("datafangstdato")
     val datafangstdato: String? = null,
 
-    @JsonProperty("foerstedigitaliseringsdato")
+    @param:JsonProperty("foerstedigitaliseringsdato")
     val foerstedigitaliseringsdato: String? = null,
 
-    @JsonProperty("opphav")
+    @param:JsonProperty("opphav")
     val opphav: String? = null,
 
-    @JsonProperty("informasjon")
+    @param:JsonProperty("informasjon")
     val informasjon: String? = null,
 
-    @JsonProperty("endretAv")
+    @param:JsonProperty("endretAv")
     val endretAv: String? = null,
 
-    @JsonProperty("endretDato")
+    @param:JsonProperty("endretDato")
     val endretDato: String? = null,
 
-    @JsonProperty("typeEndring")
+    @param:JsonProperty("typeEndring")
     val typeEndring: String? = null,
 
-    @JsonProperty("maalemetode")
+    @param:JsonProperty("maalemetode")
     val maalemetode: String? = null,
 
-    @JsonProperty("noeyaktighet")
+    @param:JsonProperty("noeyaktighet")
     val noeyaktighet: Int? = null,
 
-    @JsonProperty("antallKoordinater")
+    @param:JsonProperty("antallKoordinater")
     val antallKoordinater: Int?,
 
-    @JsonProperty("antallKoordinaterMedAvvik")
+    @param:JsonProperty("antallKoordinaterMedAvvik")
     val antallKoordinaterMedAvvik: Int?,
 
-    @JsonProperty("koordinaterMedAvvik")
+    @param:JsonProperty("koordinaterMedAvvik")
     val koordinaterMedAvvik: List<KoordinaterMedAvvikDTO>?,
 
-    @JsonProperty("tolerance")
+    @param:JsonProperty("tolerance")
     val tolerance: Double?,
 
-    @JsonProperty("kommuner")
+    @param:JsonProperty("kommuner")
     val kommuner: List<KommuneDTO>? = null,
 )
 
 data class GeoJsonLineString(
-    @JsonProperty("type")
+    @param:JsonProperty("type")
     val type: String = "LineString",
 
-    @JsonProperty("coordinates")
+    @param:JsonProperty("coordinates")
     val coordinates: List<List<Double>>
 )
 
 data class GeoJsonPoint(
-    @JsonProperty("type")
+    @param:JsonProperty("type")
     val type: String = "Point",
 
-    @JsonProperty("coordinates")
+    @param:JsonProperty("coordinates")
     val coordinates: List<Double>
 )
 
 data class KoordinaterMedAvvikDTO(
-    @JsonProperty("nibasKoordinat")
+    @param:JsonProperty("nibasKoordinat")
     val nibasKoordinat: GeoJsonPoint,
 
-    @JsonProperty("matrikkelKoordinat")
+    @param:JsonProperty("matrikkelKoordinat")
     val matrikkelKoordinat: GeoJsonPoint,
 
-    @JsonProperty("distanseMellomKoordinater")
+    @param:JsonProperty("distanseMellomKoordinater")
     val distanseMellomKoordinater: Double? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class KommuneDTO(
-    @JsonProperty("fylkesLokalID")
+    @param:JsonProperty("fylkesLokalID")
     val fylkesLokalID: String? = null,
 
-    @JsonProperty("kommuneLokalID")
+    @param:JsonProperty("kommuneLokalID")
     val kommuneLokalID: String? = null,
 
-    @JsonProperty("kommunenummer")
+    @param:JsonProperty("kommunenummer")
     val kommuneNummer: String? = null,
 
-    @JsonProperty("kommunenavn")
+    @param:JsonProperty("kommunenavn")
     val kommuneNavn: String? = null
 )

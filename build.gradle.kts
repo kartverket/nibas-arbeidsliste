@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-subprojects {
+allprojects {
     repositories {
         mavenCentral()
     }

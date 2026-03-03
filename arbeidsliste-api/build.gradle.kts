@@ -54,9 +54,9 @@ dependencies {
     implementation(project(":lib:matrikkel-changelog"))
     // Matrikkel domain classes (direct JAR)
     implementation(files("../lib/prebuilt/arbeidsliste-matrikkel-api-4.13.1.0.jar"))
-    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:4.1.3")
-    implementation("org.apache.cxf:cxf-rt-transports-http:4.1.3")
-    implementation("jakarta.xml.ws:jakarta.xml.ws-api:4.0.2")
+    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:4.2.0")
+    implementation("org.apache.cxf:cxf-rt-transports-http:4.2.0")
+    implementation("jakarta.xml.ws:jakarta.xml.ws-api:4.0.3")
 }
 
 kotlin {

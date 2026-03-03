@@ -56,9 +56,12 @@ management:
       access: unrestricted
       group:
         readiness:
-          include: db,diskSpace,ping
+          include: db,ping
         liveness:
-          include: diskSpace,ping
+          include: ping
+  health:
+    diskspace:
+      enabled: false
   info:
     env:
       enabled: true

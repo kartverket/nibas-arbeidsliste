@@ -1,14 +1,14 @@
 [versions]
-kotlin = "2.2.20"
-springBoot = "3.5.6"
+kotlin = "2.3.10"
+springBoot = "4.0.1"
 springDependencyManagement = "1.1.7"
-graalvmNative = "0.11.2"
-logstashLogback = "8.1"
-springdocOpenapi = "2.8.13"
-micrometerPrometheus = "1.15.5"
-flyway = "11.14.1"
+graalvmNative = "0.11.4"
+logstashLogback = "9.0"
+springdocOpenapi = "3.0.1"
+micrometerPrometheus = "1.16.3"
+flyway = "12.0.3"
 jts-core = "1.20.0"
-jackson-datatype-jts = "2.0.0"
+jackson-datatype-jts = "3.0.1"
 postgis-jdbc = "2025.1.1"
 
 [libraries]

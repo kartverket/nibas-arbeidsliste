@@ -2,6 +2,13 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          - "org.jetbrains.kotlin*"
     schedule:
       interval: "weekly"
       day: "monday"
