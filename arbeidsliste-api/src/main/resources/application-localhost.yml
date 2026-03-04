@@ -8,8 +8,6 @@ management:
 nibas:
   api:
     base-url: http://localhost:8080/v1
-  arbeidsliste:
-    api-key: 'super-secret-api-key'
 
 api:
   key:
