@@ -58,7 +58,7 @@ jobs:
         run: ./gradlew bootBuildImage --imageName ${{ steps.setOutput.outputs.image_url }}
 
       - name: Login to Github Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.registry }}
           username: ${{ github.actor }}
