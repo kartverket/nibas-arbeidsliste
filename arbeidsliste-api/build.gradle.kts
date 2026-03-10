@@ -25,7 +25,6 @@ dependencies {
     implementation(libs.spring.boot.starter.webflux)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.actuator)
-    implementation(libs.spring.boot.starter.security)
     implementation(libs.postgresql)
     implementation(libs.hibernate.spatial)
     implementation(libs.locationtech.jts.core)
