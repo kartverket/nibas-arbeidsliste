@@ -9,6 +9,7 @@ micrometerPrometheus = "1.16.4"
 flyway = "12.1.0"
 jts-core = "1.20.0"
 jackson-datatype-jts = "3.0.1"
+jackson = "3.1.0"
 postgis-jdbc = "2025.1.1"
 
 [libraries]
@@ -29,7 +30,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 
 # Jackson
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-datatype-jts = { module = "org.n52.jackson:jackson-datatype-jts", version.ref = "jackson-datatype-jts" }
 
 locationtech-jts-core = { module = "org.locationtech.jts:jts-core", version.ref = "jts-core" }
