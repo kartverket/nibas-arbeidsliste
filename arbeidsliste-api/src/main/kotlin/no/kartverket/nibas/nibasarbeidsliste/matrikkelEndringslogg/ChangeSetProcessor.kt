@@ -45,8 +45,18 @@ class ChangeSetProcessor(
     ): Int {
         var processedCount = 0
 
-        log.info("Processing ChangeSet with {} boundary lines and {} boundary points",
-            changeSet.changedBoundaryLines.size, changeSet.changedBoundaryPoints.size)
+        log.info("Processing ChangeSet with {} boundary lines, {} boundary points, {} deleted lines, {} deleted points",
+            changeSet.changedBoundaryLines.size, changeSet.changedBoundaryPoints.size,
+            changeSet.deletedBoundaryLineIds.size, changeSet.deletedBoundaryPointIds.size)
+
+        changeSet.deletedBoundaryLineIds.forEach { id ->
+            log.info("Processing SLETTING for Teiggrense id={}", id.value)
+            deleteTeiggrense(id.value)
+        }
+        changeSet.deletedBoundaryPointIds.forEach { id ->
+            log.info("Processing SLETTING for Teiggrensepunkt id={}", id.value)
+            deleteTeiggrensepunkt(id.value)
+        }
 
         changeSet.changedBoundaryPoints.forEach { (_, wrapper) ->
             processGrensepunkt(wrapper, matrikkelContext, kommuneMap)

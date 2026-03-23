@@ -83,8 +83,9 @@ class MatrikkelSyncService(
             changeLog.findAdminBorderChanges(MatrikkelEndringId(startEndringsnummer))
                 .forEach { changeSet: ChangeSet ->
                     changeSetCount++
-                    log.info("Processing ChangeSet {} with {} boundary lines and {} boundary points at instant {}",
-                        changeSetCount, changeSet.changedBoundaryLines.size, changeSet.changedBoundaryPoints.size, changeSet.instant)
+                    log.info("Processing ChangeSet {} with {} boundary lines, {} boundary points, {} deleted lines, {} deleted points at instant {}",
+                        changeSetCount, changeSet.changedBoundaryLines.size, changeSet.changedBoundaryPoints.size,
+                        changeSet.deletedBoundaryLineIds.size, changeSet.deletedBoundaryPointIds.size, changeSet.instant)
 
                     val processed = changeSetProcessor.processChangeSet(changeSet, matrikkelContext, kommuneMap)
                     totalProcessed += processed
