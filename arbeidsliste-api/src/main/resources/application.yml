@@ -35,5 +35,5 @@ matrikkelen:
   patch-on-startup: false
 
 grense-sammenligner:
-  run-on-startup: false
+  run-on-startup: true
   tolerance-meter: 0.1
