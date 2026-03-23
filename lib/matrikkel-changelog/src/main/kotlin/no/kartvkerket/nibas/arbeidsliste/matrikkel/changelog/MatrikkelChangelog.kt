@@ -52,7 +52,9 @@ data class ChangeSet(
     val instant: Instant,
     val changedBoundaryLines: Set<BubbleWrapper<Teiggrense>>,
     val changedBoundaryPoints: Map<TeiggrensepunktId, BubbleWrapper<Teiggrensepunkt>>,
-    val affairs: Set<BubbleWrapper<Forretning>>
+    val affairs: Set<BubbleWrapper<Forretning>>,
+    val deletedBoundaryLineIds: Set<TeiggrenseId> = emptySet(),
+    val deletedBoundaryPointIds: Set<TeiggrensepunktId> = emptySet()
 )
 
 /**
@@ -155,8 +157,26 @@ class MatrikkelChangeLog(
         val pending =
             TreeMap<Instant, Pair<MutableSet<BubbleWrapper<Forretning>>, MutableSet<BubbleWrapper<MatrikkelBubbleObjectWithHistory>>>>()
 
+        val pendingDeletions = TreeMap<Instant, Pair<MutableSet<TeiggrenseId>, MutableSet<TeiggrensepunktId>>>()
+
         for (interimChangeSet in findBorderChangesGroupedByInstant(matrikkelEndringId)) {
-            val (deletedIds, fetchedObjs) = fetchObjects(interimChangeSet.changed)
+            if (interimChangeSet.deleted.isNotEmpty()) {
+                val (delLines, delPoints) = pendingDeletions.computeIfAbsent(interimChangeSet.instant) {
+                    HashSet<TeiggrenseId>() to HashSet()
+                }
+                for (id in interimChangeSet.deleted) {
+                    when (id) {
+                        is TeiggrenseId -> delLines.add(id)
+                        is TeiggrensepunktId -> delPoints.add(id)
+                    }
+                }
+            }
+
+            val (deletedIds, fetchedObjs) = if (interimChangeSet.changed.isNotEmpty()) {
+                fetchObjects(interimChangeSet.changed)
+            } else {
+                HashSet<MatrikkelBubbleId>() to emptyList<MatrikkelBubbleObject>()
+            }
             deletedIds.removeIf { it is ForretningId }
 
             val (affairs, geomObjs) = fetchedObjs
@@ -185,7 +205,9 @@ class MatrikkelChangeLog(
                 }
             }
 
-            for (deletedId in deletedIds) {
+            // Resolve pending deletes using both fetch failures AND explicit SLETTING events
+            val allConfirmedDeletions = deletedIds + interimChangeSet.deleted
+            for (deletedId in allConfirmedDeletions) {
                 pendingDeleteIds.remove(deletedId)?.let { instants ->
                     for (instant in instants) {
                         val compute = pendingDeleteInstants.compute(instant) { _, v ->
@@ -200,11 +222,16 @@ class MatrikkelChangeLog(
                 }
             }
 
+            // Ensure deletion-only instants have an entry in pending so yieldChangeSets processes them
+            for (delInstant in pendingDeletions.keys) {
+                pending.computeIfAbsent(delInstant) { HashSet<BubbleWrapper<Forretning>>() to HashSet() }
+            }
+
             val instantLimit = minOf(pendingDeleteYields.keys.minOrNull() ?: Instant.MAX, interimChangeSet.instant)
-            yieldChangeSets(pending.headMap(instantLimit))
+            yieldChangeSets(pending.headMap(instantLimit), pendingDeletions)
 
         }
-        yieldChangeSets(pending)
+        yieldChangeSets(pending, pendingDeletions)
     }
 
     /**
@@ -214,7 +241,10 @@ class MatrikkelChangeLog(
      * Why important: changes must be processed in a correct sequence or data get messed up.
      * Removes processed entries from headMap to prevent memory leak.
      */
-    private suspend fun SequenceScope<ChangeSet>.yieldChangeSets(headMap: SortedMap<Instant, Pair<MutableSet<BubbleWrapper<Forretning>>, MutableSet<BubbleWrapper<MatrikkelBubbleObjectWithHistory>>>>) {
+    private suspend fun SequenceScope<ChangeSet>.yieldChangeSets(
+        headMap: SortedMap<Instant, Pair<MutableSet<BubbleWrapper<Forretning>>, MutableSet<BubbleWrapper<MatrikkelBubbleObjectWithHistory>>>>,
+        pendingDeletions: NavigableMap<Instant, Pair<MutableSet<TeiggrenseId>, MutableSet<TeiggrensepunktId>>>
+    ) {
         while (headMap.isNotEmpty()) {
             val instant = headMap.firstKey()
             val yieldPair = headMap[instant]!!
@@ -237,7 +267,9 @@ class MatrikkelChangeLog(
                     else -> throw IllegalStateException()
                 }
             }
-            yield(ChangeSet(instant, borderLines, borderPoints, changeSetAffairs))
+            val (delLineIds, delPointIds) = pendingDeletions.remove(instant)
+                ?: (emptySet<TeiggrenseId>() to emptySet<TeiggrensepunktId>())
+            yield(ChangeSet(instant, borderLines, borderPoints, changeSetAffairs, delLineIds, delPointIds))
             headMap.remove(instant)
         }
     }
@@ -348,7 +380,7 @@ class MatrikkelChangeLog(
                 for (endring in changes.endringList.item) {
                     val endringInstant = endring.endringstidspunkt.timestamp.toGregorianCalendar().toInstant()
                     if (endringInstant != currentInstant) {
-                        if (currentChangedBoundaryPoints.isNotEmpty()) {
+                        if (currentChangedBoundaryPoints.isNotEmpty() || currentDeletedBoundaryPoints.isNotEmpty()) {
                             yield(
                                 InterimChangeSet.ByInstant(
                                     currentInstant,
@@ -376,7 +408,7 @@ class MatrikkelChangeLog(
                 matrikkelEndringId = changes.sisteEndringIdProsessert
             } while (!changes.isAlleEndringerFunnet)
 
-            if (currentChangedBoundaryPoints.isNotEmpty()) {
+            if (currentChangedBoundaryPoints.isNotEmpty() || currentDeletedBoundaryPoints.isNotEmpty()) {
                 yield(
                     InterimChangeSet.ByInstant(
                         currentInstant,
