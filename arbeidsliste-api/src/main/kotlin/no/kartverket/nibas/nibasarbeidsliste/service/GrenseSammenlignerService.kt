@@ -94,16 +94,26 @@ class GrenseSammenlignerService(
         }
         m22LineIndex.build()
 
+        val nibasLineIndex = STRtree()
+        val nibasLineToGrense = HashMap<LineString, NibasGrense>()
+        for (nibasGrense in nibasGrenser) {
+            val line = nibasGeometriToLineString(nibasGrense.geometri)
+            nibasLineIndex.insert(line.envelopeInternal, line)
+            nibasLineToGrense[line] = nibasGrense
+        }
+        nibasLineIndex.build()
+
         log.info("\nProsesserer ${nibasGrenser.size} NIBAS grenser mot ${m22Grenser.size} M22 grenser...")
 
         val grenseResultater = mutableMapOf<String, GrenseResultat>()
         var totalAvvik = 0
 
+        // Direction 1: NIBAS → M22 (NIBAS points far from any M22 line)
         for ((grenseIndex, nibasGrense) in nibasGrenser.withIndex()) {
             val nibasLine = nibasGeometriToLineString(nibasGrense.geometri)
 
             if ((grenseIndex + 1) % 100 == 0 || grenseIndex == nibasGrenser.size - 1) {
-                log.info("Progress: ${grenseIndex + 1}/${nibasGrenser.size} grenser sjekket, $totalAvvik avvik funnet så langt...")
+                log.info("NIBAS→M22 progress: ${grenseIndex + 1}/${nibasGrenser.size} grenser sjekket, $totalAvvik avvik funnet så langt...")
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -140,6 +150,56 @@ class GrenseSammenlignerService(
                         closestM22Koordinat = closestM22Coord,
                         distanse = closestDistance,
                         erPaaMatrikkelLinje = false
+                    ))
+                    totalAvvik++
+                }
+            }
+        }
+
+        log.info("\nProsesserer M22→NIBAS retning: ${m22Grenser.size} M22 grenser mot NIBAS...")
+        for ((m22Index, m22Grense) in m22Grenser.withIndex()) {
+            val m22Line = m22Grense.geom ?: continue
+
+            if ((m22Index + 1) % 100 == 0 || m22Index == m22Grenser.size - 1) {
+                log.info("M22→NIBAS progress: ${m22Index + 1}/${m22Grenser.size} grenser sjekket, $totalAvvik avvik totalt...")
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            val candidateNibasLines = nibasLineIndex.query(m22Line.envelopeInternal) as List<LineString>
+
+            if (candidateNibasLines.isEmpty()) {
+                continue
+            }
+
+            for (m22Coord in m22Line.coordinates) {
+                val m22Point = geometryFactory.createPoint(m22Coord)
+
+                var closestDistance = Double.MAX_VALUE
+                var closestNibasCoord: Coordinate? = null
+                var closestNibasGrense: NibasGrense? = null
+
+                for (nibasLine in candidateNibasLines) {
+                    val tempClosestPoint = DistanceOp.nearestPoints(nibasLine, m22Point)
+                    val distance = tempClosestPoint[0].distance(tempClosestPoint[1])
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance
+                        val rawCoord = tempClosestPoint[0]
+                        closestNibasCoord = Coordinate(
+                            (rawCoord.x * 100.0).roundToInt() / 100.0,
+                            (rawCoord.y * 100.0).roundToInt() / 100.0
+                        )
+                        closestNibasGrense = nibasLineToGrense[nibasLine]
+                    }
+                }
+
+                if (closestDistance > toleranseMeter && closestNibasGrense != null) {
+                    val grenseResultat = grenseResultater.getOrPut(closestNibasGrense.id) { GrenseResultat(closestNibasGrense.id) }
+                    grenseResultat.avvikPunkter.add(AvvikPunkt(
+                        nibasKoordinat = closestNibasCoord!!,
+                        closestM22Koordinat = m22Coord,
+                        distanse = closestDistance,
+                        erPaaMatrikkelLinje = true
                     ))
                     totalAvvik++
                 }
