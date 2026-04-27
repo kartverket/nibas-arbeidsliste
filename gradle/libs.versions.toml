@@ -1,8 +1,8 @@
 [versions]
 kotlin = "2.3.21"
-springBoot = "4.0.5"
+springBoot = "4.0.6"
 springDependencyManagement = "1.1.7"
-graalvmNative = "1.0.0"
+graalvmNative = "1.1.0"
 logstashLogback = "9.0"
 springdocOpenapi = "3.0.3"
 micrometerPrometheus = "1.16.5"
