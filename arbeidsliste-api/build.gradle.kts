@@ -17,8 +17,8 @@ java {
 
 dependencies {
 
-    implementation("org.locationtech.proj4j:proj4j:1.4.1")
-    implementation("org.locationtech.proj4j:proj4j-epsg:1.4.1")
+    implementation("org.locationtech.proj4j:proj4j:1.4.2")
+    implementation("org.locationtech.proj4j:proj4j-epsg:1.4.2")
     implementation("it.unimi.dsi:fastutil:8.5.18")
 
     implementation(libs.spring.boot.starter.web)
@@ -53,8 +53,8 @@ dependencies {
     implementation(project(":lib:matrikkel-changelog"))
     // Matrikkel domain classes (direct JAR)
     implementation(files("../lib/prebuilt/arbeidsliste-matrikkel-api-4.13.1.0.jar"))
-    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:4.2.0")
-    implementation("org.apache.cxf:cxf-rt-transports-http:4.2.0")
+    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:4.2.1")
+    implementation("org.apache.cxf:cxf-rt-transports-http:4.2.1")
     implementation("jakarta.xml.ws:jakarta.xml.ws-api:4.0.3")
 }
 
