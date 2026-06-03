@@ -14,32 +14,6 @@ spec:
   - "nibas-arbeidsliste-api"
 ---
 apiVersion: "backstage.io/v1alpha1"
-kind: "Group"
-metadata:
-  name: "security_champion_nibas-arbeidsliste"
-  title: "Security Champion nibas-arbeidsliste"
-spec:
-  type: "security_champion"
-  parent: "eiendom_security_champions"
-  members:
-  - "Kristmh"
-  children:
-  - "resource:nibas-arbeidsliste"
----
-apiVersion: "backstage.io/v1alpha1"
-kind: "Resource"
-metadata:
-  name: "nibas-arbeidsliste"
-  links:
-  - url: "https://github.com/kartverket/nibas-arbeidsliste"
-    title: "nibas-arbeidsliste på GitHub"
-spec:
-  type: "repo"
-  owner: "security_champion_nibas-arbeidsliste"
-  dependencyOf:
-  - "component:nibas-arbeidsliste"
----
-apiVersion: "backstage.io/v1alpha1"
 kind: "API"
 metadata:
   name: "nibas-arbeidsliste-api"
