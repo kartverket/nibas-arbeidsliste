@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 
 @Component
@@ -15,6 +18,12 @@ class NibasClient(
 ) {
     private val restTemplate = RestTemplate()
 
+    @Retryable(
+        maxRetries = 5,
+        delay = 2000,
+        multiplier = 2.0,
+        includes = [HttpServerErrorException::class, ResourceAccessException::class]
+    )
     fun getGrenser(page: Int = 0, size: Int = 100): NibasGrenseResponse {
         val url = "$baseUrl/ekstern/grenser?side=$page&antall=$size"
 
@@ -25,7 +34,7 @@ class NibasClient(
 
         val headers = HttpHeaders().apply {
             // Legg til auth header bare hvis sikkerhet ikke er deaktivert
-            if (!apiKey.isNullOrBlank()) {
+            if (!apiKey.isBlank()) {
                 set("Authorization", "Basic $apiKey")
             }
             set("Accept", "application/json")
