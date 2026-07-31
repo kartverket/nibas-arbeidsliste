@@ -19,7 +19,7 @@ dependencies {
 
     implementation("org.locationtech.proj4j:proj4j:1.4.3")
     implementation("org.locationtech.proj4j:proj4j-epsg:1.4.3")
-    implementation("it.unimi.dsi:fastutil:8.5.18")
+    implementation("it.unimi.dsi:fastutil:8.5.19")
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.webflux)
