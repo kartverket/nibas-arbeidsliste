@@ -4,8 +4,8 @@ plugins {
 
 dependencies {
     implementation("org.postgresql:postgresql:42.7.13")
-    implementation("com.oracle.database.jdbc:ojdbc11:23.26.2.0.0")
-    implementation("com.oracle.database.xml:xdb:23.26.2.0.0")
+    implementation("com.oracle.database.jdbc:ojdbc11:23.26.3.0.0")
+    implementation("com.oracle.database.xml:xdb:23.26.3.0.0")
 }
 
 fun getDbProperty(project: Project, propertyName: String): String {
