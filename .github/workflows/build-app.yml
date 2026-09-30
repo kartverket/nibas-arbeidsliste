@@ -13,6 +13,9 @@ on:
       image_url:
         description: "The full URL to the docker-image created including digest"
         value: ${{ jobs.build.outputs.image_url }}
+      digest:
+          description: "The digest of the built docker image"
+          value: ${{ jobs.build.outputs.digest }}
 
 env:
   image_name: arbeidsliste-api
