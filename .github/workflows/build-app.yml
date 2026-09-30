@@ -34,6 +34,7 @@ jobs:
     outputs:
       new_tag: ${{ steps.tag_version.outputs.new_tag }}
       image_url: ${{ steps.setOutput.outputs.image_url }}
+      digest: ${{ steps.setOutput.outputs.digest }}
 
     steps:
       - name: Set local timezone
@@ -84,3 +85,4 @@ jobs:
         id: setOutput
         run: |
           echo "image_url=${{ env.registry }}/${{ github.repository }}@${{ steps.docker_build.outputs.digest }}" >> $GITHUB_OUTPUT
+          echo "digest=${{ steps.docker_build.outputs.digest }}" >> $GITHUB_OUTPUT
