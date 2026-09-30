@@ -29,21 +29,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Run Pharos"
-        uses: kartverket/pharos@v0.7.0
+        uses: kartverket/pharos@446d11f033ffe30b4c91f885c3ad34ea3d8c6af7 #v0.7.0
         with:
           allow_severity_level: critical
           image_url: ${{ needs.build.outputs.image_url }}
 
-  deploy-argo:
+  deploy-dev:
     permissions:
+      contents: read
       id-token: write
-    needs: [ build ]
-    uses: kartverket/smia-apps/.github/workflows/release-app-octo-sts.yml@main
+    needs: [ build, pharos ]
+    uses: kartverket/smia-workflows/.github/workflows/deploy-app.yml@main
     with:
       application: nibas-arbeidsliste
-      namespace: nibas-main
       version: ${{ needs.build.outputs.version }}
-      deploy_dev: true
-      deploy_prod: true
-      extra_namespace: nibas-e2e
+      digest: ${{ needs.build.outputs.digest }}
+      environment: dev
+      namespace: nibas-main
       identity: nibas
