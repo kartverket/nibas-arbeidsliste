@@ -1,4 +1,4 @@
-FROM dhi.io/eclipse-temurin:25-alpine3.24@sha256:e839cf792bc75ba4ecfc665fab79e8af108fadf46006954c87b7dd3c3f19d7a8 AS java-runtime
+FROM dhi.io/eclipse-temurin:25-alpine3.24@sha256:8da329a70f7794dd59467841e7476fd96a22fa5d3146c36811d3589b5205a5d0 AS java-runtime
 
 FROM alpine:3.24@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a AS cert-builder
 COPY --from=java-runtime /usr/lib/jvm/temurin-25/lib/security/blocked.certs /blocked.certs
